@@ -1,43 +1,43 @@
 name: Sync Reports to Tech-Blog
 
-  on:
-    push:
-      branches: [main]
-      paths:
-        - '**/*.html'
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.html'
 
-  jobs:
-    sync:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout deep-research
-          uses: actions/checkout@v4
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout deep-research
+        uses: actions/checkout@v4
 
-        - name: Checkout Tech-Blog
-          uses: actions/checkout@v4
-          with:
-            repository: Atituiset/Tech-Blog
-            token: ${{ secrets.SYNC_PAT }}
-            path: tech-blog
+      - name: Checkout Tech-Blog
+        uses: actions/checkout@v4
+        with:
+          repository: Atituiset/Tech-Blog
+          token: ${{ secrets.SYNC_PAT }}
+          path: tech-blog
 
-        - name: Sync HTML reports
-          run: |
-            mkdir -p tech-blog/public/research
-            find . -name '*.html' -not -path './tech-blog/*' -not -path './.git/*' | while read file; do
-              target="tech-blog/public/research/$file"
-              mkdir -p "$(dirname "$target")"
-              cp "$file" "$target"
-            done
+      - name: Sync HTML reports
+        run: |
+          mkdir -p tech-blog/public/research
+          find . -name '*.html' -not -path './tech-blog/*' -not -path './.git/*' | while read file; do
+            target="tech-blog/public/research/$file"
+            mkdir -p "$(dirname "$target")"
+            cp "$file" "$target"
+          done
 
-        - name: Commit and push changes
-          working-directory: tech-blog
-          run: |
-            git config user.name 'github-actions[bot]'
-            git config user.email 'github-actions[bot]@users.noreply.github.com'
-            git add public/research/
-            if git diff --cached --quiet; then
-              echo 'No changes to sync'
-            else
-              git commit -m 'sync: update research reports from deep-research'
-              git push
-            fi
+      - name: Commit and push changes
+        working-directory: tech-blog
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add public/research/
+          if git diff --cached --quiet; then
+            echo 'No changes to sync'
+          else
+            git commit -m 'sync: update research reports from deep-research'
+            git push
+          fi
