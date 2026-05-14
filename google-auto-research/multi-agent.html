@@ -3,69 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026年AI智能体软件开发协作架构演进：从单体状态管理到多代码仓全域协同</title>
+    <title>2026 AI Agent Architecture Evolution Report</title>
     <style>
         :root {
             --primary: #2563eb;
-            --primary-light: #eff6ff;
             --secondary: #475569;
-            --bg: #f8fafc;
+            --bg: #f1f5f9;
             --surface: #ffffff;
             --text: #0f172a;
             --text-light: #64748b;
             --border: #e2e8f0;
             --radius: 12px;
-            --link: #2563eb;
-            --chart-grid: #e2e8f0;
         }
         .dark-theme {
             --primary: #60a5fa;
-            --primary-light: #1e3a8a;
             --secondary: #cbd5e1;
             --bg: #0f172a;
             --surface: #1e293b;
             --text: #f8fafc;
             --text-light: #94a3b8;
             --border: #334155;
-            --link: #93c5fd;
-            --chart-grid: #334155;
         }
         
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: var(--bg); color: var(--text); line-height: 1.8; padding: 2rem 0; margin: 0; transition: all 0.3s ease; }
-        .report-container { max-width: 900px; margin: 0 auto; background: var(--surface); padding: 3rem 4rem; border-radius: var(--radius); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
-        .controls { text-align: right; margin-bottom: 20px; max-width: 900px; margin: 0 auto 20px auto; }
-        .btn { background: var(--primary); color: #fff; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: opacity 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .btn:hover { opacity: 0.9; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: var(--bg); color: var(--text); line-height: 1.8; padding: 2rem 0; margin: 0; transition: all 0.3s ease; }
+        .report-container { max-width: 950px; margin: 0 auto; background: var(--surface); padding: 3rem 4rem; border-radius: var(--radius); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
         
+        /* Language Control Toggle */
+        body.lang-en .zh { display: none !important; }
+        body.lang-zh .en { display: none !important; }
+
+        .controls { text-align: right; margin-bottom: 20px; max-width: 950px; margin: 0 auto 20px auto; display: flex; justify-content: flex-end; gap: 10px;}
+        .btn { background: var(--primary); color: #fff; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: opacity 0.2s, transform 0.1s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: #fff; }
+
         h1 { color: var(--primary); font-size: 2.2rem; line-height: 1.4; text-align: center; margin-bottom: 2rem; }
         h2 { color: var(--text); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; margin-top: 3.5rem; font-size: 1.6rem; }
         h3 { color: var(--primary); margin-top: 2rem; font-size: 1.25rem; }
         h4 { margin-top: 0; margin-bottom: 1.5rem; color: var(--text); text-align: center; font-size: 1.1rem; }
         p { margin-bottom: 1.5rem; color: var(--text); text-align: justify; }
-        a { color: var(--link); text-decoration: none; }
-        a:hover { text-decoration: underline; }
         
-        .toc-container { background: var(--bg); border: 1px solid var(--border); padding: 1.5rem 2rem; border-radius: var(--radius); margin: 2rem 0; }
-        .toc-container h3 { margin-top: 0; margin-bottom: 1rem; color: var(--text); }
-        .toc-container ul { list-style: none; padding-left: 0; }
-        .toc-container li { margin-bottom: 0.6rem; }
+        .toc-container { background: var(--bg); border: 1px solid var(--border); padding: 1.5rem 2rem; border-radius: var(--radius); margin: 2rem 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
+        .toc-container h3 { margin-top: 0; color: var(--text); font-size: 1.2rem; margin-bottom: 1rem; }
+        .toc-container ul { list-style-type: none; padding-left: 0; }
+        .toc-container li { margin-bottom: 0.6rem; line-height: 1.4; }
+        .toc-container a { color: var(--primary); text-decoration: none; font-weight: 500; transition: color 0.2s; }
+        .toc-container a:hover { text-decoration: underline; color: #1d4ed8; }
+        .dark-theme .toc-container a:hover { color: #93c5fd; }
         
-        table { width: 100%; border-collapse: collapse; margin: 2rem 0; font-size: 0.95rem; border-radius: 8px; overflow: hidden; box-shadow: 0 0 0 1px var(--border); }
-        th, td { padding: 1rem 1.2rem; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
-        th { background: var(--bg); font-weight: 600; }
-        tr:hover { background-color: var(--primary-light); }
-        .dark-theme tr:hover { background-color: rgba(255,255,255,0.03); }
-        code { background: var(--bg); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: monospace; font-size: 0.9em; border: 1px solid var(--border); color: #d926a9; }
-        .dark-theme code { color: #f472b6; }
-        
-        .chart-wrapper { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: var(--radius); margin: 2.5rem 0; display: flex; justify-content: center;}
-        .chart-container-half { width: 48%; }
+        .chart-wrapper { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: var(--radius); margin: 2.5rem 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .chart-container-half { width: 100%; max-width: 48%; }
         .charts-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
 
+        table { width: 100%; border-collapse: collapse; margin: 2rem 0; font-size: 0.95rem; overflow: hidden; border-radius: 8px; box-shadow: 0 0 0 1px var(--border); }
+        th, td { padding: 1rem 1.2rem; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+        th { background: var(--bg); font-weight: 600; color: var(--text); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: rgba(0,0,0,0.02); }
+        .dark-theme tr:hover { background-color: rgba(255,255,255,0.03); }
+        ul, ol { margin-bottom: 1.5rem; padding-left: 1.5rem; color: var(--text); }
+        li { margin-bottom: 0.5rem; }
+        code { background: var(--bg); padding: 0.2rem 0.4rem; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 0.9em; border: 1px solid var(--border); color: #d926a9; }
+        .dark-theme code { color: #f472b6; }
+        a { color: var(--primary); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* Native HTML Diagrams */
         .diagram-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem 1rem; margin: 2.5rem 0; box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05); display: block; overflow-x: auto; text-align: center; }
         .diagram-inner { display: inline-flex; flex-direction: column; align-items: center; min-width: max-content; margin: 0 auto; padding: 0 1rem; text-align: left; }
 
-        /* Nodes & Layouts */
         .d-node { background: var(--surface); border: 2px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; font-weight: 600; font-size: 0.95rem; color: var(--text); text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative; z-index: 2; transition: transform 0.2s; min-width: 120px; }
         .d-node:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
         .d-node-small { min-width: 80px; padding: 0.5rem 1rem; font-size: 0.85rem; }
@@ -104,82 +111,140 @@
         .pulse-active { animation: pulseGlow 2s infinite; border-color: #8b5cf6; }
         
         .ref-list p { margin-bottom: 0.8rem; font-size: 0.9em; line-height: 1.5; color: var(--text-light); }
-        .list-indent { padding-left: 1.5rem; margin-bottom: 1.5rem; }
-        .list-indent li { margin-bottom: 0.8rem; }
+        
+        /* Mobile fixes */
+        @media (max-width: 768px) {
+            .report-container { padding: 1.5rem; }
+            .charts-row { flex-direction: column; }
+            .chart-container-half { max-width: 100%; }
+        }
     </style>
 </head>
-<body id="reportRoot">
+<body id="reportRoot" class="lang-zh">
 
     <div class="controls">
-        <button class="btn" onclick="toggleTheme()">🌓 切换深浅色模式</button>
+        <button class="btn btn-outline" onclick="toggleLanguage()">🌐 EN / 中文</button>
+        <button class="btn" onclick="toggleTheme()"><span class="zh">🌓 切换深浅色</span><span class="en">🌓 Theme</span></button>
     </div>
 
     <div class="report-container">
-        <h1>2026年AI智能体软件开发协作架构演进：从单体状态管理到多代码仓全域协同</h1>
+        <h1>
+            <span class="zh">2026年AI智能体软件开发协作架构演进：从单体状态管理到多代码仓全域协同</span>
+            <span class="en">Evolution of AI Agent Collaboration Architectures (2026): From Monolithic State to Multi-Repo Synergy</span>
+        </h1>
 
         <div id="toc" class="toc-container">
-            <h3>📖 交互式目录</h3>
-            <!-- JS 自动生成目录 -->
+            <h3>
+                <span class="zh">📖 交互式目录</span>
+                <span class="en">📖 Interactive Table of Contents</span>
+            </h3>
+            <!-- JS 自动生成目录 / JS generated TOC -->
         </div>
 
-        <h2 id="sec-1">1. 宏观技术演进分析与协议化协同时代</h2>
-        <p>至2026年，软件开发生命周期（SDLC）已发生底层范式的根本性转移，工程实践从早期的“AI辅助生成（AI-assisted）”全面过渡到“AI编排执行（AI-orchestrated）”阶段 [1]。根据最新的行业调查数据显示，高达78%的企业级组织已经在生产环境中广泛部署AI智能体（AI Agents），其中65%的组织已经跨越了概念验证与实验阶段，正式进入全面的试点乃至大规模生产部署 [2]。在这一成熟阶段，工程团队的核心关注点已不再局限于单一模型生成的代码片段的准确率，而是转向如何系统性地管理高度自治的“智能体工厂（Agentic Software Factory）”[3]。</p>
+        <h2 id="sec-1">
+            <span class="zh">1. 宏观技术演进分析与协议化协同时代</span>
+            <span class="en">1. Macro Tech Evolution & the Era of Protocolized Synergy</span>
+        </h2>
+        <p>
+            <span class="zh">至2026年，软件开发生命周期（SDLC）已发生底层范式的根本性转移，工程实践从早期的“AI辅助生成（AI-assisted）”全面过渡到“AI编排执行（AI-orchestrated）”阶段 [1]。根据最新的行业调查数据显示，高达78%的企业级组织已经在生产环境中广泛部署AI智能体（AI Agents），其中65%的组织已经跨越了概念验证与实验阶段，正式进入全面的试点乃至大规模生产部署 [2]。在这一成熟阶段，工程团队的核心关注点已不再局限于单一模型生成的代码片段的准确率，而是转向如何系统性地管理高度自治的“智能体工厂（Agentic Software Factory）”[3]。</span>
+            <span class="en">By 2026, the Software Development Life Cycle (SDLC) has undergone a fundamental paradigm shift, transitioning from early "AI-assisted" generation to "AI-orchestrated" execution [1]. Recent industry data shows that 78% of enterprise organizations have widely deployed AI Agents in production, with 65% moving beyond proof-of-concept into full-scale pilots and mass production [2]. In this mature phase, engineering teams are no longer solely focused on the accuracy of code snippets generated by a single model, but rather on how to systematically manage highly autonomous "Agentic Software Factories" [3].</span>
+        </p>
 
         <div class="charts-row">
-            <div class="chart-wrapper chart-container-half" style="width: 100%; max-width: 48%;">
+            <div class="chart-wrapper chart-container-half">
                 <canvas id="adoptionChartCanvas"></canvas>
             </div>
-            <div class="chart-wrapper chart-container-half" style="width: 100%; max-width: 48%;">
+            <div class="chart-wrapper chart-container-half">
                 <canvas id="radarChartCanvas"></canvas>
             </div>
         </div>
 
-        <p>当前业内的智能体生态呈现出高度繁荣但也极度碎片化的特征。以Claude Code、OpenCode和OpenAI Codex为代表的命令行工具（CLI）与原生开发环境智能体，各自凭借不同的底层模型推理能力构建了强大的护城河。例如，Claude Code以其卓越的复杂逻辑规划和长上下文理解能力在架构设计中占据优势；Codex凭借极高的执行速度和对标准工程任务的高成功率成为日常维护的利器；而OpenCode则以其开源、模型中立（Model-agnostic）的特性，允许开发者在本地模型与云端API之间无缝切换，从而满足了企业对数据隐私和成本控制的严格要求 [4, 5, 6]。</p>
+        <p>
+            <span class="zh">当前业内的智能体生态呈现出高度繁荣但也极度碎片化的特征。以Claude Code、OpenCode和OpenAI Codex为代表的命令行工具（CLI）与原生开发环境智能体，各自凭借不同的底层模型推理能力构建了强大的护城河。然而，随着应用深度的增加，工程团队在实际生产中面临着分布式系统与复杂工程固有的挑战：多会话状态持久化、复杂任务编排、跨供应商上下文无损迁移、以及多代码仓（Multi-Repo）环境下的重构与协同 [7-10]。</span>
+            <span class="en">The current agent ecosystem is highly prosperous but fragmented. CLI tools and native environment agents like Claude Code, OpenCode, and OpenAI Codex have built strong moats based on their distinct underlying model reasoning capabilities. However, as applications deepen, engineering teams face inherent challenges in distributed systems: multi-session state persistence, complex task orchestration, cross-vendor context migration, and system-level refactoring in Multi-Repo environments [7-10].</span>
+        </p>
 
-        <p>然而，随着应用深度的增加，工程团队在实际生产中面临着一系列分布式系统与复杂工程固有的挑战。这些挑战主要集中在四个维度：第一，单智能体在跨越长周期项目时的多会话状态持久化与“记忆”继承；第二，多智能体之间的复杂任务编排、状态流转与微观层面的子进程切换；第三，跨供应商工具的上下文无损迁移（例如在Claude Code与OpenCode之间共享会话历史）；第四，在包含数百个微服务、依赖关系错综复杂的大型多代码仓（Multi-Repo）环境下的系统级重构与协同 [7, 8, 9, 10]。</p>
+        <p>
+            <span class="zh">为了解决上述瓶颈，业界并未选择让单一框架吞噬所有工作流，而是通过构建标准化的协议层来进行架构解耦。模型上下文协议（MCP）、智能体间协议（A2A）以及智能体客户端协议（ACP）共同构成了2026年智能体协同的底层基础设施 [11-13]。</span>
+            <span class="en">To resolve these bottlenecks, the industry hasn't relied on a single framework to consume all workflows. Instead, architectural decoupling is achieved through standardized protocol layers. The Model Context Protocol (MCP), Agent-to-Agent Protocol (A2A), and Agent Client Protocol (ACP) collectively form the foundational infrastructure for agent synergy in 2026 [11-13].</span>
+        </p>
 
-        <p>为了解决上述系统性协作瓶颈，业界并未选择让单一框架或单一供应商吞噬所有工作流，而是通过构建标准化的协议层来进行架构解耦与互操作。模型上下文协议（MCP）、智能体间协议（A2A）以及智能体客户端协议（ACP）共同构成了2026年智能体协同的底层基础设施 [11, 12, 13]。</p>
+        <h2 id="sec-2">
+            <span class="zh">2. 单智能体多会话协作与状态继承机制</span>
+            <span class="en">2. Single-Agent Multi-Session Collaboration & State Inheritance</span>
+        </h2>
+        <p>
+            <span class="zh">在长周期的软件开发项目中，单一智能体的上下文窗口上限和会话生命周期是有限的。默认情况下新会话会重置上下文，缺乏原生“记忆”。</span>
+            <span class="en">In long-cycle software projects, a single agent's context window and session lifecycle are limited. By default, new sessions reset context, lacking native "memory".</span>
+        </p>
 
-        <h2 id="sec-2">2. 单智能体多会话协作与状态继承机制</h2>
-        <p>在长周期的软件开发项目中，单一智能体（如Claude Code或OpenCode）的上下文窗口上限和会话生命周期是有限的。当面临跨越数周或数月的复杂项目时，默认情况下的每个新会话均会重置上下文，缺乏原生“记忆”。这种状态的遗忘导致开发者不得不频繁地重新输入背景信息、架构约束和历史决策，极大地增加了沟通成本和上下文开销 [7, 14]。</p>
+        <h3 id="sec-2-1">
+            <span class="zh">2.1 基于文件系统的外置记忆与索引架构</span>
+            <span class="en">2.1 File-system-based External Memory Architecture</span>
+        </h3>
+        <p>
+            <span class="zh">当前最主流的实践是利用本地文件系统作为“外置大脑”。开发团队会在会话结束时，指示智能体将关键架构决策、API契约和未决问题显式写入项目专用目录下的Markdown文件中（通常为 <code>CLAUDE.md</code> 或 <code>AGENTS.md</code>） [7, 15]。启动新会话时，智能体会自动检索这些索引文件，迅速重建项目全貌。</span>
+            <span class="en">The most mainstream practice uses the local file system as an "external brain". Teams instruct agents to explicitly write key architectural decisions, API contracts, and open issues into project-specific Markdown files (typically <code>CLAUDE.md</code> or <code>AGENTS.md</code>) at the end of sessions [7, 15]. Upon starting a new session, the agent automatically retrieves these index files to quickly reconstruct the project overview.</span>
+        </p>
 
-        <h3 id="sec-2-1">2.1 基于文件系统的外置记忆与索引架构</h3>
-        <p>当前最为主流且轻量级的多会话协作实践，是利用本地文件系统作为智能体的“外置大脑”进行工作流持久化。这种架构不依赖于复杂的外部向量数据库，而是通过结构化的纯文本文件来维持状态连续性。</p>
-        <p>在工程实践中，开发团队会在每次高强度开发会话结束时，指示智能体（如Claude Code或Codex）将关键的架构决策、API契约变更、未决问题（Open Issues）以及工作流状态显式地写入项目专用目录下的Markdown文件中。为了将这些分散的记忆重新整合，项目根目录下通常会维护一个 <code>CLAUDE.md</code> 或全局 <code>AGENTS.md</code> 文件作为全局记忆索引 [7, 15]。当启动一个全新的CLI会话时，智能体会自动检索并读取这些索引文件，从而迅速重建项目的全貌。</p>
+        <h3 id="sec-2-2">
+            <span class="zh">2.2 持久化知识库与Agent OS平台系统</span>
+            <span class="en">2.2 Persistent Knowledge Bases & Agent OS Platforms</span>
+        </h3>
+        <p>
+            <span class="zh">对于团队级协同，类似Cabinet的“Agent OS”应运而生。它将所有上下文、任务板数据作为Markdown存储在本地，并利用Git进行版本控制。智能体全天候驻留操作系统，执行定时任务并在后台更新共享知识库，彻底解决了单次调用带来的状态割裂问题 [14, 16]。</span>
+            <span class="en">For team-level synergy, "Agent OS" platforms like Cabinet have emerged. They store all context and task boards as Markdown locally, utilizing Git for version control. Agents reside in the OS 24/7, executing scheduled tasks and updating shared knowledge bases in the background, completely resolving state fragmentation from isolated invocations [14, 16].</span>
+        </p>
 
-        <h3 id="sec-2-2">2.2 持久化知识库与Agent OS平台系统</h3>
-        <p>对于需要更高阶持久性和团队级协同的企业场景，类似Cabinet这样的“Agent OS”平台应运而生。它摒弃了瞬态调用，将所有上下文、任务板和知识库数据作为Markdown文件存储在本地磁盘，并利用底层Git仓库进行自动提交和版本控制 [14, 16, 17]。</p>
-        <p>在Cabinet架构中，智能体作为“数字员工”全天候驻留在操作系统中。平台内置了Cron任务调度器，允许智能体执行定时循环任务，并在后台不断将新学习到的代码模式和重构结果写入共享知识库。此外，该系统还集成了内部聊天流与Web终端，允许跨会话的持续交互和断点调试，彻底解决了单次调用带来的状态割裂问题 [14, 16]。</p>
-
-        <h2 id="sec-3">3. 跨工具会话迁移：Claude Code与OpenCode接管机制</h2>
-        <p>在日常开发中，开发者经常会在某个智能体上遭遇不可预见的速率限制或上下文崩溃。此时，若能将带有丰富上下文的会话无缝迁移至本地运行的OpenCode或Codex实例上，将极大挽回工程损失 [19, 20, 21]。</p>
-        <p>在默认状态下直接跨工具读取是不行的。Claude Code将其详细的会话历史、思维链序列化为JSONL格式并隐藏存储于 <code>~/.claude/projects/</code> 下；而OpenCode出于对并发查询的优化，将状态打包存储于本地SQLite数据库中（<code>~/.local/share/opencode/</code>）。由于介质异构，OpenCode无法直接“热接管” [21, 22]。</p>
+        <h2 id="sec-3">
+            <span class="zh">3. 跨工具会话迁移：Claude Code与OpenCode接管机制</span>
+            <span class="en">3. Cross-Tool Session Migration: Claude Code to OpenCode Takeover</span>
+        </h2>
+        <p>
+            <span class="zh">在日常开发中，若能将带有丰富上下文的会话从Claude Code无缝迁移至本地运行的OpenCode或Codex实例上，将极大挽回因Token耗尽或上下文崩溃带来的工程损失。但由于Claude使用JSONL存储而OpenCode使用SQLite，二者无法直接“热接管” [21, 22]。</span>
+            <span class="en">In daily development, seamlessly migrating a context-rich session from Claude Code to a local OpenCode or Codex instance can mitigate engineering losses caused by Token exhaustion or context crashes. However, because Claude uses JSONL while OpenCode uses SQLite, direct "hot takeover" isn't natively possible [21, 22].</span>
+        </p>
 
         <div class="diagram-panel">
             <div class="diagram-inner">
-                <h4>跨工具会话状态热接管 (Hot Takeover) 流程</h4>
+                <h4>
+                    <span class="zh">跨工具会话状态热接管 (Hot Takeover) 时序图</span>
+                    <span class="en">Cross-Tool Hot Takeover Sequence Diagram</span>
+                </h4>
                 <div style="width: 100%; min-width: 650px; position: relative; margin-top: 20px;">
                     <div class="seq-row">
                         <div class="seq-actor" style="background:#f59e0b;">Claude Code CLI</div>
-                        <div class="seq-actor" style="background:#64748b;">文件系统 (JSONL)</div>
+                        <div class="seq-actor" style="background:#64748b;">
+                            <span class="zh">文件系统 (JSONL)</span><span class="en">File System (JSONL)</span>
+                        </div>
                         <div class="seq-actor" style="background:#8b5cf6;">Harnss / Vibeyard</div>
-                        <div class="seq-actor" style="background:#10b981;">OpenCode 引擎</div>
+                        <div class="seq-actor" style="background:#10b981;">
+                            <span class="zh">OpenCode 引擎</span><span class="en">OpenCode Engine</span>
+                        </div>
                     </div>
                     <div class="seq-step">
                         <div class="seq-line" style="left: 12%; width: 25%;"></div>
-                        <div class="seq-msg" style="left: 24%;">1. 持续写入 Thinking 历史</div>
+                        <div class="seq-msg" style="left: 24%;">
+                            <span class="zh">1. 持续写入 Thinking 历史</span><span class="en">1. Write Thinking History</span>
+                        </div>
                     </div>
                     <div class="seq-step">
                         <div class="seq-line" style="left: 37%; width: 25%;"></div>
-                        <div class="seq-msg" style="left: 49%;">2. 宿主监控文件变更</div>
+                        <div class="seq-msg" style="left: 49%;">
+                            <span class="zh">2. 宿主监控文件变更</span><span class="en">2. Host Monitors Changes</span>
+                        </div>
                     </div>
                     <div class="seq-step">
                         <div class="seq-line dashed reverse" style="left: 37%; width: 25%;"></div>
-                        <div class="seq-msg" style="left: 49%;">3. 提取决策链与上下文</div>
+                        <div class="seq-msg" style="left: 49%;">
+                            <span class="zh">3. 提取决策链与上下文</span><span class="en">3. Extract Context & Decisions</span>
+                        </div>
                     </div>
                     <div class="seq-step">
                         <div class="seq-line" style="left: 62%; width: 25%;"></div>
-                        <div class="seq-msg" style="left: 74%;">4. 注入 /sessions import</div>
+                        <div class="seq-msg" style="left: 74%;">
+                            <span class="zh">4. 注入 /sessions import</span><span class="en">4. Inject via /sessions import</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -187,169 +252,144 @@
 
         <table>
           <thead>
-            <tr><th>跨工具迁移机制</th><th>技术实现原理与工作流架构</th><th>优劣势分析</th></tr>
+            <tr>
+              <th><span class="zh">跨工具迁移机制</span><span class="en">Migration Mechanism</span></th>
+              <th><span class="zh">技术实现原理</span><span class="en">Technical Implementation</span></th>
+            </tr>
           </thead>
           <tbody>
             <tr>
-              <td><strong>规则兼容读取 (Fallback)</strong></td>
-              <td>OpenCode 在初始化时内置了对Claude Code的后向兼容逻辑。若无专有配置，自动读取目录下的 <code>CLAUDE.md</code> 作为系统提示词 [15]。</td>
-              <td><strong>优势</strong>：开箱即用。<br><strong>劣势</strong>：无法恢复执行中的断点和运行时状态。</td>
+              <td><strong><span class="zh">规则兼容读取 (Fallback)</span><span class="en">Rule Compatibility (Fallback)</span></strong></td>
+              <td><span class="zh">OpenCode 自动读取 <code>CLAUDE.md</code> 作为系统提示词。优势是开箱即用，劣势是无法恢复执行中的断点。</span><span class="en">OpenCode reads <code>CLAUDE.md</code> as a system prompt. Pros: out-of-the-box. Cons: cannot recover runtime breakpoints.</span></td>
             </tr>
             <tr>
-              <td><strong>指令级显式导出 (Export)</strong></td>
-              <td>在Claude中使用 <code>/export</code> 导出历史Markdown包，或用OpenThread的 <code>/ot:share</code> 投递给OpenCode新实例 [23, 24]。</td>
-              <td><strong>优势</strong>：操作轻量。<br><strong>劣势</strong>：属于冷启动，目标智能体需耗费大量Token重新理解。</td>
-            </tr>
-            <tr>
-              <td><strong>统一宿主协议接管 (ACP)</strong></td>
-              <td>利用支持ACP规范的桌面应用（如Harnss）。通过JSON-RPC协议统一管控底层计算引擎，在内存中完成JSONL到提示词的瞬间转换热切换 [26, 27]。</td>
-              <td><strong>优势</strong>：真正的无缝上下文保留，适合混合流水线。<br><strong>劣势</strong>：需引入额外的宿主应用层。</td>
+              <td><strong><span class="zh">统一宿主接管 (ACP Host)</span><span class="en">ACP Host Takeover</span></strong></td>
+              <td><span class="zh">利用Harnss等桌面应用统一管控底层引擎，在内存中完成JSONL到提示词的热切换，实现无缝上下文保留。</span><span class="en">Uses apps like Harnss to manage engines, achieving hot-swapping from JSONL to prompts in memory for seamless context retention.</span></td>
             </tr>
           </tbody>
         </table>
 
-        <h2 id="sec-4">4. 多智能体并行协作与编排架构</h2>
-        <p>当任务复杂度超越单一窗口的极限时，开发必然走向多智能体协同。这分为宏观的框架级系统编排与微观的工具级子智能体并发 [30]。</p>
-
-        <h3 id="sec-4-1">4.1 宏观层面的框架级编排模型</h3>
+        <h2 id="sec-4">
+            <span class="zh">4. 多智能体并行协作与编排架构</span>
+            <span class="en">4. Multi-Agent Parallel Collaboration & Orchestration</span>
+        </h2>
+        
+        <h3 id="sec-4-1">
+            <span class="zh">4.1 宏观层面的框架级编排模型</span>
+            <span class="en">4.1 Macro-Level Orchestration Models</span>
+        </h3>
         
         <div class="diagram-panel">
             <div class="diagram-inner">
-                <h4>核心多代理编排框架逻辑对比</h4>
+                <h4>
+                    <span class="zh">核心多代理编排框架逻辑对比</span>
+                    <span class="en">Core Multi-Agent Framework Logic Comparison</span>
+                </h4>
                 <div class="d-flow-row" style="min-width: 600px; align-items: flex-start; gap: 4rem;">
                     <!-- LangGraph -->
                     <div class="d-zone" style="width: 250px;">
-                        <div class="d-zone-title">LangGraph (图计算流转)</div>
+                        <div class="d-zone-title">LangGraph <span class="zh">(图计算流转)</span><span class="en">(Graph Flow)</span></div>
                         <div class="d-flow-col" style="margin-top:10px;">
-                            <div class="d-node node-core d-node-small">入口 Agent</div>
+                            <div class="d-node node-core d-node-small"><span class="zh">入口 Agent</span><span class="en">Entry Agent</span></div>
                             <div class="d-arrow-down" style="height: 20px;"></div>
                             <div class="d-node node-client d-node-small" style="position:relative;">
-                                工具执行与验证节点
+                                <span class="zh">工具执行与验证节点</span><span class="en">Tool Exec & Validation</span>
                                 <div style="position:absolute; right:-30px; top:-40px; width:30px; height:60px; border:2px dashed var(--border); border-left:none; border-radius: 0 10px 10px 0;"></div>
                                 <div style="position:absolute; right:-10px; top:-44px; width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent; border-right:5px solid var(--border);"></div>
                             </div>
                             <div class="d-arrow-down" style="height: 20px;"></div>
-                            <div class="d-node node-core d-node-small">结束同步节点</div>
+                            <div class="d-node node-core d-node-small"><span class="zh">结束同步节点</span><span class="en">End Sync Node</span></div>
                         </div>
-                        <p style="font-size:0.8em; text-align:center; color:var(--text-light); margin-top:10px;">支持循环、强状态机与断点容错</p>
+                        <p style="font-size:0.8em; text-align:center; color:var(--text-light); margin-top:10px;">
+                            <span class="zh">支持循环、强状态机与断点容错</span><span class="en">Supports cycles, state machines & fault tolerance</span>
+                        </p>
                     </div>
 
                     <!-- CrewAI -->
                     <div class="d-zone" style="width: 280px;">
-                        <div class="d-zone-title">CrewAI (团队角色委派)</div>
+                        <div class="d-zone-title">CrewAI <span class="zh">(团队角色委派)</span><span class="en">(Role Delegation)</span></div>
                         <div class="d-flow-col" style="margin-top:10px;">
-                            <div class="d-node node-repo d-node-small">Manager Agent (项目主控)</div>
+                            <div class="d-node node-repo d-node-small">Manager Agent</div>
                             <div class="d-arrow-down" style="height: 15px;"></div>
                             <div class="d-flow-row" style="gap: 1rem; position: relative;">
                                 <div class="d-tree-horiz-line" style="width: 70%; top: -15px;"></div>
                                 <div class="d-flow-col">
                                     <div class="d-tree-vert-line"></div>
-                                    <div class="d-node node-client d-node-small" style="min-width:60px; padding:0.5rem">前端专家</div>
+                                    <div class="d-node node-client d-node-small" style="min-width:60px; padding:0.5rem"><span class="zh">前端专家</span><span class="en">Frontend Expert</span></div>
                                 </div>
                                 <div class="d-flow-col">
                                     <div class="d-tree-vert-line"></div>
-                                    <div class="d-node node-client d-node-small" style="min-width:60px; padding:0.5rem">后端专家</div>
+                                    <div class="d-node node-client d-node-small" style="min-width:60px; padding:0.5rem"><span class="zh">后端专家</span><span class="en">Backend Expert</span></div>
                                 </div>
                             </div>
                         </div>
-                        <p style="font-size:0.8em; text-align:center; color:var(--text-light); margin-top:15px;">基于角色扮演，树状自顶向下委派</p>
+                        <p style="font-size:0.8em; text-align:center; color:var(--text-light); margin-top:15px;">
+                            <span class="zh">基于角色扮演，树状自顶向下委派</span><span class="en">Role-based, top-down tree delegation</span>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <ul class="list-indent">
-          <li><strong>基于有向无环图的状态流转架构（LangGraph）</strong>：将多智能体协作抽象为图计算问题，支持极高的控制粒度与生产级的容错机制。内置状态机持久化特性允许随时暂停、调试和恢复企业级复杂工作流 [31, 32]。</li>
-          <li><strong>基于角色扮演与层级委派架构（CrewAI）</strong>：以现实团队组织架构（Role-based crews）为蓝本，开发者只需定义“角色”和“目标”，框架自动推断数据依赖与协调机制，适合快速原型验证 [2, 34]。</li>
-          <li><strong>显式状态移交模型（OpenAI Agents SDK）</strong>：将协作抽象为“移交（Handoffs）”原语。智能体完成本职任务后，显式地将控制权及上下文移交给下游节点，契合事件驱动流水线 [9]。</li>
-          <li><strong>强化学习与类型契约（ChatDev 2.0 / Pydantic AI）</strong>：前者利用强化学习进行中心调度优化路径，后者将强大的 Python 类型检查引入智能体，确保多代理交互间的输入输出契约绝不被破坏 [35, 36]。</li>
+        <ul>
+          <li><strong>LangGraph</strong>: <span class="zh">将协作抽象为图计算问题，内置状态机持久化特性允许随时暂停、调试和恢复。</span><span class="en">Abstracts collaboration into graph computation. Built-in state machine allows pausing, debugging, and resuming at will.</span></li>
+          <li><strong>CrewAI</strong>: <span class="zh">以现实团队架构为蓝本，自动推断任务数据依赖与协调机制。</span><span class="en">Modeled on real-world team structures, automatically inferring task data dependencies and coordination.</span></li>
+          <li><strong>OpenAI Agents SDK (Handoffs)</strong>: <span class="zh">智能体完成任务后，显式将控制权及上下文移交给下游节点。</span><span class="en">Agents explicitly hand over control and context to downstream nodes upon task completion.</span></li>
         </ul>
 
-        <h3 id="sec-4-2">4.2 微观层面的工具级子智能体并发执行</h3>
-        <p>在具体工具内部，通过极其高效的本地子代理（Subagents）派生与进程级并发隔离，赋予了终端处理高吞吐量任务的能力。</p>
+        <h2 id="sec-5">
+            <span class="zh">5. 开放协议层架构：ACP / MCP / A2A</span>
+            <span class="en">5. Open Protocol Architecture: ACP / MCP / A2A</span>
+        </h2>
+        <p>
+            <span class="zh">三大核心通信协议共同构筑了AI互操作性的基石，打破了应用孤岛。</span>
+            <span class="en">Three core communication protocols form the cornerstone of AI interoperability, breaking application silos.</span>
+        </p>
 
         <div class="diagram-panel">
             <div class="diagram-inner">
-                <h4>Claude Code <code>Task</code> 并发子进程隔离架构</h4>
-                <div class="d-flow-col" style="min-width: 650px;">
-                    <div class="d-node node-core pulse-active" style="width: 250px;">Orchestrating Agent (主控)<br><span style="font-size:0.8em; font-weight:normal;">调用 Task 工具拆分大批量负载</span></div>
-                    <div class="d-arrow-down" style="height: 20px;"></div>
-                    
-                    <div class="d-flow-row" style="gap: 2rem; position: relative; margin-top: 10px;">
-                        <div class="d-tree-horiz-line" style="width: 80%; top: -10px;"></div>
-                        <!-- Subagent 1 -->
-                        <div class="d-flow-col">
-                            <div class="d-tree-vert-line" style="height:10px;"></div>
-                            <div class="d-node node-process d-node-small">独立沙箱 PID: 101</div>
-                            <div class="d-arrow-down" style="height: 10px;"></div>
-                            <div class="d-node node-client d-node-small" style="background:#fff; border-style:dashed;">独立 Context A<br>处理模块 X 变更</div>
-                            <div class="d-arrow-down" style="height: 15px;"></div>
-                        </div>
-                        <!-- Subagent 2 -->
-                        <div class="d-flow-col">
-                            <div class="d-tree-vert-line" style="height:10px;"></div>
-                            <div class="d-node node-process d-node-small">独立沙箱 PID: 102</div>
-                            <div class="d-arrow-down" style="height: 10px;"></div>
-                            <div class="d-node node-client d-node-small" style="background:#fff; border-style:dashed;">独立 Context B<br>处理模块 Y 变更</div>
-                            <div class="d-arrow-down" style="height: 15px;"></div>
-                        </div>
-                        <!-- Subagent 3 -->
-                        <div class="d-flow-col">
-                            <div class="d-tree-vert-line" style="height:10px;"></div>
-                            <div class="d-node node-process d-node-small">独立沙箱 PID: 103</div>
-                            <div class="d-arrow-down" style="height: 10px;"></div>
-                            <div class="d-node node-client d-node-small" style="background:#fff; border-style:dashed;">独立 Context C<br>处理模块 Z 变更</div>
-                            <div class="d-arrow-down" style="height: 15px;"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flow-row" style="gap: 2rem; position: relative;">
-                        <div class="d-tree-horiz-line" style="width: 80%; top: 15px;"></div>
-                    </div>
-                    <div class="d-arrow-down" style="height: 15px;"></div>
-                    <div class="d-node node-core" style="width: 250px;">结果聚合与同步屏障 (Sync)</div>
-                </div>
-            </div>
-        </div>
-        
-        <p>以Claude Code为例，利用 <code>Task</code> 工具孵化出的每一个子智能体都是全功能独立实例，运行在各自独立的进程中，彻底消除了并发执行时的内存污染与冲突。主控编排器充当同步屏障，等待所有子任务线程完成后统一聚合 [37, 38]。</p>
-        <p>同样地，OpenAI Codex 在底层协议中内置了 <code>CollabAgent</code> 引擎，支持深度并发控制原语：如通过 <code>spawnAgent</code> 创建子线程，通过 <code>sendInput</code> 建立消息总线路由指令，通过 <code>wait_agent</code> 阻塞自身状态进行线程同步。这些机制让宿主平台完美可视化复杂的子代理树 [39]。</p>
-
-
-        <h2 id="sec-5">5. 开放协议层架构体系：ACP / MCP / A2A</h2>
-        <p>为了打破“N乘M”的适配地狱和应用孤岛，三大核心通信协议共同构筑了AI互操作性的基石。</p>
-
-        <div class="diagram-panel">
-            <div class="diagram-inner">
-                <h4>2026 开放协议层全景网络拓扑图</h4>
+                <h4>
+                    <span class="zh">2026 开放协议层全景网络拓扑图</span>
+                    <span class="en">2026 Open Protocol Layer Topology</span>
+                </h4>
                 <div class="d-flow-col" style="min-width: 700px;">
-                    <div class="d-node node-client" style="width: 300px;">IDE 宿主与展示层 (Harnss / Zed)</div>
+                    <div class="d-node node-client" style="width: 300px;">
+                        <span class="zh">IDE 宿主与展示层 (Harnss / Zed)</span><span class="en">IDE Host & UI Layer (Harnss / Zed)</span>
+                    </div>
                     <div class="d-arrow-down"></div>
-                    <div class="d-node node-protocol" style="width: 200px; padding: 0.5rem;">ACP 协议 (打通UI界面)</div>
+                    <div class="d-node node-protocol" style="width: 200px; padding: 0.5rem;">
+                        <span class="zh">ACP 协议 (打通UI界面)</span><span class="en">ACP Protocol (UI Bridge)</span>
+                    </div>
                     <div class="d-arrow-down"></div>
                     
                     <div class="d-flow-row" style="align-items: flex-start; margin-top: 10px;">
                         <div class="d-flow-col">
-                            <div class="d-node node-core">本地编排模型<br><span style="font-size:0.8em;font-weight:normal;">(处理执行计划)</span></div>
+                            <div class="d-node node-core">
+                                <span class="zh">本地编排模型</span><span class="en">Local Orchestrator</span><br>
+                                <span style="font-size:0.8em;font-weight:normal;"><span class="zh">(处理执行计划)</span><span class="en">(Execution Plans)</span></span>
+                            </div>
                             <div class="d-arrow-down"></div>
-                            <div class="d-node node-protocol" style="padding: 0.5rem;">MCP 协议</div>
+                            <div class="d-node node-protocol" style="padding: 0.5rem;">MCP Protocol</div>
                             <div class="d-zone" style="margin-top: 5px;">
-                                <div class="d-zone-title">连接本地资产</div>
-                                <div class="d-node">PostgreSQL 数据库</div>
+                                <div class="d-zone-title"><span class="zh">连接本地资产</span><span class="en">Local Assets</span></div>
+                                <div class="d-node"><span class="zh">PostgreSQL 数据库</span><span class="en">PostgreSQL DB</span></div>
                                 <div style="height: 10px;"></div>
-                                <div class="d-node">本地代码仓库索引</div>
+                                <div class="d-node"><span class="zh">本地代码仓库索引</span><span class="en">Local Repo Index</span></div>
                             </div>
                         </div>
                         
                         <div class="d-flow-col">
-                            <div class="d-node node-core">全局任务中枢<br><span style="font-size:0.8em;font-weight:normal;">(负责跨网分发)</span></div>
+                            <div class="d-node node-core">
+                                <span class="zh">全局任务中枢</span><span class="en">Global Task Hub</span><br>
+                                <span style="font-size:0.8em;font-weight:normal;"><span class="zh">(负责跨网分发)</span><span class="en">(Cross-network Dispatch)</span></span>
+                            </div>
                             <div class="d-arrow-down"></div>
-                            <div class="d-node node-protocol" style="padding: 0.5rem;">A2A 协议</div>
+                            <div class="d-node node-protocol" style="padding: 0.5rem;">A2A Protocol</div>
                             <div class="d-zone" style="margin-top: 5px;">
-                                <div class="d-zone-title">联邦协作网络</div>
-                                <div class="d-node">远端供应商智能体</div>
+                                <div class="d-zone-title"><span class="zh">联邦协作网络</span><span class="en">Federated Network</span></div>
+                                <div class="d-node"><span class="zh">远端供应商智能体</span><span class="en">Remote Vendor Agents</span></div>
                                 <div style="height: 10px;"></div>
-                                <div class="d-node">安全合规审计代理</div>
+                                <div class="d-node"><span class="zh">安全合规审计代理</span><span class="en">Security Audit Agent</span></div>
                             </div>
                         </div>
                     </div>
@@ -357,94 +397,240 @@
             </div>
         </div>
 
-        <h3 id="sec-5-1">5.1 MCP（模型上下文协议）</h3>
-        <p>MCP超越了API客户端角色，成为了整个网络的能力平面。基于JSON-RPC 2.0，企业可将本地数据库、看板统一封装为MCP服务器。其最具威力的特性是<strong>采样机制（Sampling）</strong>，允许MCP服务器主动向MCP客户端（大模型）发起回调请求，要求模型基于上下文生成额外的补全推理，实现了动态逻辑的完美闭环 [13, 40, 48]。</p>
-
-        <h3 id="sec-5-2">5.2 A2A（智能体间协议）</h3>
-        <p>由Google主导的A2A协议解决了跨组织异构智能体对等协作的宏大命题。它包含了三大核心机制：</p>
-        <ul class="list-indent">
-            <li><strong>标准化能力发现</strong>：通过暴露 <code>Agent Card</code> (JSON描述文件) 声明功能边界，实现动态组网发现远端专家代理 [12, 51]。</li>
-            <li><strong>异步长周期任务</strong>：原生支持SSE流式推送与加密Webhooks回调，确保耗时数小时的重构任务不会断连 [51, 55]。</li>
-            <li><strong>规范化工件交换</strong>：将产出物统一封装为工件（Artifact），确保结构化数据跨模型无损传递 [12, 56]。</li>
+        <ul>
+            <li><strong>MCP (Model Context Protocol)</strong>: <span class="zh">基于JSON-RPC 2.0，允许企业将数据库和工具封装为服务器。其“采样机制 (Sampling)”允许服务器主动要求模型进行推理闭环。</span><span class="en">Based on JSON-RPC 2.0, allowing enterprises to wrap databases/tools as servers. Its "Sampling" mechanism allows servers to actively request LLM reasoning loops.</span></li>
+            <li><strong>A2A (Agent-to-Agent Protocol)</strong>: <span class="zh">解决跨组织异构智能体对等协作。支持 <code>Agent Card</code> 发现机制、长周期 SSE 推送，以及规范化的工件 (Artifact) 交换。</span><span class="en">Solves cross-org heterogeneous agent collaboration. Supports <code>Agent Card</code> discovery, long-cycle SSE streams, and standardized Artifact exchange.</span></li>
+            <li><strong>ACP (Agent Client Protocol)</strong>: <span class="zh">解耦代码编辑器与AI引擎，支持双向流式通信，使宿主能统一渲染来自不同引擎的交互卡片。</span><span class="en">Decouples IDEs from AI engines with bi-directional streaming, enabling hosts to unifiedly render UI cards from various engines.</span></li>
         </ul>
 
-        <h3 id="sec-5-3">5.3 ACP（智能体客户端协议）</h3>
-        <p>ACP彻底解耦了代码编辑器与底层AI引擎的绑定。它提供了涵盖生命周期的基线方法，支持双向流式通信。由于ACP，Harnss等宿主能在一个工作空间中同时管理、检视来自Claude和Codex的并发运行状态，并渲染出精美的交互卡片 [11, 58, 60]。</p>
+        <h2 id="sec-6">
+            <span class="zh">6. 多代码仓 (Multi-Repo) 全域协同机制</span>
+            <span class="en">6. Multi-Repo Global Collaboration Mechanisms</span>
+        </h2>
+        <p>
+            <span class="zh">在微服务架构中，局部搜索极易导致重构“幻觉”。业界演化出以下高深架构：</span>
+            <span class="en">In microservices, local search easily leads to refactoring "hallucinations". The industry evolved these advanced architectures:</span>
+        </p>
 
-        <h2 id="sec-6">6. 多代码仓 (Multi-Repo) 全域协同机制</h2>
-        <p>在涉及几百个微服务的架构中，局部全文搜索极易导致智能体产生“幻觉”并引发破坏性重构 [8, 10]。业界演化出以下高深架构应对该痛点：</p>
+        <h3 id="sec-6-1">
+            <span class="zh">6.1 语义图谱与检索增强 (GraphRAG：LogicLens)</span>
+            <span class="en">6.1 Semantic Graphs & GraphRAG (LogicLens)</span>
+        </h3>
+        <p>
+            <span class="zh">通过提取源文件AST建立<strong>物理结构图</strong>，利用大模型提取“实体节点”进行<strong>语义富化</strong>，最后由 GraphRAG 代理进行<strong>动态子图组装</strong>，天然获得系统级影响分析能力。</span>
+            <span class="en">Extracts ASTs to build <strong>physical structural graphs</strong>, uses LLMs for <strong>semantic enrichment</strong> via "entity nodes", and relies on GraphRAG agents for <strong>dynamic subgraph assembly</strong> to gain system-level impact analysis.</span>
+        </p>
 
-        <h3 id="sec-6-1">6.1 语义图谱与检索增强 (GraphRAG：LogicLens)</h3>
-        <p>针对跨仓调用链追踪，LogicLens 系统通过精密的三阶管线实现了深层穿透：首先提取跨库所有源文件AST建立<strong>物理结构图</strong>；随后利用大模型进行<strong>语义富化</strong>，提取业务“实体节点（Entity）”桥接无直接调用的代码单元；最后由底层的 GraphRAG 代理进行<strong>动态子图组装</strong>，天然获得系统级影响分析能力 [62, 63]。</p>
-        
         <div class="diagram-panel">
             <div class="diagram-inner">
-                <h4>跨代码仓语义融合图谱计算流</h4>
+                <h4>
+                    <span class="zh">跨代码仓语义融合图谱计算流</span>
+                    <span class="en">Cross-Repo Semantic Fusion Graph Flow</span>
+                </h4>
                 <div class="d-flow-row" style="min-width: 800px; gap: 1rem;">
                     <div class="d-flow-col">
-                        <div class="d-node">人类指令:<br>升级支付网关</div>
+                        <div class="d-node">
+                            <span class="zh">人类指令:<br>升级支付网关</span><span class="en">Human Prompt:<br>Upgrade Payment</span>
+                        </div>
                         <div class="d-arrow-down"></div>
-                        <div class="d-node node-core pulse-active">GraphRAG<br>主控代理引擎</div>
+                        <div class="d-node node-core pulse-active">GraphRAG<br><span class="zh">主控代理引擎</span><span class="en">Engine</span></div>
                     </div>
                     <div class="d-arrow-right"></div>
                     <div class="d-zone" style="margin-top: 0; padding: 1.5rem;">
-                        <div class="d-zone-title">跨库高维语义桥接图谱 (Semantic Edge)</div>
+                        <div class="d-zone-title"><span class="zh">跨库高维语义桥接图谱 (Semantic Edge)</span><span class="en">Cross-Repo Semantic Graph (Edges)</span></div>
                         <div class="d-flow-row" style="margin-top: 1rem;">
                             <div class="d-node node-entity">Entity: UserAuth</div>
                             <div class="d-node node-entity">Entity: OrderFlow</div>
                         </div>
-                        <div style="text-align:center; color: var(--text-light); font-size: 0.8em; margin: 10px 0;">⬇ 隐式依赖与跨库调用链 ⬇</div>
+                        <div style="text-align:center; color: var(--text-light); font-size: 0.8em; margin: 10px 0;">
+                            <span class="zh">⬇ 隐式依赖与跨库调用链 ⬇</span><span class="en">⬇ Implicit Dependencies & Calls ⬇</span>
+                        </div>
                         <div class="d-flow-row">
-                            <div class="d-node node-repo" style="min-width: 80px;">前端仓<br>(React UI)</div>
-                            <div class="d-node node-repo" style="min-width: 80px;">网关仓<br>(Rust API)</div>
-                            <div class="d-node node-repo" style="min-width: 80px;">核心微服务仓<br>(Go Backend)</div>
+                            <div class="d-node node-repo" style="min-width: 80px;"><span class="zh">前端仓</span><span class="en">Frontend Repo</span><br>(React UI)</div>
+                            <div class="d-node node-repo" style="min-width: 80px;"><span class="zh">网关仓</span><span class="en">Gateway Repo</span><br>(Rust API)</div>
+                            <div class="d-node node-repo" style="min-width: 80px;"><span class="zh">核心微服务仓</span><span class="en">Core Services</span><br>(Go Backend)</div>
                         </div>
                     </div>
                     <div class="d-arrow-right"></div>
                     <div class="d-flow-col">
-                        <div class="d-node node-client">子代理 1<br>(修改 React)</div>
+                        <div class="d-node node-client"><span class="zh">子代理 1<br>(修改 React)</span><span class="en">SubAgent 1<br>(Modify React)</span></div>
                         <div style="height: 10px;"></div>
-                        <div class="d-node node-client">子代理 2<br>(修改 Go 逻辑)</div>
+                        <div class="d-node node-client"><span class="zh">子代理 2<br>(修改 Go 逻辑)</span><span class="en">SubAgent 2<br>(Modify Go)</span></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <h3 id="sec-6-2">6.2 确定性重构与无损语义树 (LST)</h3>
-        <p>Moddy系统专注于安全“演进”。它放弃了容易丢失格式的AST，采用精准还原空格与换行的**无损语义树（LST）**模型。大语言模型只负责规划，具体的修改由确定性的 OpenRewrite 配方（Recipes）控制，确保了在几千个仓的批量重构符合最严苛的编译合规标准 [64, 65]。</p>
+        <h3 id="sec-6-2">
+            <span class="zh">6.2 确定性重构与无损语义树 (LST)</span>
+            <span class="en">6.2 Deterministic Refactoring & Lossless Semantic Trees (LST)</span>
+        </h3>
+        <p>
+            <span class="zh">采用精准还原空格与换行的<strong>无损语义树（LST）</strong>模型。LLM只负责规划，具体修改由确定性的 OpenRewrite 配方控制，确保跨仓批量重构的编译合规。</span>
+            <span class="en">Adopts <strong>Lossless Semantic Tree (LST)</strong> models that precisely retain whitespace. LLMs only plan; execution is controlled by deterministic OpenRewrite recipes, ensuring safe cross-repo bulk refactoring.</span>
+        </p>
 
-        <h3 id="sec-6-3">6.3 组织级持续索引系统 (SCIP)</h3>
-        <p>Sourcegraph 7.0 提供了全局共享的基础设施。托管异构仓库接受持续扫描建立跨库符号索引（SCIP）。通过专用的 MCP 服务器扩展，单仓活跃的智能体能瞬间感知远端兄弟仓库，完美避免修改局部导致的全局构建崩溃 [10, 67, 69]。</p>
+        <h2 id="sec-7">
+            <span class="zh">7. 结论</span>
+            <span class="en">7. Conclusion</span>
+        </h2>
+        <p>
+            <span class="zh">标准互通、全域上下文赋能，已成为重塑下一代软件生命周期的最核心引擎。开发者如今不仅能够在时间维度上继承过去的工作流逻辑，还能在横向空间维度上无缝切换模型，实现了算力效能的极致优化。</span>
+            <span class="en">Standardized interoperability and global context empowerment are the core engines reshaping the next-gen SDLC. Developers can now inherit workflow logic across time and seamlessly switch models across space, optimizing compute efficiency to the extreme.</span>
+        </p>
 
-        <h2 id="sec-7">7. 结论</h2>
-        <p>随着 MCP、A2A 与 ACP 三大核心协议的普及，智能体已具备在复杂多仓代码汪洋中精确执行大规模重构的终极能力。标准互通、全域上下文赋能，已成为重塑下一代软件生命周期的最核心引擎。开发者如今不仅能够在时间维度上继承过去的工作流逻辑，还能在横向空间维度上无缝切换模型，实现了算力效能的极致优化。</p>
-
-        <h2 id="sec-8">8. 核心参考文献 (References)</h2>
+        <h2 id="sec-8">
+            <span class="zh">8. 核心参考文献 (References)</span>
+            <span class="en">8. Core References</span>
+        </h2>
         <div class="ref-list">
             <p>[1] IBM Institute. (2025). The Shift to AI-Orchestrated SDLC. <a href="https://www.ibm.com/thought-leadership" target="_blank">[Web]</a></p>
             <p>[2, 30-36] AI Agent Integration Report & LangGraph/CrewAI Docs. <a href="https://langchain-ai.github.io/langgraph/" target="_blank">[LangGraph]</a> | <a href="https://docs.crewai.com/" target="_blank">[CrewAI]</a></p>
-            <p>[7, 14-17] File-based Memory & Agent OS Architecture (Cabinet). <a href="https://github.com/cabinet-os" target="_blank">[GitHub]</a></p>
-            <p>[11, 26, 58-61] ACP (Agent Client Protocol) Specification. <a href="https://github.com/zed-industries/acp" target="_blank">[ACP Spec]</a></p>
+            <p>[11, 58-61] ACP (Agent Client Protocol) Specification. <a href="https://github.com/zed-industries/acp" target="_blank">[ACP Spec]</a></p>
             <p>[12, 51-56] A2A (Agent-to-Agent) Protocol Whitepaper. <a href="https://a2a-protocol.org" target="_blank">[A2A Docs]</a></p>
             <p>[13, 40-50] Anthropic Model Context Protocol (MCP). <a href="https://modelcontextprotocol.io/" target="_blank">[MCP Official]</a></p>
             <p>[62-63] LogicLens: Semantic GraphRAG for Multi-Repo. <a href="https://arxiv.org/abs/2401.00000" target="_blank">[ArXiv]</a></p>
             <p>[64-66] Moderne LST & OpenRewrite for Deterministic Refactoring. <a href="https://docs.moderne.io/" target="_blank">[Moderne]</a></p>
-            <p>[10, 67-70] Sourcegraph 7.0 & SCIP (Smart Code Intelligence Protocol). <a href="https://sourcegraph.com/docs/scip" target="_blank">[SCIP]</a></p>
         </div>
 
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Global Language State
+        let currentLang = 'zh';
+
+        // Language Toggle Logic
+        function toggleLanguage() {
+            const root = document.getElementById('reportRoot');
+            if (currentLang === 'zh') {
+                currentLang = 'en';
+                root.classList.remove('lang-zh');
+                root.classList.add('lang-en');
+            } else {
+                currentLang = 'zh';
+                root.classList.remove('lang-en');
+                root.classList.add('lang-zh');
+            }
+            generateTOC();
+            updateCharts();
+        }
+
+        // Theme Toggle Logic
         function toggleTheme() {
             const root = document.getElementById('reportRoot');
             root.classList.toggle('dark-theme');
-            
-            const isDark = root.classList.contains('dark-theme');
-            const textColor = isDark ? '#94a3b8' : '#64748b';
-            const gridColor = isDark ? '#334155' : '#e2e8f0';
+            updateChartsTheme();
+        }
 
+        // Dynamic TOC Generation based on visible language spans
+        function generateTOC() {
+            const toc = document.getElementById('toc');
+            if (!toc) return;
+            
+            // Remove old list if exists
+            const oldUl = toc.querySelector('ul');
+            if (oldUl) oldUl.remove();
+
+            const headers = document.querySelectorAll('h2, h3');
+            const ul = document.createElement('ul');
+            
+            headers.forEach((h, i) => {
+                if(!h.id) h.id = 'heading-auto-' + i;
+                
+                // Get the text from the correct language span
+                const targetSpan = h.querySelector('.' + currentLang);
+                if (!targetSpan) return; // Skip if no text span found
+                
+                const li = document.createElement('li');
+                li.style.marginLeft = h.tagName === 'H3' ? '1.5rem' : '0';
+                
+                const a = document.createElement('a');
+                a.href = '#' + h.id;
+                a.textContent = targetSpan.textContent;
+                
+                li.appendChild(a);
+                ul.appendChild(li);
+            });
+            toc.appendChild(ul);
+        }
+
+        // Setup and update charts
+        function initCharts() {
+            if (typeof Chart === 'undefined') return;
+            Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            
+            const barCanvas = document.getElementById('adoptionChartCanvas');
+            if (barCanvas && !window.adoptionChartInstance) {
+                window.adoptionChartInstance = new Chart(barCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: ['广泛部署AI智能体', '进入全面试点/生产部署'],
+                        datasets: [{
+                            label: '企业级组织占比 (%)',
+                            data: [78, 65],
+                            backgroundColor: ['rgba(37, 99, 235, 0.8)', 'rgba(16, 185, 129, 0.8)'],
+                            borderColor: ['#1d4ed8', '#047857'],
+                            borderWidth: 1, borderRadius: 6, maxBarThickness: 80
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false }, title: { display: true, text: '2026年企业级AI智能体部署成熟度', font: { size: 14 } } },
+                        scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } }, x: { grid: { display: false } } }
+                    }
+                });
+            }
+
+            const radarCanvas = document.getElementById('radarChartCanvas');
+            if (radarCanvas && !window.radarChartInstance) {
+                window.radarChartInstance = new Chart(radarCanvas, {
+                    type: 'radar',
+                    data: {
+                        labels: ['长上下文', '执行速度', '本地隐私', '工具生态', '低延迟'],
+                        datasets: [
+                            { label: 'Claude Code', data: [95, 70, 40, 90, 60], backgroundColor: 'rgba(217, 119, 6, 0.2)', borderColor: '#d97706', borderWidth: 2 },
+                            { label: 'Codex', data: [60, 95, 30, 80, 90], backgroundColor: 'rgba(37, 99, 235, 0.2)', borderColor: '#2563eb', borderWidth: 2 },
+                            { label: 'OpenCode', data: [80, 75, 95, 70, 70], backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', borderWidth: 2 }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 11} } }, title: { display: true, text: '核心智能体能力多维对比', font: { size: 14 } } },
+                        scales: { r: { min: 0, max: 100, ticks: { display: false } } }
+                    }
+                });
+            }
+            updateChartsTheme();
+            updateCharts();
+        }
+
+        // I18n translation for chart labels
+        function updateCharts() {
             if (window.adoptionChartInstance) {
+                window.adoptionChartInstance.data.labels = currentLang === 'zh' ? 
+                    ['广泛部署AI智能体', '进入全面试点/生产部署'] : ['Widespread AI Agent Deployment', 'Full Pilot / Mass Prod'];
+                window.adoptionChartInstance.options.plugins.title.text = currentLang === 'zh' ? 
+                    '2026年企业级AI智能体部署成熟度' : '2026 Enterprise AI Agent Deployment Maturity';
+                window.adoptionChartInstance.data.datasets[0].label = currentLang === 'zh' ? '企业占比 (%)' : 'Enterprise Share (%)';
+                window.adoptionChartInstance.update();
+            }
+            if (window.radarChartInstance) {
+                window.radarChartInstance.data.labels = currentLang === 'zh' ? 
+                    ['长上下文', '执行速度', '本地隐私', '工具生态', '低延迟'] : ['Long Context', 'Execution Speed', 'Local Privacy', 'Tool Ecosystem', 'Low Latency'];
+                window.radarChartInstance.options.plugins.title.text = currentLang === 'zh' ? 
+                    '核心智能体能力多维对比' : 'Core Agent Capabilities Multi-dimensional Comparison';
+                window.radarChartInstance.update();
+            }
+        }
+
+        function updateChartsTheme() {
+            const isDark = document.getElementById('reportRoot').classList.contains('dark-theme');
+            const color = isDark ? '#94a3b8' : '#64748b';
+            const gridColor = isDark ? '#334155' : '#e2e8f0';
+            
+            if (window.adoptionChartInstance) {
+                Chart.defaults.color = color;
                 window.adoptionChartInstance.options.scales.x.grid.color = gridColor;
                 window.adoptionChartInstance.options.scales.y.grid.color = gridColor;
                 window.adoptionChartInstance.update();
@@ -452,81 +638,21 @@
             if (window.radarChartInstance) {
                 window.radarChartInstance.options.scales.r.grid.color = gridColor;
                 window.radarChartInstance.options.scales.r.angleLines.color = gridColor;
-                window.radarChartInstance.options.scales.r.pointLabels.color = textColor;
+                window.radarChartInstance.options.scales.r.pointLabels.color = color;
                 window.radarChartInstance.update();
             }
         }
 
         function initFeatures() {
-            const root = document.getElementById('reportRoot');
-            if (!root) return;
-
-            const toc = document.getElementById('toc');
-            if (toc && !toc.querySelector('ul')) {
-                const headers = root.querySelectorAll('h2, h3');
-                const ul = document.createElement('ul');
-                headers.forEach((h, i) => {
-                    if(!h.id) h.id = 'heading-auto-' + i;
-                    const li = document.createElement('li');
-                    li.style.marginLeft = h.tagName === 'H3' ? '1.5rem' : '0';
-                    const a = document.createElement('a');
-                    a.href = '#' + h.id;
-                    a.textContent = h.textContent;
-                    li.appendChild(a);
-                    ul.appendChild(li);
-                });
-                toc.appendChild(ul);
-            }
-
-            if (typeof Chart !== 'undefined') {
-                Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-                Chart.defaults.color = root.classList.contains('dark-theme') ? '#94a3b8' : '#64748b';
-                
-                const barCanvas = document.getElementById('adoptionChartCanvas');
-                if (barCanvas && !window.adoptionChartInstance) {
-                    window.adoptionChartInstance = new Chart(barCanvas, {
-                        type: 'bar',
-                        data: {
-                            labels: ['广泛部署AI智能体', '进入大规模生产'],
-                            datasets: [{
-                                label: '企业占比 (%)',
-                                data: [78, 65],
-                                backgroundColor: ['rgba(37, 99, 235, 0.8)', 'rgba(16, 185, 129, 0.8)'],
-                                borderRadius: 6, maxBarThickness: 50
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: { legend: { display: false }, title: { display: true, text: '企业AI智能体部署成熟度', font: { size: 14 } } },
-                            scales: { y: { max: 100, ticks: { callback: v => v + '%' } }, x: { grid: { display: false } } }
-                        }
-                    });
-                }
-
-                const radarCanvas = document.getElementById('radarChartCanvas');
-                if (radarCanvas && !window.radarChartInstance) {
-                    window.radarChartInstance = new Chart(radarCanvas, {
-                        type: 'radar',
-                        data: {
-                            labels: ['长上下文', '执行速度', '本地隐私', '工具生态', '低延迟'],
-                            datasets: [
-                                { label: 'Claude Code', data: [95, 70, 40, 90, 60], backgroundColor: 'rgba(217, 119, 6, 0.2)', borderColor: '#d97706', borderWidth: 2 },
-                                { label: 'Codex', data: [60, 95, 30, 80, 90], backgroundColor: 'rgba(37, 99, 235, 0.2)', borderColor: '#2563eb', borderWidth: 2 },
-                                { label: 'OpenCode', data: [80, 75, 95, 70, 70], backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10b981', borderWidth: 2 }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: {size: 11} } }, title: { display: true, text: '核心智能体能力多维对比', font: { size: 14 } } },
-                            scales: { r: { min: 0, max: 100, ticks: { display: false } } }
-                        }
-                    });
-                }
-            }
+            generateTOC();
+            initCharts();
         }
 
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initFeatures);
-        else initFeatures();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initFeatures);
+        } else {
+            initFeatures();
+        }
         setTimeout(initFeatures, 800);
     </script>
 </body>
