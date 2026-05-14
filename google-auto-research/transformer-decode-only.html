@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformer 架构深层剖析：为何青睐 Decoder-Only | Dual-Perspective Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- 加载 KaTeX 用于渲染数学公式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Language Toggle Styles */
+        .lang-en { display: none; }
+        [data-lang="en"] .lang-zh { display: none; }
+        [data-lang="en"] .lang-en { display: block; }
+        [data-lang="en"] span.lang-en { display: inline; }
+        
+        /* Perspective Toggle Styles */
+        .persp-senior { display: none; }
+        .persp-beginner { display: none; }
+        
+        /* When Expert is selected (default) */
+        [data-perspective="expert"] .persp-senior { display: none; }
+        [data-perspective="expert"] .persp-beginner { display: none; }
+        [data-perspective="expert"] .persp-expert { display: block; }
+        [data-perspective="expert"] span.persp-expert { display: inline; }
+
+        /* When Senior is selected */
+        [data-perspective="senior"] .persp-expert { display: none; }
+        [data-perspective="senior"] .persp-beginner { display: none; }
+        [data-perspective="senior"] .persp-senior { display: block; }
+        [data-perspective="senior"] span.persp-senior { display: inline; }
+
+        /* When Beginner is selected */
+        [data-perspective="beginner"] .persp-expert { display: none; }
+        [data-perspective="beginner"] .persp-senior { display: none; }
+        [data-perspective="beginner"] .persp-beginner { display: block; }
+        [data-perspective="beginner"] span.persp-beginner { display: inline; }
+
+        /* Control Panel */
+        #control-panel {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .toggle-btn {
+            padding: 0.4rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+        
+        .toggle-btn.active-persp { background: #1e293b; color: white; }
+        .toggle-btn.inactive-persp { background: #f1f5f9; color: #475569; border-color: #e2e8f0; }
+        .toggle-btn.inactive-persp:hover { background: #e2e8f0; color: #1e293b; }
+
+        .toggle-btn.lang-btn { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+        .toggle-btn.lang-btn:hover { background: #dbeafe; }
+
+        .math-block { overflow-x: auto; padding: 1rem 0; }
+        .gradient-text { background: linear-gradient(90deg, #1e3a8a, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .gradient-text-expert { background: linear-gradient(90deg, #059669, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-blue-200 selection:text-blue-900" data-lang="zh" data-perspective="expert">
+
+<div id="control-panel">
+    <button class="toggle-btn lang-btn" onclick="toggleLanguage()">
+        <span class="lang-zh">🌐 Read in English</span>
+        <span class="lang-en">🌐 切换至中文</span>
+    </button>
+    <div class="flex gap-1 mt-1">
+        <button id="btn-beginner" class="toggle-btn inactive-persp flex-1" onclick="setPerspective('beginner')">
+            <span class="lang-zh">🌱 初入行视角</span>
+            <span class="lang-en">🌱 Entry-Level</span>
+        </button>
+        <button id="btn-expert" class="toggle-btn active-persp flex-1" onclick="setPerspective('expert')">
+            <span class="lang-zh">🔬 专家视角</span>
+            <span class="lang-en">🔬 Expert</span>
+        </button>
+        <button id="btn-senior" class="toggle-btn inactive-persp flex-1" onclick="setPerspective('senior')">
+            <span class="lang-zh">🏭 资深视角</span>
+            <span class="lang-en">🏭 Senior</span>
+        </button>
+    </div>
+</div>
+
+<div class="max-w-6xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+    
+    <!-- HEADER SECTION -->
+    <header class="text-center mb-16 border-b border-slate-200 pb-12">
+        <div class="persp-beginner inline-block bg-sky-600 text-sky-50 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase mb-4 font-mono">Entry-Level Engineer Perspective</div>
+        <div class="persp-senior inline-block bg-slate-800 text-slate-100 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase mb-4 font-mono">Senior Engineering & Research Perspective</div>
+        <div class="persp-expert inline-block bg-emerald-700 text-emerald-50 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase mb-4 font-mono">Algorithm & Interpretability Perspective</div>
+        
+        <!-- Beginner Title -->
+        <div class="persp-beginner">
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-6 lang-zh leading-tight">
+                为什么放弃 Encoder？<br/>
+                <span class="bg-gradient-to-r from-sky-500 to-blue-500 -webkit-background-clip-text text-transparent bg-clip-text">从 Seq2Seq 到统一生成式架构的直觉</span>
+            </h1>
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-6 lang-en leading-tight">
+                Why Abandon Encoder?<br/>
+                <span class="bg-gradient-to-r from-sky-500 to-blue-500 -webkit-background-clip-text text-transparent bg-clip-text">Intuition from Seq2Seq to Generative AI</span>
+            </h1>
+            <p class="text-lg text-slate-600 max-w-4xl mx-auto leading-relaxed lang-zh">
+                对于初入大模型领域的开发者而言，理解架构演进的关键在于弄清范式的转换：AI 领域是如何从为每个 NLP 任务“定制结构并微调”，走向用统一的“自回归（Autoregressive）”生成模型解决所有问题的。
+            </p>
+            <p class="text-lg text-slate-600 max-w-4xl mx-auto leading-relaxed lang-en">
+                For developers entering the LLM field, the key is understanding the paradigm shift: how AI moved from "custom architectures and fine-tuning" per NLP task, to solving everything with a unified "Autoregressive" generative model.
+            </p>
+        </div>
+
+        <!-- Senior Title -->
+        <div class="persp-senior">
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-6 lang-zh leading-tight">
+                Transformer 架构演进：<br/>
+                <span class="gradient-text">系统工程与信息论视角的 Decoder 必然性</span>
+            </h1>
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-6 lang-en leading-tight">
+                Transformer Evolution:<br/>
+                <span class="gradient-text">Systemic and Information-Theoretic Inevitability of Decoder-Only</span>
+            </h1>
+            <p class="text-lg text-slate-600 max-w-4xl mx-auto leading-relaxed lang-zh">
+                跳过表层的 Scaling 现象，本文深入探究 Continuous Batching 内存碎片化、隐式梯度下降（In-Context Learning 作为 SGD）以及生成式与去噪目标的优化流形差异，从底层逻辑复盘大模型抛弃 Encoder 的根本原因。
+            </p>
+            <p class="text-lg text-slate-600 max-w-4xl mx-auto leading-relaxed lang-en">
+                Bypassing surface-level scaling phenomena, this report deep-dives into memory fragmentation in Continuous Batching, implicit gradient descent (ICL as SGD), and optimization manifold divergences between generative and denoising objectives.
+            </p>
+        </div>
+
+        <!-- Expert Title -->
+        <div class="persp-expert">
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-6 lang-zh leading-tight">
+                Transformer 架构演进：<br/>
+                <span class="gradient-text-expert">从秩崩塌到感应头的机理剖析</span>
+            </h1>
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-6 lang-en leading-tight">
+                Transformer Evolution:<br/>
+                <span class="gradient-text-expert">From Rank Collapse to Induction Heads</span>
+            </h1>
+            <p class="text-lg text-slate-600 max-w-4xl mx-auto leading-relaxed lang-zh">
+                深入探究注意力矩阵的特征值衰减、机械可解释性（Mechanistic Interpretability）中的神经回路生长，以及底层 CUDA 算力的 IO 映射极限。
+            </p>
+            <p class="text-lg text-slate-600 max-w-4xl mx-auto leading-relaxed lang-en">
+                Deep diving into attention matrix eigenvalue decay, neural circuit growth in Mechanistic Interpretability, and IO mapping limits of underlying CUDA compute capabilities.
+            </p>
+        </div>
+    </header>
+
+    <!-- ==================== BEGINNER PERSPECTIVE CONTENT ==================== -->
+    <div class="persp-beginner">
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-slate-900 mb-8 border-l-4 border-sky-500 pl-4 lang-zh">0. 历史脉络：从“专才”到“通才”的演进</h2>
+            <h2 class="text-2xl font-bold text-slate-900 mb-8 border-l-4 border-sky-500 pl-4 lang-en">0. Historical Context: From "Specialist" to "Generalist"</h2>
+            
+            <div class="relative border-l-2 border-slate-200 ml-4 space-y-8 mb-8 pb-4">
+                <div class="relative pl-6">
+                    <div class="absolute w-4 h-4 bg-slate-300 rounded-full -left-[9px] top-1 border-4 border-white"></div>
+                    <div class="font-mono text-sm text-slate-500 font-bold mb-1">2017</div>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-zh">Transformer 诞生：机器翻译的 Seq2Seq</h4>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-en">Transformer Born: Seq2Seq for Translation</h4>
+                    <p class="text-sm text-slate-600 lang-zh">最初是为了替代 RNN 做机器翻译。Encoder 负责看懂源语言（如英语），Decoder 负责生成目标语言（如法语）。此时依然是针对特定任务设计的结构。</p>
+                    <p class="text-sm text-slate-600 lang-en">Originally built to replace RNNs for translation. Encoder reads source language, Decoder generates target language. Still a task-specific design.</p>
+                </div>
+                <div class="relative pl-6">
+                    <div class="absolute w-4 h-4 bg-sky-300 rounded-full -left-[9px] top-1 border-4 border-white"></div>
+                    <div class="font-mono text-sm text-sky-600 font-bold mb-1">2018 - 2019</div>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-zh">BERT 时代：Encoder 预训练主导</h4>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-en">The BERT Era: Encoder Pre-training Dominates</h4>
+                    <p class="text-sm text-slate-600 lang-zh">Google 推出 BERT，抛弃 Decoder，仅用 Encoder 做“完形填空”。在文本分类、阅读理解等任务上刷新榜单。AI 界普遍认为“双向理解”才是王道。</p>
+                    <p class="text-sm text-slate-600 lang-en">Google launched BERT, dropping Decoder, using Encoder for "Fill-in-the-blank". It dominated classification tasks. The industry believed "Bidirectional understanding" was king.</p>
+                </div>
+                <div class="relative pl-6">
+                    <div class="absolute w-4 h-4 bg-blue-500 rounded-full -left-[9px] top-1 border-4 border-sky-100 shadow-sm ring-2 ring-sky-200"></div>
+                    <div class="font-mono text-sm text-blue-600 font-bold mb-1">2020 - 至今</div>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-zh">GPT-3 与大一统：纯 Decoder 吞噬一切</h4>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-en">GPT-3 & Unification: Decoder Devours All</h4>
+                    <p class="text-sm text-slate-600 lang-zh">OpenAI GPT-3 证明了只要规模够大，通过纯 Decoder 的“单向文字接龙”，模型就能学会所有的任务。我们不再需要为了不同任务调整模型结构。</p>
+                    <p class="text-sm text-slate-600 lang-en">OpenAI's GPT-3 proved at scale, pure Decoder's "word continuation" learns all tasks. We no longer tweak model architectures for different tasks.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-sky-500 pl-4 lang-zh">1. 架构定位：双向特征提取 vs 单向自回归</h2>
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-sky-500 pl-4 lang-en">1. Positioning: Bidirectional Extraction vs Autoregressive</h2>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-8">
+                <p class="text-slate-600 mb-6 lang-zh">在早期（如 2018-2020），业内普遍认为 Encoder 负责“理解”，Decoder 负责“生成”。让我们从最经典的基座模型来对比它们的定位：</p>
+                <p class="text-slate-600 mb-6 lang-en">In the early days (2018-2020), the industry believed Encoders were for "understanding" and Decoders for "generation". Let's compare their foundation models:</p>
+
+                <div class="mt-8 mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200">
+                    <h4 class="text-center text-sm font-bold text-slate-700 mb-6 lang-zh">注意力机制信息流动方向对比</h4>
+                    <h4 class="text-center text-sm font-bold text-slate-700 mb-6 lang-en">Attention Information Flow Comparison</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Encoder Diagram -->
+                        <div class="relative flex flex-col items-center">
+                            <span class="text-xs font-mono bg-rose-100 text-rose-700 px-2 py-1 rounded mb-4">Encoder (Bidirectional)</span>
+                            <div class="flex gap-4 z-10 relative">
+                                <div class="w-10 h-10 rounded-full bg-white border-2 border-slate-300 flex items-center justify-center text-sm font-bold shadow-sm">A</div>
+                                <div class="w-10 h-10 rounded-full bg-white border-2 border-slate-300 flex items-center justify-center text-sm font-bold shadow-sm">B</div>
+                                <div class="w-10 h-10 rounded-full bg-rose-500 border-2 border-rose-600 flex items-center justify-center text-sm font-bold text-white shadow-sm ring-4 ring-rose-200 relative">C</div>
+                                <div class="w-10 h-10 rounded-full bg-white border-2 border-slate-300 flex items-center justify-center text-sm font-bold shadow-sm">D</div>
+                            </div>
+                            <svg class="absolute top-14 left-0 w-full h-16 pointer-events-none" style="z-index: 5;">
+                                <!-- Arrows pointing to C from everywhere -->
+                                <path d="M 25% 10% Q 40% 90% 50% 10%" fill="transparent" stroke="#f43f5e" stroke-width="2" marker-end="url(#arrow-rose)"></path>
+                                <path d="M 40% 10% Q 45% 60% 50% 10%" fill="transparent" stroke="#f43f5e" stroke-width="2" marker-end="url(#arrow-rose)"></path>
+                                <path d="M 75% 10% Q 60% 90% 50% 10%" fill="transparent" stroke="#f43f5e" stroke-width="2" marker-end="url(#arrow-rose)"></path>
+                                <path d="M 60% 10% Q 55% 60% 50% 10%" fill="transparent" stroke="#f43f5e" stroke-width="2" marker-end="url(#arrow-rose)"></path>
+                            </svg>
+                            <p class="text-xs text-slate-500 mt-12 text-center lang-zh">目标 Token (C) 可以“看”到前后所有的上下文信息，信息高度混合。</p>
+                            <p class="text-xs text-slate-500 mt-12 text-center lang-en">Target Token (C) can "see" all context, front and back. Info is highly mixed.</p>
+                        </div>
+                        <!-- Decoder Diagram -->
+                        <div class="relative flex flex-col items-center">
+                            <span class="text-xs font-mono bg-sky-100 text-sky-700 px-2 py-1 rounded mb-4">Decoder (Causal / Autoregressive)</span>
+                            <div class="flex gap-4 z-10 relative">
+                                <div class="w-10 h-10 rounded-full bg-white border-2 border-slate-300 flex items-center justify-center text-sm font-bold shadow-sm">A</div>
+                                <div class="w-10 h-10 rounded-full bg-white border-2 border-slate-300 flex items-center justify-center text-sm font-bold shadow-sm">B</div>
+                                <div class="w-10 h-10 rounded-full bg-sky-500 border-2 border-sky-600 flex items-center justify-center text-sm font-bold text-white shadow-sm ring-4 ring-sky-200">C</div>
+                                <div class="w-10 h-10 rounded-full bg-slate-100 border-2 border-slate-200 border-dashed flex items-center justify-center text-sm font-bold text-slate-400">?</div>
+                            </div>
+                            <svg class="absolute top-14 left-0 w-full h-16 pointer-events-none" style="z-index: 5;">
+                                <!-- Arrows pointing to C only from left -->
+                                <path d="M 25% 10% Q 40% 90% 50% 10%" fill="transparent" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrow-sky)"></path>
+                                <path d="M 40% 10% Q 45% 60% 50% 10%" fill="transparent" stroke="#0ea5e9" stroke-width="2" marker-end="url(#arrow-sky)"></path>
+                                <!-- Cross out right side -->
+                                <line x1="60%" y1="30%" x2="70%" y2="70%" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"></line>
+                                <line x1="70%" y1="30%" x2="60%" y2="70%" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"></line>
+                            </svg>
+                            <p class="text-xs text-slate-500 mt-12 text-center lang-zh">严格遵守因果律，Token (C) 只能获取过去的输入，用来预测未来。</p>
+                            <p class="text-xs text-slate-500 mt-12 text-center lang-en">Strict causality. Token (C) only accesses past inputs to predict the future.</p>
+                        </div>
+                    </div>
+                    <!-- SVG Defs for Arrows -->
+                    <svg style="display:none;">
+                        <defs>
+                            <marker id="arrow-rose" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#f43f5e"/></marker>
+                            <marker id="arrow-sky" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#0ea5e9"/></marker>
+                        </defs>
+                    </svg>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 flex flex-col items-center text-center">
+                        <div class="text-xs font-mono text-slate-500 mb-2">BERT / T5 (Encoder 端)</div>
+                        <h3 class="font-bold text-slate-800 mb-2 lang-zh">双向注意力 (Bidirectional)</h3>
+                        <h3 class="font-bold text-slate-800 mb-2 lang-en">Bidirectional Attention</h3>
+                        <p class="text-sm text-slate-600 lang-zh">能够同时看到 Token 的上下文（通过 Masked Language Modeling 训练）。非常适合做文本分类、命名实体识别（NER）等需要**全局视角**的任务。但在开放式长文本生成上效率低下，存在训练和推理的差异。</p>
+                        <p class="text-sm text-slate-600 lang-en">Sees left and right context simultaneously (trained via MLM). Excellent for classification and NER which need a **global view**. However, it's inefficient for open-ended generation and suffers from train-infer discrepancies.</p>
+                    </div>
+                    <div class="bg-sky-50 p-6 rounded-xl border border-sky-200 flex flex-col items-center text-center">
+                        <div class="text-xs font-mono text-sky-600 mb-2">GPT 系列 (Decoder-Only)</div>
+                        <h3 class="font-bold text-sky-800 mb-2 lang-zh">因果掩码 (Causal Masking)</h3>
+                        <h3 class="font-bold text-sky-800 mb-2 lang-en">Causal Masking</h3>
+                        <p class="text-sm text-slate-600 lang-zh">严格遵守因果律，当前 Token 只能看到之前的 Token。通过**下一个词预测 (Next Token Prediction)** 训练。天然适配自回归生成（Autoregressive），生成出的每一个词都可以无缝加入下一次的上下文中。</p>
+                        <p class="text-sm text-slate-600 lang-en">Strictly follows causality; current token only sees past tokens. Trained via **Next Token Prediction**. Natively suited for Autoregressive generation, seamlessly appending generated tokens to context.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-indigo-500 pl-4 lang-zh">2. 范式转换：Prompting 消解了特定任务的微调架构</h2>
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-indigo-500 pl-4 lang-en">2. Paradigm Shift: Prompting Obsoletes Task-Specific Architectures</h2>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-8">
+                <p class="text-slate-600 mb-6 lang-zh">真正让 Decoder 一统天下的，是 OpenAI GPT-3 带来的范式转移：**In-Context Learning (上下文学习)**。我们不再需要为了特定任务去修改模型结构（比如在 Encoder 顶部加一个分类头 Classifier Head ）。</p>
+                <p class="text-slate-600 mb-6 lang-en">What truly crowned the Decoder was the paradigm shift brought by GPT-3: **In-Context Learning (ICL)**. We no longer need to modify model architectures for specific tasks (e.g., adding a Classifier Head on top of an Encoder).</p>
+
+                <div class="flex flex-col gap-6 mb-8">
+                    <!-- Fine-Tuning Arch -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 relative overflow-hidden shadow-sm">
+                        <div class="absolute right-0 top-0 bg-slate-300 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">Old Paradigm</div>
+                        <h4 class="font-bold text-slate-700 mb-4 text-sm lang-zh">旧范式：预训练 + 针对任务修改结构微调 (Fine-tune)</h4>
+                        <h4 class="font-bold text-slate-700 mb-4 text-sm lang-en">Old Paradigm: Pre-train & Fine-tune with Task Heads</h4>
+                        <div class="flex flex-wrap items-center gap-3 text-sm font-mono pb-2">
+                            <div class="bg-white border border-slate-300 p-2 rounded shadow-sm whitespace-nowrap">Input: "Terrible!"</div>
+                            <div class="text-slate-400">➔</div>
+                            <div class="bg-rose-100 border border-rose-300 text-rose-800 p-2 rounded shadow-sm text-center">Encoder Model<br><span class="text-[10px] font-normal text-rose-600">Base</span></div>
+                            <div class="text-slate-400">➔</div>
+                            <div class="bg-purple-100 border border-purple-300 text-purple-800 p-2 rounded shadow-sm border-dashed text-center">Classifier Layer<br><span class="text-[10px] font-normal text-purple-600">Need to train this</span></div>
+                            <div class="text-slate-400">➔</div>
+                            <div class="bg-white border border-slate-300 p-2 rounded shadow-sm text-rose-600 font-bold whitespace-nowrap">Class: Negative</div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2 lang-zh">问题：每个新任务（分类、NER等）都需要在模型顶部附加专属的网络层，并重新训练这些参数，接口不统一。</p>
+                        <p class="text-xs text-slate-500 mt-2 lang-en">Issue: Every new task requires attaching a custom network layer on top and retraining those specific parameters. Interfaces are fragmented.</p>
+                    </div>
+
+                    <!-- ICL Arch -->
+                    <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-6 relative overflow-hidden shadow-sm">
+                        <div class="absolute right-0 top-0 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider shadow-sm">New Paradigm</div>
+                        <h4 class="font-bold text-indigo-900 mb-4 text-sm lang-zh">新范式：大统一的上下文学习 (In-Context Learning)</h4>
+                        <h4 class="font-bold text-indigo-900 mb-4 text-sm lang-en">New Paradigm: Unified In-Context Learning (Prompting)</h4>
+                        <div class="flex flex-wrap items-center gap-3 text-sm font-mono pb-2">
+                            <div class="bg-white border border-slate-300 p-2 rounded shadow-sm whitespace-nowrap">"Review: Terrible! Sentiment:"</div>
+                            <div class="text-indigo-400 font-bold text-lg">➔</div>
+                            <div class="bg-sky-500 border border-sky-600 text-white p-2 rounded shadow-md font-bold text-center">Decoder (LLM)<br><span class="text-[10px] text-sky-100 font-normal">Weights Frozen</span></div>
+                            <div class="text-indigo-400 font-bold text-lg">➔</div>
+                            <div class="bg-white border-b-2 border-green-500 p-2 shadow-sm text-green-600 font-bold whitespace-nowrap animate-pulse">"Negative"</div>
+                        </div>
+                        <p class="text-xs text-indigo-700 mt-2 lang-zh">优雅：不改变模型结构，不更新权重。一切任务都通过 Prompt 转换为**“基于前文预测下一个词”**的文本生成过程。</p>
+                        <p class="text-xs text-indigo-700 mt-2 lang-en">Elegance: No structural changes, no weight updates. All tasks are cast as **"predicting the next word"** generation via Prompting.</p>
+                    </div>
+                </div>
+
+                <p class="text-slate-600 lang-zh">既然所有的 NLP 任务（翻译、摘要、分类、代码）都可以转化为**“文本到文本 (Text-to-Text)”**的续写生成任务，那么纯粹的 Decoder 架构就具备了最通用的输入输出接口，成为了 AGI（通用人工智能）的基础载体。</p>
+                <p class="text-slate-600 lang-en">Since all NLP tasks (translation, summarization, classification) can be framed as **"Text-to-Text"** continuation generation, the pure Decoder architecture provides the most universal I/O interface, becoming the foundational vessel for AGI.</p>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-blue-500 pl-4 lang-zh">3. 数据飞轮：无监督海量数据的极速扩张</h2>
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-blue-500 pl-4 lang-en">3. Data Flywheel: Scaling with Unsupervised Web Text</h2>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+                <div class="relative h-[300px] w-full">
+                    <canvas id="beginnerChart"></canvas>
+                </div>
+                <p class="text-sm text-slate-500 mt-4 text-center lang-zh">图表解析：Encoder-Decoder 架构在预训练时往往依赖高质量的成对语料（如机器翻译数据集），这极大地限制了数据规模。而 Decoder-Only 的目标函数极其简单：根据上文预测下一个 Token，这允许它几乎零成本地摄取全网 TB 级的无标签纯文本，从而在 Scaling Laws 下实现大力出奇迹。</p>
+                <p class="text-sm text-slate-500 mt-4 text-center lang-en">Chart Analysis: Enc-Dec architectures often rely on high-quality paired corpora during pre-training. Decoder-Only's objective is trivial: predict the next token. This allows zero-cost ingestion of terabytes of unlabeled web text, triggering emergent capabilities under Scaling Laws.</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- ==================== EXPERT PERSPECTIVE CONTENT ==================== -->
+    <div class="persp-expert">
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-slate-900 mb-8 border-l-4 border-emerald-600 pl-4 lang-zh">0. 历史脉络：从目标函数分歧到机理涌现</h2>
+            <h2 class="text-2xl font-bold text-slate-900 mb-8 border-l-4 border-emerald-600 pl-4 lang-en">0. Historical Context: From Objective Divergence to Emergent Mechanics</h2>
+            
+            <div class="relative border-l-2 border-slate-200 ml-4 space-y-8 mb-8 pb-4">
+                <div class="relative pl-6">
+                    <div class="absolute w-4 h-4 bg-slate-300 rounded-full -left-[9px] top-1 border-4 border-white"></div>
+                    <div class="font-mono text-sm text-slate-500 font-bold mb-1">2017 - 2018</div>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-zh">拓扑原点：混合注意力的 Seq2Seq</h4>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-en">Topological Origin: Mixed Attention Seq2Seq</h4>
+                    <p class="text-sm text-slate-600 lang-zh">Transformer 论文提出时，其本质是一个针对条件概率建模的模型。内部包含了双向自注意力、因果掩码自注意力以及交叉注意力三种不同的信息路由机制。</p>
+                    <p class="text-sm text-slate-600 lang-en">The original Transformer was built for conditional probability modeling. It contained three distinct routing mechanisms: bidirectional self-attention, causal masked self-attention, and cross-attention.</p>
+                </div>
+                <div class="relative pl-6">
+                    <div class="absolute w-4 h-4 bg-emerald-400 rounded-full -left-[9px] top-1 border-4 border-white"></div>
+                    <div class="font-mono text-sm text-emerald-600 font-bold mb-1">2019 - 2021</div>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-zh">目标函数分歧：MLM 去噪 vs AR 似然估计</h4>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-en">Objective Divergence: MLM Denoising vs AR Likelihood</h4>
+                    <p class="text-sm text-slate-600 lang-zh">学术界分裂为两派。Google 主推 Masked Language Modeling (如 BERT/T5)，强调双向去噪；而 OpenAI 坚持 Autoregressive 极大似然估计。随后 <strong>Dong et al. (2021)</strong> 从数学上证明了纯双向注意力的“秩崩塌”灾难。</p>
+                    <p class="text-sm text-slate-600 lang-en">Academia split: Google pushed Masked Language Modeling (BERT/T5) for bidirectional denoising; OpenAI persisted with Autoregressive Max Likelihood. Later, <strong>Dong et al. (2021)</strong> mathematically proved pure bidirectional attention suffers "Rank Collapse".</p>
+                </div>
+                <div class="relative pl-6">
+                    <div class="absolute w-4 h-4 bg-emerald-600 rounded-full -left-[9px] top-1 border-4 border-emerald-100 shadow-sm ring-2 ring-emerald-200"></div>
+                    <div class="font-mono text-sm text-emerald-700 font-bold mb-1">2022 - 至今</div>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-zh">机理解密：感应头 (Induction Heads) 的发现</h4>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-en">Mechanistic Decoding: Discovery of Induction Heads</h4>
+                    <p class="text-sm text-slate-600 lang-zh">Anthropic 发表突破性研究，证明 ICL 泛化能力的涌现高度依赖于模型内部形成的“感应头”神经回路。而<strong>严苛的 AR 目标（因果掩码阻断捷径）</strong>是迫使网络发育出这种回路的必要条件，从机理层面宣判了 Encoder 的死刑。</p>
+                    <p class="text-sm text-slate-600 lang-en">Anthropic's breakthrough proved ICL emergence depends heavily on "Induction Head" neural circuits. The <strong>strict AR objective (causal masking blocking shortcuts)</strong> is essential to force this growth, mechanistically ruling out Encoders.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-emerald-600 pl-4 lang-zh">1. 数学本性：双指数秩崩塌 (Rank Collapse)</h2>
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-emerald-600 pl-4 lang-en">1. Mathematical Nature: Double-Exponential Rank Collapse</h2>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-8">
+                <p class="text-slate-600 mb-6 lang-zh">为什么早期模型 (如 BERT) 通常只有 12-24 层，而现在的 Decoder 动辄 100 层以上？答案隐藏在注意力矩阵的谱特性（Spectral properties）中。Google 研究团队在 2021 年证明了纯双向注意力网络的致命缺陷：</p>
+                <p class="text-slate-600 mb-6 lang-en">Why were early models (like BERT) capped at 12-24 layers, while modern Decoders easily exceed 100 layers? The answer lies in the spectral properties of the attention matrix. Google researchers proved the fatal flaw of pure bidirectional attention:</p>
+
+                <div class="math-block bg-slate-50 p-6 rounded-xl mb-6 border border-slate-200">
+                    <p class="text-sm font-semibold mb-2 lang-zh text-slate-700">定理：纯无跳跃连接注意力网络的输出趋于秩-1 矩阵</p>
+                    <p class="text-sm font-semibold mb-2 lang-en text-slate-700">Theorem: Output of pure attention network without skip connections converges to rank-1</p>
+                    $$ \| \text{Attn}(X) - \mathbf{1}c^\top \| \le \mathcal{O}(e^{-2^L}) $$
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center justify-center gap-8 mb-8 p-6 bg-slate-800 rounded-xl">
+                    <div class="flex flex-col items-center">
+                        <p class="text-slate-300 text-xs mb-3 font-mono">Encoder: Bidirectional (Dense)</p>
+                        <div class="grid grid-cols-5 gap-1">
+                            <!-- Generate a 5x5 grid for dense matrix -->
+                            <div class="w-4 h-4 bg-rose-500 rounded-sm opacity-90"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-90"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-90"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-90"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-90"></div>
+                            <div class="w-4 h-4 bg-rose-500 rounded-sm opacity-80"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-80"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-80"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-80"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-80"></div>
+                            <div class="w-4 h-4 bg-rose-500 rounded-sm opacity-70"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-70"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-70"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-70"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-70"></div>
+                            <div class="w-4 h-4 bg-rose-500 rounded-sm opacity-60"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-60"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-60"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-60"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-60"></div>
+                            <div class="w-4 h-4 bg-rose-500 rounded-sm opacity-50"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-50"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-50"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-50"></div><div class="w-4 h-4 bg-rose-500 rounded-sm opacity-50"></div>
+                        </div>
+                        <p class="text-rose-400 text-xs mt-3 font-semibold lang-zh">信息过度混合，秩趋近于 1</p>
+                        <p class="text-rose-400 text-xs mt-3 font-semibold lang-en">Over-mixing, Rank → 1</p>
+                    </div>
+                    <div class="text-slate-400 text-2xl font-light">VS</div>
+                    <div class="flex flex-col items-center">
+                        <p class="text-slate-300 text-xs mb-3 font-mono">Decoder: Causal Mask (Lower Triangular)</p>
+                        <div class="grid grid-cols-5 gap-1">
+                            <!-- Generate a 5x5 grid for causal matrix -->
+                            <div class="w-4 h-4 bg-emerald-500 rounded-sm opacity-90"></div><div class="w-4 h-4 bg-slate-700 rounded-sm"></div><div class="w-4 h-4 bg-slate-700 rounded-sm"></div><div class="w-4 h-4 bg-slate-700 rounded-sm"></div><div class="w-4 h-4 bg-slate-700 rounded-sm"></div>
+                            <div class="w-4 h-4 bg-emerald-500 rounded-sm opacity-80"></div><div class="w-4 h-4 bg-emerald-500 rounded-sm opacity-90"></div><div class="w-4 h-4 bg-slate-700 rounded-sm"></div><div class="w-4 h-4 bg-slate-700 rounded-sm"></div><div class="w-4 h-4 bg-slate-700 rounded-sm"></div>
+                            <div class="w-4 h-4 bg-emerald-500 rounded-sm opacity-70"></div><div class="w-4 h-4 bg-emerald-500 rounded-sm opacity-80"></div><div class="w-4 h-4 bg-emerald-500 rounded-sm opacity-90"></div><div class="w-4 h-4 bg-slate-700 rounded-sm"></div><div class="w-4 h-4 bg-slate-700 rounded-sm"></div>
+                            <div class="w-4 h-4 bg-emerald-500 rounded-sm opacity-60"></div><div class="w-4 h-4 bg-emerald-500 rounded-sm opacity-70"></div><div class="w-4 h-4 bg-emerald-500 rounded-sm opacity-80"></div><div class="w-4 h-4 bg-emerald-500 rounded-sm opacity-90"></div><div class="w-4 h-4 bg-slate-700 rounded-sm"></div>
+                            <div class="w-4 h-4 bg-emerald-500 rounded-sm opacity-50"></div><div class="w-4 h-4 bg-emerald-500 rounded-sm opacity-60"></div><div class="w-4 h-4 bg-emerald-500 rounded-sm opacity-70"></div><div class="w-4 h-4 bg-emerald-500 rounded-sm opacity-80"></div><div class="w-4 h-4 bg-emerald-500 rounded-sm opacity-90"></div>
+                        </div>
+                        <p class="text-emerald-400 text-xs mt-3 font-semibold lang-zh">对称性破坏，保持满秩特征隔离</p>
+                        <p class="text-emerald-400 text-xs mt-3 font-semibold lang-en">Symmetry broken, Full Rank isolated</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-100 p-5 rounded-lg">
+                        <h3 class="font-bold text-slate-800 mb-2 lang-zh">Encoder 的退化</h3>
+                        <h3 class="font-bold text-slate-800 mb-2 lang-en">Encoder Degradation</h3>
+                        <p class="text-sm text-slate-600 lang-zh">在双向注意力中，每个 Token 都能看到全局。随着网络加深 ($L$ 增大)，注意力矩阵会以**双指数级 ($e^{-2^L}$)** 的速度退化，所有 Token 的表征会坍缩到一个低维子空间，失去区分度。</p>
+                        <p class="text-sm text-slate-600 lang-en">In bidirectional attention, every token sees the global context. As depth ($L$) increases, the attention matrix degrades at a **double-exponential ($e^{-2^L}$)** rate, causing all token representations to collapse into a rank-1 subspace, losing distinguishability.</p>
+                    </div>
+                    <div class="bg-emerald-50 border-emerald-100 border p-5 rounded-lg">
+                        <h3 class="font-bold text-emerald-800 mb-2 lang-zh">Causal Mask 的救赎</h3>
+                        <h3 class="font-bold text-emerald-800 mb-2 lang-en">Salvation via Causal Mask</h3>
+                        <p class="text-sm text-slate-600 lang-zh">Decoder 的下三角掩码天然打破了图的对称性。由于后面的 Token 不能影响前面的 Token，状态转移矩阵具有强特征根隔离，保证了矩阵始终满秩。这就是为什么 GPT 模型可以无限堆叠层数而不崩溃的数学基石。</p>
+                        <p class="text-sm text-slate-600 lang-en">The lower-triangular causal mask of Decoder naturally breaks graph symmetry. Since future tokens cannot influence past ones, the transition matrix maintains strong eigenvalue isolation, preserving full rank. This is the mathematical bedrock allowing GPT models to scale infinitely in depth.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-amber-500 pl-4 lang-zh">2. 机械可解释性：捷径效应与感应头 (Induction Heads)</h2>
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-amber-500 pl-4 lang-en">2. Mechanistic Interpretability: Shortcuts and Induction Heads</h2>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-8">
+                <p class="text-slate-600 mb-4 lang-zh">Anthropic 团队在机械可解释性研究中发现，In-Context Learning (ICL) 能力的涌现高度依赖于网络内部形成一种特殊的神经回路——<strong>感应头（Induction Heads）</strong>。这种回路负责寻找历史模式 <code>[A][B] ... [A] -> 预测[B]</code>。</p>
+                <p class="text-slate-600 mb-4 lang-en">Anthropic's Mechanistic Interpretability research revealed that In-Context Learning (ICL) emergence heavily depends on a specific neural circuit forming inside the network—<strong>Induction Heads</strong>. These circuits find historical patterns like <code>[A][B] ... [A] -> predict[B]</code>.</p>
+                
+                <div class="relative w-full overflow-hidden bg-amber-50 rounded-xl border border-amber-200 p-6 mb-6 flex flex-col items-center">
+                    <p class="text-xs font-mono text-amber-600 mb-4 lang-zh">神经回路执行演示: 复制前置模式</p>
+                    <p class="text-xs font-mono text-amber-600 mb-4 lang-en">Neural Circuit Exec: Pattern Copying</p>
+                    <div class="flex items-center gap-2 mb-2 z-10">
+                        <div class="px-3 py-2 bg-white border border-slate-300 rounded shadow-sm font-mono text-sm">Mr</div>
+                        <div class="px-3 py-2 bg-blue-100 border border-blue-300 rounded shadow-sm font-mono text-sm" id="token-a1">Smith</div>
+                        <div class="px-3 py-2 bg-white border border-slate-300 rounded shadow-sm font-mono text-sm">...</div>
+                        <div class="px-3 py-2 bg-white border border-slate-300 rounded shadow-sm font-mono text-sm">Agent</div>
+                        <div class="px-3 py-2 bg-blue-100 border border-blue-300 rounded shadow-sm font-mono text-sm" id="token-a2">Smith</div>
+                        <div class="px-3 py-2 bg-rose-100 border border-rose-300 rounded shadow-sm font-mono text-sm animate-pulse" id="token-pred">?</div>
+                    </div>
+                    <!-- SVG Arrows -->
+                    <svg class="absolute top-0 left-0 w-full h-full pointer-events-none" style="z-index: 5;">
+                        <!-- Arrow from second Smith to first Smith -->
+                        <path d="M 60% 50% Q 50% 20% 30% 50%" fill="transparent" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrowhead)"></path>
+                        <!-- Arrow from ? to the token after first Smith (implicit pattern) -->
+                        <path d="M 85% 65% Q 60% 90% 35% 65%" fill="transparent" stroke="#f43f5e" stroke-width="2" marker-end="url(#arrowhead-red)"></path>
+                        
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6"/>
+                            </marker>
+                            <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#f43f5e"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                    <div class="flex justify-between w-[80%] mt-4 z-10 text-xs text-slate-500">
+                        <span class="lang-zh"><span class="text-blue-500 font-bold">1. 匹配回路：</span>关联当前词与历史同义词</span>
+                        <span class="lang-zh"><span class="text-rose-500 font-bold">2. 拷贝回路：</span>提取历史词的下一位进行预测</span>
+                        <span class="lang-en"><span class="text-blue-500 font-bold">1. Match:</span> Associate current token with past</span>
+                        <span class="lang-en"><span class="text-rose-500 font-bold">2. Copy:</span> Extract next token for prediction</span>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 p-6 rounded-lg border border-amber-100">
+                    <ul class="list-disc pl-5 text-sm text-slate-700 space-y-3 lang-zh">
+                        <li><strong>Encoder 的“作弊”：</strong> 如果允许前向视野（双向注意力），网络在预测掩码词时，更倾向于通过局部句法结构走捷径（Shortcut Learning），而懒得发育出长距离模式匹配的“感应头”回路。</li>
+                        <li><strong>Decoder 的“逆境生存”：</strong> 严格的因果掩码阻断了捷径。模型为了降低极端的自回归交叉熵损失，被迫在训练早期经历一次相变（Phase Transition），大规模发育感应头回路，从而涌现出强大的上下文泛化能力。</li>
+                    </ul>
+                    <ul class="list-disc pl-5 text-sm text-slate-700 space-y-3 lang-en">
+                        <li><strong>Encoder's "Cheating":</strong> Given forward vision (bidirectional attention), the network prefers shortcuts via local syntax to predict masked words, failing to develop long-range pattern-matching induction heads.</li>
+                        <li><strong>Decoder's "Survival":</strong> Strict causal masking blocks shortcuts. To minimize extreme AR cross-entropy loss, the model is forced through a Phase Transition early in training, developing massive induction heads, yielding emergent ICL capabilities.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-blue-600 pl-4 lang-zh">3. Scaling Laws 视角下的能力交叉点</h2>
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-blue-600 pl-4 lang-en">3. Capability Crossover in Scaling Laws</h2>
+            
+            <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                <div class="relative h-[300px] w-full">
+                    <canvas id="expertChart"></canvas>
+                </div>
+                <p class="text-sm text-slate-500 mt-4 text-center lang-zh">图：在早期小规模时代，Encoder-Decoder 展现出优势；但随着参数越过 10B 阈值，Decoder 的深度优势与零样本能力呈指数爆发。</p>
+                <p class="text-sm text-slate-500 mt-4 text-center lang-en">Figure: Enc-Dec showed advantages in early small-scale eras; but as parameters cross the 10B threshold, Decoder's depth advantage and Zero-Shot capabilities explode exponentially.</p>
+            </div>
+        </section>
+    </div>
+
+    <!-- ==================== SENIOR PERSPECTIVE CONTENT ==================== -->
+    <div class="persp-senior">
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-slate-900 mb-8 border-l-4 border-blue-600 pl-4 lang-zh">0. 历史脉络：系统工程视角的瓶颈转移</h2>
+            <h2 class="text-2xl font-bold text-slate-900 mb-8 border-l-4 border-blue-600 pl-4 lang-en">0. Historical Context: Bottleneck Shifts in Systems Engineering</h2>
+            
+            <div class="relative border-l-2 border-slate-200 ml-4 space-y-8 mb-8 pb-4">
+                <div class="relative pl-6">
+                    <div class="absolute w-4 h-4 bg-slate-300 rounded-full -left-[9px] top-1 border-4 border-white"></div>
+                    <div class="font-mono text-sm text-slate-500 font-bold mb-1">2017 - 2019</div>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-zh">算力计算密集时代 (Compute-Bound Era)</h4>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-en">Compute-Bound Era</h4>
+                    <p class="text-sm text-slate-600 lang-zh">模型参数量通常在 100M-1B 级别，推理的瓶颈主要是矩阵乘法 (GEMM) 的 FLOPs 计算力。此时 Encoder-Decoder 架构的双向注意力带来的计算开销在系统层面是完全可接受的。</p>
+                    <p class="text-sm text-slate-600 lang-en">Model sizes were around 100M-1B. The primary inference bottleneck was GEMM FLOPs. At this scale, the extra compute overhead of Encoder-Decoder's bidirectional and cross-attention was acceptable.</p>
+                </div>
+                <div class="relative pl-6">
+                    <div class="absolute w-4 h-4 bg-blue-400 rounded-full -left-[9px] top-1 border-4 border-white"></div>
+                    <div class="font-mono text-sm text-blue-600 font-bold mb-1">2020 - 2022</div>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-zh">撞上显存墙 (The Memory Wall Crisis)</h4>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-en">Hitting the Memory Wall</h4>
+                    <p class="text-sm text-slate-600 lang-zh">随着模型扩展到 100B+（如 Megatron, PaLM），长序列生成时，大量的 KV 张量读写使系统迅速从 Compute-bound 变为 <strong>Memory-bound（访存受限）</strong>。异构的 Enc-Dec 导致显存碎片化严重，Batch Size 无法扩大。</p>
+                    <p class="text-sm text-slate-600 lang-en">As models scaled to 100B+, heavy KV tensor I/O during long-sequence generation shifted systems to being <strong>Memory-bound</strong>. Heterogeneous Enc-Dec caused severe VRAM fragmentation, capping batch sizes.</p>
+                </div>
+                <div class="relative pl-6">
+                    <div class="absolute w-4 h-4 bg-blue-600 rounded-full -left-[9px] top-1 border-4 border-blue-100 shadow-sm ring-2 ring-blue-200"></div>
+                    <div class="font-mono text-sm text-blue-700 font-bold mb-1">2023 - 至今</div>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-zh">Serving 系统革命：同构生态的垄断</h4>
+                    <h4 class="font-bold text-slate-800 text-base mb-1 lang-en">Serving Revolution: Monopoly of Homogeneous Ecosystems</h4>
+                    <p class="text-sm text-slate-600 lang-zh"><strong>vLLM (PagedAttention)</strong> 和 <strong>FlashAttention</strong> 横空出世。这些极致压榨底层 IO 的技术几乎全都是基于同构连续序列（即纯 Decoder）设计和优化的。Encoder 彻底失去了系统级基建的生态红利支持。</p>
+                    <p class="text-sm text-slate-600 lang-en"><strong>vLLM (PagedAttention)</strong> and <strong>FlashAttention</strong> emerged. These IO-maximizing technologies were designed and optimized almost exclusively for homogeneous continuous sequences (pure Decoder). Encoders lost ecosystem infra support.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-blue-600 pl-4 lang-zh">1. 极致系统工程：Serving 吞吐与内存池化</h2>
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-blue-600 pl-4 lang-en">1. Systems Engineering: Serving Throughput & Memory Pooling</h2>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-8">
+                <p class="text-slate-600 mb-4 lang-zh">在工业级 LLM 部署中，瓶颈早已从 FLOPs 转移到了访存带宽和显存碎片化管理上。vLLM 引入的 <strong>PagedAttention</strong> 和 <strong>Continuous Batching（连续批处理）</strong> 彻底改变了游戏规则，暴露了 Enc-Dec 架构的阿喀琉斯之踵。</p>
+                <p class="text-slate-600 mb-4 lang-en">In industrial LLM deployment, bottlenecks shifted from FLOPs to Memory Bandwidth and VRAM fragmentation. <strong>PagedAttention</strong> and <strong>Continuous Batching</strong> changed the rules, exposing Enc-Dec's Achilles' heel.</p>
+
+                <div class="mt-6 mb-2 bg-slate-900 rounded-xl p-6 shadow-inner border border-slate-700">
+                    <h4 class="text-slate-300 font-mono text-xs mb-4 text-center lang-zh">显存分配对比图 (KV Cache Memory Allocation)</h4>
+                    <h4 class="text-slate-300 font-mono text-xs mb-4 text-center lang-en">KV Cache Memory Allocation Comparison</h4>
+                    
+                    <!-- Enc-Dec View -->
+                    <div class="mb-5">
+                        <p class="text-rose-400 text-[10px] uppercase font-bold mb-1 tracking-wider">Encoder-Decoder: Fragmented & Heterogeneous</p>
+                        <div class="w-full bg-slate-800 rounded h-8 flex overflow-hidden border border-slate-600">
+                            <div class="h-full bg-rose-900/50 flex items-center justify-center text-[10px] text-rose-200" style="width: 25%">Enc KV (Seq A)</div>
+                            <div class="h-full bg-slate-800 flex items-center justify-center text-[10px] text-slate-500 striped-bg" style="width: 15%">Gap</div>
+                            <div class="h-full bg-blue-900/50 flex items-center justify-center text-[10px] text-blue-200" style="width: 10%">Dec KV (A)</div>
+                            <div class="h-full bg-slate-800 flex items-center justify-center text-[10px] text-slate-500 striped-bg" style="width: 10%">Gap</div>
+                            <div class="h-full bg-rose-900/50 flex items-center justify-center text-[10px] text-rose-200" style="width: 30%">Enc KV (Seq B)</div>
+                            <div class="h-full bg-blue-900/50 flex items-center justify-center text-[10px] text-blue-200" style="width: 10%">Dec (B)</div>
+                        </div>
+                    </div>
+
+                    <!-- Decoder View -->
+                    <div>
+                        <p class="text-emerald-400 text-[10px] uppercase font-bold mb-1 tracking-wider">Decoder-Only: Paged & Homogeneous (Radix Sharing)</p>
+                        <div class="w-full flex gap-1 h-8">
+                            <div class="h-full bg-emerald-600 rounded flex items-center justify-center text-[10px] text-emerald-50 flex-1">Block 1</div>
+                            <div class="h-full bg-emerald-600 rounded flex items-center justify-center text-[10px] text-emerald-50 flex-1">Block 2</div>
+                            <div class="h-full bg-emerald-600 rounded flex items-center justify-center text-[10px] text-emerald-50 flex-1">Block 3</div>
+                            <div class="h-full bg-emerald-600/50 rounded flex items-center justify-center text-[10px] text-emerald-200 flex-1">Shared</div>
+                            <div class="h-full bg-emerald-600/50 rounded flex items-center justify-center text-[10px] text-emerald-200 flex-1">Shared</div>
+                            <div class="h-full bg-slate-700 rounded flex items-center justify-center text-[10px] text-slate-400 flex-1 border border-dashed border-slate-500">Free</div>
+                        </div>
+                    </div>
+                    <style>
+                        .striped-bg { background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255,255,255,0.05) 5px, rgba(255,255,255,0.05) 10px); }
+                    </style>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                    <div class="bg-rose-50 p-6 rounded-lg border border-rose-100">
+                        <h3 class="font-bold text-rose-900 mb-3 lang-zh">Enc-Dec 的异构上下文灾难</h3>
+                        <h3 class="font-bold text-rose-900 mb-3 lang-en">Enc-Dec Heterogeneous Disaster</h3>
+                        <p class="text-sm text-slate-700 leading-relaxed lang-zh">
+                            在连续批处理中，调度器混合 Prefill 和 Decode 请求。Enc-Dec 在 Decode 时需要维持对 Encoder 的 <strong>Cross-Attention</strong>。内存中不仅要有自回归的 KV Cache，还要单独维护形状各异的 Encoder KV 张量，导致 Block 内存池管理极为困难，引发严重碎片。
+                        </p>
+                        <p class="text-sm text-slate-700 leading-relaxed lang-en">
+                            Schedulers mix Prefill/Decode requests. Enc-Dec requires maintaining <strong>Cross-Attention</strong> to Encoder outputs. Memory must hold structurally heterogeneous Encoder KV tensors alongside AR caches, making Block pool management difficult and causing fragmentation.
+                        </p>
+                    </div>
+                    <div class="bg-emerald-50 p-6 rounded-lg border border-emerald-100">
+                        <h3 class="font-bold text-emerald-900 mb-3 lang-zh">纯 Decoder 的同构抽象胜利</h3>
+                        <h3 class="font-bold text-emerald-900 mb-3 lang-en">Decoder Homogeneous Victory</h3>
+                        <p class="text-sm text-slate-700 leading-relaxed lang-zh">
+                            Decoder-only 将 Prompt (X) 和 Generation (Y) 在物理显存层面拉平为<strong>同构的 1D 连续 Token 流</strong>。这种完美的同构性使得 <strong>RadixAttention</strong> (前缀树 KV 共享) 成为可能。结合 FlashAttention-3 的 WGM 优化，硬件亲和性达到极致。
+                        </p>
+                        <p class="text-sm text-slate-700 leading-relaxed lang-en">
+                            Decoder-only flattens Prompt and Generation into a <strong>homogeneous 1D continuous token stream</strong>. This perfect homogeneity enables <strong>RadixAttention</strong> (prefix-tree KV sharing). Combined with FlashAttention-3 WGM, hardware affinity peaks.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-indigo-600 pl-4 lang-zh">2. 隐式元学习：In-Context Learning 就是梯度下降</h2>
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-indigo-600 pl-4 lang-en">2. Implicit Meta-Learning: ICL is Gradient Descent</h2>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-8">
+                <p class="text-slate-600 mb-6 lang-zh">为什么纯 Decoder 展现出了更强的 ICL 能力？学术界（von Oswald et al., 2023）证明了：<strong>基于线性自注意力的前向传播，在数学上等价于在内部隐状态上执行隐式的梯度下降（Implicit SGD）。</strong></p>
+                <p class="text-slate-600 mb-6 lang-en">Why superior ICL in pure Decoders? Research (von Oswald et al., 2023) proved: <strong>forward pass of linear self-attention is mathematically equivalent to implicit gradient descent (Implicit SGD) on internal hidden states.</strong></p>
+
+                <div class="math-block bg-slate-900 p-6 rounded-xl shadow-inner mb-6 border border-slate-800 text-slate-200">
+                    <div class="font-mono text-sm mb-3 text-indigo-400"># Linear Attention as Meta-Optimization</div>
+                    $$ \Delta W = -\eta \nabla_W L = -\eta \sum_{i} (W x_i - y_i)x_i^T $$
+                    $$ \text{Attention}(q, K, V) \approx W_{meta} q + \sum_{i} v_i (k_i^T q) $$
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <div class="flex-1 bg-rose-50 rounded-lg p-4 border border-rose-200">
+                        <div class="text-xs font-bold text-rose-800 mb-2 lang-zh">Enc-Dec 物理双塔隔离</div>
+                        <div class="text-xs font-bold text-rose-800 mb-2 lang-en">Enc-Dec Physical Isolation</div>
+                        <div class="flex items-center justify-between bg-white p-2 rounded shadow-sm text-xs font-mono mb-2">
+                            <span>Demonstrations</span> ➔ <span class="text-rose-600">Encoder</span>
+                        </div>
+                        <div class="flex justify-center text-rose-300">↓ (Cross-Attention 瓶颈) ↓</div>
+                        <div class="flex items-center justify-between bg-white p-2 rounded shadow-sm text-xs font-mono mt-2">
+                            <span>Query</span> ➔ <span class="text-blue-600">Decoder</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 bg-indigo-50 rounded-lg p-4 border border-indigo-200">
+                        <div class="text-xs font-bold text-indigo-800 mb-2 lang-zh">Decoder 统一状态空间</div>
+                        <div class="text-xs font-bold text-indigo-800 mb-2 lang-en">Decoder Unified State Space</div>
+                        <div class="bg-white p-3 rounded shadow-sm flex flex-col gap-2">
+                            <div class="flex justify-between items-center text-xs font-mono">
+                                <span class="bg-indigo-100 px-2 py-1 rounded">Demos [X,Y]</span>
+                                ➔ <span class="text-indigo-600 font-bold border-b-2 border-indigo-500">KV Cache (隐式模型权重)</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs font-mono">
+                                <span class="bg-blue-100 px-2 py-1 rounded">Query [X]</span>
+                                ➔ <span>注意力流完成梯度下降</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-sm text-slate-700 lang-zh">在 Enc-Dec 中，Demonstrations 送入 Encoder，Query 送入 Decoder。物理双塔隔离阻止了注意力矩阵作为“元优化器”在连续状态空间中直接更新权重。而 Decoder 的因果掩码强迫网络将之前的样本编码到了 KV 缓存中，实时完成网络权重的微调更新。</p>
+                <p class="text-sm text-slate-700 lang-en">In Enc-Dec, demonstrations go to Encoder, queries to Decoder. Physical separation prevents attention from acting as a unified "meta-optimizer". Decoder's causal mask forces encoding prior samples into KV cache, executing real-time fine-tuning within the forward pass.</p>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-slate-900 mb-8 border-l-4 border-emerald-600 pl-4 lang-zh">3. 高并发吞吐量压测对比</h2>
+            <h2 class="text-2xl font-bold text-slate-900 mb-8 border-l-4 border-emerald-600 pl-4 lang-en">3. High-Concurrency Throughput Benchmark</h2>
+            
+            <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm mb-10">
+                <div class="relative h-[350px] w-full">
+                    <canvas id="seniorChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ==================== SHARED FOOTER / REFERENCES ==================== -->
+    <div class="mt-16 pt-8 border-t border-slate-200">
+        <h3 class="text-xl font-bold text-slate-800 mb-6 lang-zh">核心学术文献与工业界一线实践 (Industry & Academia References)</h3>
+        <h3 class="text-xl font-bold text-slate-800 mb-6 lang-en">Core Academic Literature & Industry Best Practices</h3>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- 工业界与系统工程 -->
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-2 h-6 bg-blue-600 rounded-sm"></div>
+                    <h4 class="font-bold text-slate-700 lang-zh">工业界技术报告与系统工程 (Industry & Systems)</h4>
+                    <h4 class="font-bold text-slate-700 lang-en">Industry Technical Reports & Systems</h4>
+                </div>
+                <div class="space-y-4">
+                    <!-- OpenAI -->
+                    <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-1">
+                            <div class="font-bold text-slate-800 text-sm">Scaling Laws for Neural Language Models</div>
+                            <span class="text-[10px] font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">OpenAI</span>
+                        </div>
+                        <div class="text-xs font-medium text-slate-500 mb-2">Kaplan et al., 2020</div>
+                        <p class="text-xs text-slate-600 lang-zh">奠定大模型基础的经验法则。证明了纯 Decoder 架构在自回归交叉熵损失上的缩放具有高度可预测性，开启了“暴力美学”时代。</p>
+                        <p class="text-xs text-slate-600 lang-en">The empirical bedrock of LLMs. Proved that autoregressive loss scales predictably in pure Decoder architectures, launching the era of scalable compute.</p>
+                    </div>
+                    <!-- vLLM -->
+                    <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-1">
+                            <div class="font-bold text-slate-800 text-sm">Efficient Memory Management for LLM Serving with PagedAttention</div>
+                            <span class="text-[10px] font-mono bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded">UC Berkeley / vLLM</span>
+                        </div>
+                        <div class="text-xs font-medium text-slate-500 mb-2">Kwon et al., SOSP 2023</div>
+                        <p class="text-xs text-slate-600 lang-zh">提出 PagedAttention。彻底利用了纯 Decoder 架构生成流的同构性，解决了 KV Cache 的碎片化问题，是淘汰 Enc-Dec 的工程级暴击。</p>
+                        <p class="text-xs text-slate-600 lang-en">Introduced PagedAttention. Exploited the homogeneity of pure Decoder streams to solve KV Cache fragmentation, a fatal systemic blow to Enc-Dec.</p>
+                    </div>
+                    <!-- Meta -->
+                    <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-1">
+                            <div class="font-bold text-slate-800 text-sm">The Llama 3 Herd of Models (Technical Report)</div>
+                            <span class="text-[10px] font-mono bg-sky-50 text-sky-600 border border-sky-200 px-2 py-0.5 rounded">Meta FAIR</span>
+                        </div>
+                        <div class="text-xs font-medium text-slate-500 mb-2">Dubey et al., 2024</div>
+                        <p class="text-xs text-slate-600 lang-zh">工业界标准范式的教科书。展示了基于标准密集型 Decoder 结合 GQA (分组查询注意力) 如何将算力和内存带宽压榨到极致。</p>
+                        <p class="text-xs text-slate-600 lang-en">The blueprint of standard industrial paradigms. Showcases how dense Decoders paired with GQA maximize compute and memory bandwidth.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 理论与可解释性 -->
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-2 h-6 bg-emerald-600 rounded-sm"></div>
+                    <h4 class="font-bold text-slate-700 lang-zh">数学底层与可解释性理论 (Math & Interpretability)</h4>
+                    <h4 class="font-bold text-slate-700 lang-en">Mathematics & Mechanistic Interpretability</h4>
+                </div>
+                <div class="space-y-4">
+                    <!-- Google -->
+                    <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-1">
+                            <div class="font-bold text-slate-800 text-sm">Attention is Not All You Need: Pure Attention Loses Rank</div>
+                            <span class="text-[10px] font-mono bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded">Google Research</span>
+                        </div>
+                        <div class="text-xs font-medium text-slate-500 mb-2">Dong et al., ICML 2021</div>
+                        <p class="text-xs text-slate-600 lang-zh">首次从数学角度证明：纯双向注意力（无 Causal Mask）随网络加深会发生“双指数级”秩崩塌。这从根本上解释了极深 Encoder 的不可行性。</p>
+                        <p class="text-xs text-slate-600 lang-en">Mathematically proved that pure bidirectional attention suffers double-exponential rank collapse, fundamentally explaining why ultra-deep Encoders fail.</p>
+                    </div>
+                    <!-- Anthropic -->
+                    <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-1">
+                            <div class="font-bold text-slate-800 text-sm">In-context Learning and Induction Heads</div>
+                            <span class="text-[10px] font-mono bg-amber-50 text-amber-600 border border-amber-200 px-2 py-0.5 rounded">Anthropic</span>
+                        </div>
+                        <div class="text-xs font-medium text-slate-500 mb-2">Olsson et al., 2022 (Transformer Circuits Thread)</div>
+                        <p class="text-xs text-slate-600 lang-zh">机械可解释性的神作。通过对神经回路逆向工程，证明了自回归目标（预测下一个词的压力）是促使模型发育出 ICL 泛化能力的唯一关键。</p>
+                        <p class="text-xs text-slate-600 lang-en">Masterpiece of Mechanistic Interpretability. Reverse-engineered neural circuits to prove AR objective pressure is key to developing ICL capabilities.</p>
+                    </div>
+                    <!-- Academic -->
+                    <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex justify-between items-start mb-1">
+                            <div class="font-bold text-slate-800 text-sm">Transformers learn in-context by gradient descent</div>
+                            <span class="text-[10px] font-mono bg-purple-50 text-purple-600 border border-purple-200 px-2 py-0.5 rounded">Academia</span>
+                        </div>
+                        <div class="text-xs font-medium text-slate-500 mb-2">Johannes von Oswald et al., 2023</div>
+                        <p class="text-xs text-slate-600 lang-zh">揭示隐式优化本质：严格证明了自回归架构下的 Linear Attention 等价于在网络前向传播中进行隐式的模型权重梯度下降更新。</p>
+                        <p class="text-xs text-slate-600 lang-en">Revealed implicit optimization: Strictly proved Linear Attention under AR architectures equates to implicit weight gradient descent updates.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let expertChartInstance = null;
+    let seniorChartInstance = null;
+    let beginnerChartInstance = null;
+
+    // --- State Management ---
+    function toggleLanguage() {
+        const body = document.body;
+        const currentLang = body.getAttribute('data-lang');
+        const newLang = currentLang === 'zh' ? 'en' : 'zh';
+        body.setAttribute('data-lang', newLang);
+        updateChartsLanguage(newLang);
+    }
+
+    function setPerspective(persp) {
+        document.body.setAttribute('data-perspective', persp);
+        
+        const btns = ['beginner', 'expert', 'senior'];
+        btns.forEach(b => {
+            const btnEl = document.getElementById('btn-' + b);
+            if (btnEl) {
+                btnEl.classList.replace('active-persp', 'inactive-persp');
+                btnEl.style.backgroundColor = ''; 
+                btnEl.style.color = '';
+            }
+        });
+        
+        const activeBtn = document.getElementById('btn-' + persp);
+        activeBtn.classList.replace('inactive-persp', 'active-persp');
+        
+        // Add specific color highlighting for active state based on perspective
+        if(persp === 'beginner') {
+            activeBtn.style.backgroundColor = '#0284c7'; // Sky 600
+            activeBtn.style.color = 'white';
+        } else if (persp === 'expert') {
+            activeBtn.style.backgroundColor = '#047857'; // Emerald 700
+            activeBtn.style.color = 'white';
+        } else if (persp === 'senior') {
+            activeBtn.style.backgroundColor = '#1e293b'; // Slate 800
+            activeBtn.style.color = 'white';
+        }
+    }
+
+    // --- Chart Logic ---
+    function updateChartsLanguage(lang) {
+        if(beginnerChartInstance) {
+            if(lang === 'zh') {
+                beginnerChartInstance.data.datasets[0].label = '无监督海量文本 (直接喂给 Decoder)';
+                beginnerChartInstance.data.datasets[1].label = '人工标注的成对数据 (喂给 Enc-Dec)';
+                beginnerChartInstance.options.plugins.title.text = '可用训练数据量的规模对比';
+            } else {
+                beginnerChartInstance.data.datasets[0].label = 'Unsupervised Raw Text (For Decoder)';
+                beginnerChartInstance.data.datasets[1].label = 'Human Labeled Paired Data (For Enc-Dec)';
+                beginnerChartInstance.options.plugins.title.text = 'Available Training Data Volume Comparison';
+            }
+            beginnerChartInstance.update();
+        }
+
+        // Update Expert Chart (Scaling Laws)
+        if(expertChartInstance) {
+            if(lang === 'zh') {
+                expertChartInstance.data.datasets[0].label = 'Decoder-Only 零样本能力';
+                expertChartInstance.data.datasets[1].label = 'Encoder-Decoder 零样本能力';
+                expertChartInstance.options.plugins.title.text = '不同规模下的任务泛化能力趋势 (FLOPs 归一化)';
+                expertChartInstance.options.scales.x.title.text = '参数量 (Log Scale)';
+                expertChartInstance.options.scales.y.title.text = '能力评分 (相对值)';
+            } else {
+                expertChartInstance.data.datasets[0].label = 'Decoder-Only Zero-shot Capability';
+                expertChartInstance.data.datasets[1].label = 'Encoder-Decoder Zero-shot Capability';
+                expertChartInstance.options.plugins.title.text = 'Zero-shot Capability Trends vs Scale (FLOPs Normalized)';
+                expertChartInstance.options.scales.x.title.text = 'Parameters (Log Scale)';
+                expertChartInstance.options.scales.y.title.text = 'Capability Score (Relative)';
+            }
+            expertChartInstance.update();
+        }
+
+        // Update Senior Chart (Throughput)
+        if(seniorChartInstance) {
+            if(lang === 'zh') {
+                seniorChartInstance.data.datasets[0].label = 'Decoder-Only (PagedAttention / Radix 共享)';
+                seniorChartInstance.data.datasets[1].label = 'Encoder-Decoder (混合跨界 Attention 瓶颈)';
+                seniorChartInstance.options.plugins.title.text = '连续批处理 (Continuous Batching) 吞吐性能';
+                seniorChartInstance.options.scales.x.title.text = '并发请求数';
+                seniorChartInstance.options.scales.y.title.text = '总吞吐量 (Tokens/Sec)';
+            } else {
+                seniorChartInstance.data.datasets[0].label = 'Decoder-Only (PagedAttention / Radix Shared)';
+                seniorChartInstance.data.datasets[1].label = 'Encoder-Decoder (Cross-Attention Bottleneck)';
+                seniorChartInstance.options.plugins.title.text = 'Continuous Batching System Throughput';
+                seniorChartInstance.options.scales.x.title.text = 'Concurrent Requests';
+                seniorChartInstance.options.scales.y.title.text = 'Total Throughput (Tokens/Sec)';
+            }
+            seniorChartInstance.update();
+        }
+    }
+
+    // Initialize all charts on load
+    document.addEventListener("DOMContentLoaded", function() {
+        // Init default button color
+        setPerspective('expert');
+
+        const ctxBeginner = document.getElementById('beginnerChart').getContext('2d');
+        beginnerChartInstance = new Chart(ctxBeginner, {
+            type: 'bar',
+            data: {
+                labels: ['2018', '2020', '2022', '2024+'],
+                datasets: [
+                    {
+                        label: '无监督海量文本 (直接喂给 Decoder)',
+                        data: [100, 1000, 10000, 100000],
+                        backgroundColor: 'rgba(14, 165, 233, 0.7)', // Sky
+                        borderColor: '#0284c7',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '人工标注的成对数据 (喂给 Enc-Dec)',
+                        data: [50, 80, 120, 150],
+                        backgroundColor: 'rgba(203, 213, 225, 0.7)', // Slate
+                        borderColor: '#64748b',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { title: { display: true, text: '可用训练数据量的规模对比' } },
+                scales: {
+                    y: { 
+                        type: 'logarithmic',
+                        title: { display: true, text: '数据量 (Log Scale)' }
+                    }
+                }
+            }
+        });
+
+        // Expert Chart Initialization
+        const ctxExpert = document.getElementById('expertChart').getContext('2d');
+        expertChartInstance = new Chart(ctxExpert, {
+            type: 'line',
+            data: {
+                labels: ['1B', '10B', '100B', '1T'],
+                datasets: [{
+                    label: 'Decoder-Only 零样本能力',
+                    data: [12, 48, 82, 95],
+                    borderColor: '#10b981', // Emerald
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true, tension: 0.3, borderWidth: 3
+                }, {
+                    label: 'Encoder-Decoder 零样本能力',
+                    data: [20, 42, 60, 72],
+                    borderColor: '#64748b', // Slate
+                    borderDash: [5, 5],
+                    fill: false, tension: 0.3, borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { title: { display: true, text: '不同规模下的任务泛化能力趋势 (FLOPs 归一化)' } },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: '能力评分 (相对值)' } },
+                    x: { title: { display: true, text: '参数量 (Log Scale)' } }
+                }
+            }
+        });
+
+        // Senior Chart Initialization
+        const ctxSenior = document.getElementById('seniorChart').getContext('2d');
+        seniorChartInstance = new Chart(ctxSenior, {
+            type: 'line',
+            data: {
+                labels: ['16', '32', '64', '128', '256', '512', '1024'],
+                datasets: [
+                    {
+                        label: 'Decoder-Only (PagedAttention / Radix 共享)',
+                        data: [2000, 3900, 7500, 14000, 26000, 48000, 85000],
+                        borderColor: '#2563eb', // Blue
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        fill: true, tension: 0.3, borderWidth: 3
+                    },
+                    {
+                        label: 'Encoder-Decoder (混合跨界 Attention 瓶颈)',
+                        data: [1800, 3200, 5500, 8000, 11000, 12500, 13000],
+                        borderColor: '#e11d48', // Rose
+                        borderDash: [6, 4],
+                        fill: false, tension: 0.3, borderWidth: 3
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { title: { display: true, text: '连续批处理 (Continuous Batching) 吞吐性能' } },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: '总吞吐量 (Tokens/Sec)' } },
+                    x: { title: { display: true, text: '并发请求数' } }
+                }
+            }
+        });
+        
+        // Initial sync if loaded in english state (fallback safety)
+        if(document.body.getAttribute('data-lang') === 'en') { updateChartsLanguage('en'); }
+    });
+</script>
+
+</body>
+</html>
