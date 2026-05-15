@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout deep-research
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.SYNC_PAT }}
 
       - name: Checkout Tech-Blog
         uses: actions/checkout@v4
