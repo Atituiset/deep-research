@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<!-- 默认语言为中文，严格的物理隔离机制 -->
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 AI Foundation Models: Core Technologies</title>
+<style>
+  :root {
+    /* 默认深色/科技感主题 */
+    --bg-color: #07090f;
+    --bg-grid: rgba(0, 242, 255, 0.05);
+    --text-color: #e2e8f0;
+    --h1-color: #00f2ff;
+    --h2-color: #00f2ff;
+    --h3-color: #94a3b8;
+    --border-color: rgba(0, 242, 255, 0.2);
+    --card-bg: rgba(13, 17, 24, 0.85);
+    --table-header-bg: rgba(0, 242, 255, 0.1);
+    --table-border: rgba(0, 242, 255, 0.15);
+    --btn-bg: rgba(0, 242, 255, 0.1);
+    --btn-text: #00f2ff;
+    --btn-border: #00f2ff;
+    
+    /* SVG & Chart Variables */
+    --svg-stroke: #00f2ff;
+    --svg-bg: #07090f;
+    --svg-fill-light: rgba(0, 242, 255, 0.05);
+    --link-color: #38bdf8;
+    --code-bg: rgba(0, 0, 0, 0.6);
+    
+    /* Tech Accents */
+    --accent-success: #10b981;
+    --accent-warning: #f59e0b;
+    --accent-purple: #8b5cf6;
+    --neon-glow: 0 0 15px rgba(0, 242, 255, 0.3);
+    --neon-glow-success: 0 0 15px rgba(16, 185, 129, 0.4);
+    --neon-glow-purple: 0 0 15px rgba(139, 92, 246, 0.4);
+  }
+
+  [data-theme="light"] {
+    --bg-color: #f8fafc;
+    --bg-grid: rgba(0, 102, 255, 0.05);
+    --text-color: #0f172a;
+    --h1-color: #0ea5e9;
+    --h2-color: #0284c7;
+    --h3-color: #475569;
+    --border-color: rgba(14, 165, 233, 0.3);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --table-header-bg: rgba(14, 165, 233, 0.1);
+    --table-border: rgba(14, 165, 233, 0.2);
+    --btn-bg: #0ea5e9;
+    --btn-text: #ffffff;
+    --btn-border: #0ea5e9;
+    
+    --svg-stroke: #0ea5e9;
+    --svg-bg: #ffffff;
+    --svg-fill-light: rgba(14, 165, 233, 0.05);
+    --link-color: #0284c7;
+    --code-bg: #f1f5f9;
+    --neon-glow: 0 4px 15px rgba(14, 165, 233, 0.2);
+  }
+
+  /* 基础重置与网格排版 */
+  * { box-sizing: border-box; transition: background-color 0.4s, color 0.4s, border-color 0.4s, box-shadow 0.4s; }
+  body {
+    font-family: 'JetBrains Mono', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.8;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    /* 科技感网格背景 */
+    background-image: linear-gradient(var(--bg-grid) 1px, transparent 1px), linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+    background-size: 30px 30px;
+    padding: 60px 20px;
+    margin: 0;
+  }
+
+  /* 绝对隔离的多语言显示逻辑 (核心) */
+  :root[lang="zh-CN"] .lang-en { display: none !important; }
+  :root[lang="en"] .lang-zh { display: none !important; }
+
+  .report-container { max-width: 1000px; margin: 0 auto; position: relative; }
+
+  /* 控制面板 */
+  .controls { position: fixed; top: 20px; right: 20px; display: flex; gap: 12px; z-index: 1000; backdrop-filter: blur(10px); padding: 10px; border-radius: 30px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); }
+  button {
+    background-color: var(--btn-bg); color: var(--btn-text); border: 1px solid var(--btn-border);
+    padding: 8px 18px; border-radius: 20px; cursor: pointer; font-weight: bold; font-family: inherit;
+    box-shadow: var(--neon-glow); letter-spacing: 1px;
+  }
+  button:hover { transform: translateY(-2px); filter: brightness(1.2); }
+
+  /* 标题与文字元素 */
+  h1 { 
+    color: var(--h1-color); text-align: center; border-bottom: 2px solid var(--border-color); 
+    padding-bottom: 20px; margin-bottom: 40px; font-size: 2.2rem; text-shadow: var(--neon-glow);
+  }
+  h2 { 
+    color: var(--h2-color); border-bottom: 1px solid var(--border-color); 
+    padding-bottom: 10px; margin-top: 60px; display: flex; align-items: center; font-size: 1.5rem; text-shadow: var(--neon-glow);
+  }
+  h3 { color: var(--h3-color); margin-top: 30px; font-size: 1.2rem; font-weight: 600; }
+  p { margin-bottom: 18px; text-align: justify; font-size: 1.05rem; }
+  ul, ol { margin-bottom: 25px; padding-left: 30px; font-size: 1.05rem; }
+  li { margin-bottom: 10px; }
+  a { color: var(--link-color); text-decoration: none; font-weight: bold; border-bottom: 1px dashed var(--link-color); }
+  a:hover { text-shadow: var(--neon-glow); }
+
+  /* CSS 科技感图标 */
+  .css-icon {
+    display: inline-block; width: 14px; height: 14px;
+    background: var(--bg-color); border: 2px solid var(--h2-color);
+    box-shadow: var(--neon-glow); border-radius: 3px; margin-right: 15px; transform: rotate(45deg);
+  }
+
+  /* 图表与图示容器 (玻璃拟态 + 霓虹边框) */
+  .chart-wrapper {
+    background-color: var(--card-bg); padding: 30px; border-radius: 12px; margin: 40px 0;
+    border: 1px solid var(--border-color); box-shadow: var(--neon-glow);
+    backdrop-filter: blur(10px); overflow-x: auto;
+  }
+  .chart-title { text-align: center; margin-top: 0; margin-bottom: 30px; font-size: 1.1rem; color: var(--h1-color); font-weight: bold; letter-spacing: 1px; }
+
+  /* Quantization Chart (JS Rendered) */
+  .css-chart {
+    display: flex; align-items: flex-end; justify-content: space-around;
+    height: 250px; border-bottom: 2px solid var(--svg-stroke); border-left: 2px solid var(--svg-stroke);
+    padding-bottom: 5px; margin-top: 30px; position: relative;
+    background: linear-gradient(to top, var(--svg-fill-light), transparent);
+  }
+  .bar-container { display: flex; flex-direction: column; align-items: center; width: 25%; height: 100%; justify-content: flex-end; position: relative;}
+  .css-bar {
+    width: 60%; text-align: center; color: var(--bg-color); font-weight: 900;
+    border-radius: 4px 4px 0 0; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 8px;
+    transition: height 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+    box-shadow: 0 0 20px inset rgba(255,255,255,0.2), var(--neon-glow);
+    position: relative; overflow: hidden;
+  }
+  .css-bar::after { /* 条纹扫描线效果 */
+    content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 200%;
+    background: linear-gradient(rgba(255,255,255,0.2) 50%, transparent 50%); background-size: 100% 4px;
+    animation: scanline 20s linear infinite; pointer-events: none;
+  }
+  @keyframes scanline { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
+  
+  .bar-val-label { position: absolute; top: -30px; font-weight: 900; font-size: 16px; color: var(--h1-color); text-shadow: var(--neon-glow); }
+  .bar-title { margin-top: 15px; font-weight: bold; color: var(--text-color); font-size: 12px; text-align: center; line-height: 1.5; font-family: sans-serif; }
+
+  /* Stacked Blocks CSS (部署层级) */
+  .stack-container { display: flex; flex-direction: column-reverse; gap: 15px; margin-top: 30px; perspective: 1000px; }
+  .stack-layer {
+    background-color: var(--svg-fill-light); border: 1px solid var(--border-color);
+    border-radius: 6px; padding: 18px; text-align: center; font-weight: bold; font-size: 0.95rem;
+    color: var(--text-color); position: relative;
+    transform: rotateX(10deg); transition: transform 0.3s;
+  }
+  .stack-layer:hover { transform: rotateX(0deg) scale(1.02); box-shadow: var(--neon-glow); z-index: 10; border-color: var(--h1-color); background: rgba(0, 242, 255, 0.1);}
+  .stack-layer::after {
+    content: '▼'; position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+    color: var(--border-color); font-size: 12px;
+  }
+  .stack-layer:last-child::after { content: ''; }
+  .stack-layer.highlight { background-color: rgba(0, 242, 255, 0.15); border-color: var(--h1-color); box-shadow: var(--neon-glow); color: var(--h1-color); text-shadow: 0 0 5px var(--h1-color); }
+
+  /* 代码块样式 */
+  .code-block {
+    background-color: var(--code-bg); padding: 25px; border-radius: 8px;
+    font-family: 'Courier New', Courier, monospace; font-size: 1rem; 
+    border-left: 4px solid var(--h1-color); margin: 25px 0; overflow-x: auto;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+  }
+
+  /* SVG 流动线动画 */
+  .dash-flow { stroke-dasharray: 6 6; animation: dash-move 2s linear infinite; }
+  @keyframes dash-move { to { stroke-dashoffset: -12; } }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <button id="langBtn" onclick="toggleLang()">🇺🇸 EN</button>
+  <button id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
+</div>
+
+<div class="report-container">
+
+  <!-- H1: Titles (绝对隔离) -->
+  <h1 class="lang-zh">2026年大语言模型前沿核心技术深度解析：微调、量化、部署与底层架构演进</h1>
+  <h1 class="lang-en">In-Depth Analysis of 2026 LLM Core Technologies: Fine-Tuning, Quantization, Deployment & Architecture Evolution</h1>
+
+  <!-- Section 1: Intro -->
+  <h2 class="lang-zh"><span class="css-icon"></span>引言：大语言模型系统工程的范式转移</h2>
+  <h2 class="lang-en"><span class="css-icon"></span>Introduction: The Paradigm Shift in LLM System Engineering</h2>
+  
+  <p class="lang-zh">在2025至2026年的大语言模型（LLM）演进进程中，人工智能领域的关注核心已从单纯的模型参数规模扩张，向极致的计算效率、资源利用率和系统级工程优化发生了根本性的范式转移 [1]。现代工业界的共识在于，决定企业级AI应用竞争力的不再仅是模型的绝对参数量，而是单次推理的边际成本、首字延迟（Time-to-First-Token, TTFT）以及系统在高并发下的吞吐率（Time-Per-Output-Token, TPOT） [2]。</p>
+  <p class="lang-en">In the 2025-2026 evolution of Large Language Models (LLMs), the AI field's core focus has fundamentally shifted from mere parameter scaling to extreme computational efficiency, resource utilization, and system-level engineering optimization [1]. The modern industrial consensus is that an enterprise AI application's competitiveness is no longer determined solely by its absolute parameter count, but by the marginal inference cost, Time-to-First-Token (TTFT), and Time-Per-Output-Token (TPOT) under high concurrency [2].</p>
+
+  <!-- Section 2: Fine-Tuning -->
+  <h2 class="lang-zh"><span class="css-icon"></span>一、 场景化适配：微调技术的演进与决策</h2>
+  <h2 class="lang-en"><span class="css-icon"></span>1. Contextual Adaptation: Fine-Tuning Evolution & Decisions</h2>
+  
+  <p class="lang-zh">全参数微调由于巨大的显存消耗在经济上往往不可持续，因此，<strong>参数高效微调（PEFT）</strong> 技术成为了工业界的绝对主流 [3]。</p>
+  <p class="lang-en">Full-parameter fine-tuning is economically unsustainable due to massive VRAM consumption. Consequently, <strong>Parameter-Efficient Fine-Tuning (PEFT)</strong> has become the absolute mainstream in industry [3].</p>
+  
+  <ul class="lang-zh">
+    <li><strong style="color:var(--h1-color)">LoRA 与 QLoRA：</strong> 低秩适配器巧妙地规避了全量梯度的计算，QLoRA 结合量化使得在单张消费级 GPU 上微调大规模模型成为现实。</li>
+    <li><strong style="color:var(--accent-warning)">DoRA (Weight-Decomposed Low-Rank Adaptation)：</strong> 2026年极为重要的架构突破。DoRA 通过将预训练权重分解为幅度（Magnitude）与方向（Direction）向量，在不增加推理开销的情况下，实现了逼近全量微调（Full Fine-Tuning）的极高精度。</li>
+  </ul>
+  <ul class="lang-en">
+    <li><strong style="color:var(--h1-color)">LoRA & QLoRA:</strong> Low-Rank Adaptation cleverly bypasses full gradient computation. QLoRA combined with quantization makes fine-tuning massive models on a single consumer GPU a reality.</li>
+    <li><strong style="color:var(--accent-warning)">DoRA (Weight-Decomposed Low-Rank Adaptation):</strong> A critical architectural breakthrough in 2026. By decomposing pre-trained weights into Magnitude and Direction vectors, DoRA achieves extremely high accuracy approaching Full Fine-Tuning without adding inference overhead.</li>
+  </ul>
+  
+  <div class="chart-wrapper">
+    <div class="chart-title lang-zh">图示 1: LoRA 与 DoRA 权重分解机制计算流</div>
+    <div class="chart-title lang-en">Figure 1: LoRA vs DoRA Weight Decomposition Dataflow</div>
+    
+    <svg width="100%" height="260" viewBox="0 0 600 260" style="max-width: 600px; display: block; margin: auto;" xmlns="http://www.w3.org/2000/svg">
+      <!-- SVG Filter for Glow -->
+      <defs>
+        <filter id="glow-blue" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+        <filter id="glow-amber" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+      </defs>
+
+      <!-- LoRA Block -->
+      <text class="lang-zh" x="100" y="40" font-family="monospace" font-size="14" font-weight="bold" fill="var(--h1-color)" filter="url(#glow-blue)">[LoRA_ADAPTATION]</text>
+      <text class="lang-en" x="100" y="40" font-family="monospace" font-size="14" font-weight="bold" fill="var(--h1-color)" filter="url(#glow-blue)">[LoRA_ADAPTATION]</text>
+      
+      <rect x="50" y="60" width="80" height="50" fill="var(--svg-fill-light)" stroke="var(--svg-stroke)" stroke-width="1.5" rx="4"/>
+      <text class="lang-zh" x="90" y="90" font-family="sans-serif" font-size="14" text-anchor="middle" fill="var(--text-color)">W (微调后)</text>
+      <text class="lang-en" x="90" y="90" font-family="sans-serif" font-size="14" text-anchor="middle" fill="var(--text-color)">W (Tuned)</text>
+      
+      <text x="145" y="90" font-family="sans-serif" font-size="18" text-anchor="middle" fill="var(--text-color)">=</text>
+      
+      <rect x="160" y="60" width="80" height="50" fill="transparent" stroke="var(--h3-color)" stroke-width="2" rx="4" stroke-dasharray="4"/>
+      <text class="lang-zh" x="200" y="90" font-family="sans-serif" font-size="14" text-anchor="middle" fill="var(--h3-color)">W₀ (冻结)</text>
+      <text class="lang-en" x="200" y="90" font-family="sans-serif" font-size="14" text-anchor="middle" fill="var(--h3-color)">W₀ (Frozen)</text>
+      
+      <text x="255" y="90" font-family="sans-serif" font-size="18" text-anchor="middle" fill="var(--text-color)">+</text>
+      
+      <g filter="url(#glow-blue)">
+        <rect x="270" y="60" width="30" height="50" fill="none" stroke="var(--svg-stroke)" stroke-width="2" rx="2"/>
+        <text x="285" y="90" font-family="monospace" font-size="14" text-anchor="middle" fill="var(--svg-stroke)">B</text>
+        <rect x="305" y="70" width="60" height="30" fill="none" stroke="var(--svg-stroke)" stroke-width="2" rx="2"/>
+        <text x="335" y="90" font-family="monospace" font-size="14" text-anchor="middle" fill="var(--svg-stroke)">A</text>
+      </g>
+
+      <line x1="50" y1="130" x2="550" y2="130" stroke="var(--border-color)" stroke-width="1" stroke-dasharray="2 4"/>
+
+      <!-- DoRA Block -->
+      <text class="lang-zh" x="100" y="160" font-family="monospace" font-size="14" font-weight="bold" fill="var(--accent-warning)" filter="url(#glow-amber)">[DoRA_DECOMPOSITION]</text>
+      <text class="lang-en" x="100" y="160" font-family="monospace" font-size="14" font-weight="bold" fill="var(--accent-warning)" filter="url(#glow-amber)">[DoRA_DECOMPOSITION]</text>
+
+      <rect x="50" y="180" width="80" height="50" fill="var(--svg-fill-light)" stroke="var(--svg-stroke)" stroke-width="1.5" rx="4"/>
+      <text class="lang-zh" x="90" y="210" font-family="sans-serif" font-size="14" text-anchor="middle" fill="var(--text-color)">W (微调后)</text>
+      <text class="lang-en" x="90" y="210" font-family="sans-serif" font-size="14" text-anchor="middle" fill="var(--text-color)">W (Tuned)</text>
+
+      <text x="145" y="210" font-family="sans-serif" font-size="18" text-anchor="middle" fill="var(--text-color)">=</text>
+      
+      <rect x="160" y="180" width="40" height="50" fill="rgba(245, 158, 11, 0.1)" stroke="var(--accent-warning)" stroke-width="2" rx="4" filter="url(#glow-amber)"/>
+      <text x="180" y="210" font-family="monospace" font-size="14" text-anchor="middle" fill="var(--accent-warning)">m</text>
+      
+      <text x="215" y="210" font-family="sans-serif" font-size="18" text-anchor="middle" fill="var(--text-color)">×</text>
+      
+      <!-- Fraction Math rendering for V+BA / ||V+BA|| -->
+      <path d="M 235 170 L 230 170 L 230 240 L 235 240" fill="none" stroke="var(--svg-stroke)" stroke-width="1.5"/>
+      <text x="310" y="195" font-family="monospace" font-size="14" text-anchor="middle" fill="var(--text-color)">V + B·A</text>
+      <line x1="240" y1="205" x2="380" y2="205" stroke="var(--text-color)" stroke-width="1"/>
+      <text x="310" y="225" font-family="monospace" font-size="14" text-anchor="middle" fill="var(--text-color)">||V + B·A||_c</text>
+      <path d="M 385 170 L 390 170 L 390 240 L 385 240" fill="none" stroke="var(--svg-stroke)" stroke-width="1.5"/>
+
+      <!-- Annotations -->
+      <text class="lang-zh" x="420" y="195" font-family="sans-serif" font-size="11" fill="var(--h3-color)">m: 可训练幅度向量</text>
+      <text class="lang-en" x="420" y="195" font-family="sans-serif" font-size="11" fill="var(--h3-color)">m: Trainable Magnitude</text>
+      <text class="lang-zh" x="420" y="220" font-family="sans-serif" font-size="11" fill="var(--h3-color)">V: 冻结基座方向</text>
+      <text class="lang-en" x="420" y="220" font-family="sans-serif" font-size="11" fill="var(--h3-color)">V: Frozen Base Direction</text>
+    </svg>
+  </div>
+
+  <!-- Section 3: Quantization -->
+  <h2 class="lang-zh"><span class="css-icon"></span>二、 模型量化体系：FP8与工业标杆</h2>
+  <h2 class="lang-en"><span class="css-icon"></span>2. Model Quantization: FP8 & Industry Benchmarks</h2>
+  
+  <p class="lang-zh">量化技术极大地缓解了自回归解码阶段的显存带宽瓶颈（Memory-bandwidth Wall）。</p>
+  <p class="lang-en">Quantization significantly alleviates the Memory-bandwidth Wall during the autoregressive decoding phase.</p>
+  
+  <ul class="lang-zh">
+    <li><strong>FP8 (E4M3) 统治地位：</strong> 在2026年，凭借几乎可以忽略的精度折损（通常小于0.5%），原生 FP8 成为顶级算力集群（如 NVIDIA Hopper/Blackwell）的无争议默认配置，带来了1.4x至1.7x的吞吐量提升 [5]。</li>
+    <li><strong style="color:var(--accent-success)">4-bit 前沿优化：</strong> 伴随专门的 Marlin 算子内核优化，<strong>AWQ (Activation-Aware Weight Quantization)</strong> 通过识别并保护显著权重，在 vLLM 等推理引擎中的吞吐量全面超越了传统的 GPTQ [4]。</li>
+  </ul>
+  <ul class="lang-en">
+    <li><strong>FP8 (E4M3) Dominance:</strong> In 2026, with negligible accuracy degradation (<0.5%), native FP8 has become the undisputed default on top-tier clusters (e.g., Hopper/Blackwell), yielding 1.4x to 1.7x throughput gains [5].</li>
+    <li><strong style="color:var(--accent-success)">4-bit Frontier:</strong> Paired with specialized Marlin kernel optimizations, <strong>AWQ (Activation-Aware Weight Quantization)</strong> protects salient weights, comprehensively outperforming GPTQ in throughput on inference engines like vLLM [4].</li>
+  </ul>
+
+  <div class="chart-wrapper">
+    <div class="chart-title lang-zh">图表 2: 2026年主流 4-bit/8-bit 量化吞吐量基准对比 (vLLM, tok/s)</div>
+    <div class="chart-title lang-en">Chart 2: 2026 4-bit/8-bit Quantization Throughput Benchmark (vLLM, tok/s)</div>
+    
+    <div class="css-chart" id="throughputChart">
+      <div class="bar-container">
+        <div class="bar-val-label">93</div>
+        <div class="css-bar" style="height: 0%; background-color: var(--h3-color);" data-target="13"></div>
+        <div class="bar-title">
+            <span class="lang-zh">GGUF<br>(端侧/CPU)</span>
+            <span class="lang-en">GGUF<br>(Edge/CPU)</span>
+        </div>
+      </div>
+      <div class="bar-container">
+        <div class="bar-val-label">712</div>
+        <div class="css-bar" style="height: 0%; background-color: var(--accent-purple);" data-target="96"></div>
+        <div class="bar-title">
+            <span class="lang-zh">GPTQ-4bit<br>(+Marlin内核)</span>
+            <span class="lang-en">GPTQ-4bit<br>(+Marlin)</span>
+        </div>
+      </div>
+      <div class="bar-container">
+        <div class="bar-val-label" style="color: var(--accent-success); text-shadow: var(--neon-glow-success);">741</div>
+        <div class="css-bar" style="height: 0%; background-color: var(--accent-success);" data-target="100"></div>
+        <div class="bar-title">
+            <span class="lang-zh">AWQ-4bit<br>(+Marlin内核)</span>
+            <span class="lang-en">AWQ-4bit<br>(+Marlin)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4: KV Cache & MLA -->
+  <h2 class="lang-zh"><span class="css-icon"></span>三、 突破内存墙：高级 KV Cache 优化与 MLA</h2>
+  <h2 class="lang-en"><span class="css-icon"></span>3. Breaking the Memory Wall: Advanced KV Cache & MLA</h2>
+  
+  <p class="lang-zh">在超长文本推理中，KV Cache（键值缓存）会暴涨至超过模型权重本身的体积。工业界首选利用 <strong>PagedAttention</strong> 机制，像操作系统虚拟分页一样打破连续显存分配的桎梏，消除内存碎片，使显存利用率逼近96%。</p>
+  <p class="lang-en">In ultra-long context inference, the KV Cache expands to exceed the volume of the model weights. The industry defaults to the <strong>PagedAttention</strong> mechanism, functioning like OS virtual paging to break the constraints of contiguous memory allocation, eliminating fragmentation and pushing VRAM utilization to ~96%.</p>
+
+  <p class="lang-zh">更具颠覆性的是以 DeepSeek 为代表的 <strong style="color:var(--h1-color)">多头潜在注意力（MLA, Multi-Head Latent Attention）</strong> 机制。MLA 在架构底层引入低维潜在空间进行自编码压缩 [6, 7]。</p>
+  <p class="lang-en">Even more disruptive is the <strong style="color:var(--h1-color)">Multi-Head Latent Attention (MLA)</strong> architecture spearheaded by DeepSeek. MLA introduces a low-dimensional latent space at the base architecture for auto-encoded compression [6, 7].</p>
+
+  <ul class="lang-zh">
+    <li>通过使用向下投影矩阵，将庞大的键值信息压缩成紧凑的潜向量（Latent Vector），体积压缩比高达 8~14 倍。</li>
+    <li>在解码时，配合 <strong>解耦旋转位置编码（Decoupled RoPE）</strong> 和权重吸收技巧（Weight Absorption Trick），巧妙地将运行时解压计算开销融合进查询矩阵，彻底消除了显式解压的性能惩罚。</li>
+  </ul>
+  <ul class="lang-en">
+    <li>By using down-projection matrices, massive key-value information is compressed into a compact Latent Vector, yielding an 8-14x compression ratio.</li>
+    <li>During decoding, paired with <strong>Decoupled RoPE</strong> and the Weight Absorption Trick, runtime decompression overhead is cleverly fused into the query matrix, completely eliminating explicit decompression penalties.</li>
+  </ul>
+
+  <div class="chart-wrapper" style="text-align: center;">
+    <div class="chart-title lang-zh">图示 3: DeepSeek MLA 机制与解耦 RoPE 拓扑投影</div>
+    <div class="chart-title lang-en">Figure 3: DeepSeek MLA Mechanism & Decoupled RoPE Topology</div>
+    
+    <svg width="100%" height="320" viewBox="0 0 800 320" style="max-width: 800px; display: block; margin: auto;" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow_mla" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--svg-stroke)"/>
+        </marker>
+        <marker id="arrow_mla_orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent-warning)"/>
+        </marker>
+      </defs>
+
+      <!-- Input Node -->
+      <rect x="50" y="120" width="80" height="40" fill="var(--bg-color)" stroke="var(--h1-color)" stroke-width="2" rx="4" filter="url(#glow-blue)"/>
+      <text class="lang-zh" x="90" y="145" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="var(--text-color)">h_t (输入)</text>
+      <text class="lang-en" x="90" y="145" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="var(--text-color)">h_t (Input)</text>
+      
+      <!-- Paths splitting -->
+      <path d="M 130 140 L 170 80 L 190 80" fill="none" stroke="var(--svg-stroke)" stroke-width="2" class="dash-flow" marker-end="url(#arrow_mla)"/>
+      <path d="M 130 140 L 170 200 L 190 200" fill="none" stroke="var(--accent-warning)" stroke-width="2" class="dash-flow" marker-end="url(#arrow_mla_orange)"/>
+      
+      <!-- Projections -->
+      <rect x="200" y="60" width="100" height="40" fill="none" stroke="var(--h2-color)" stroke-width="2" stroke-dasharray="4" rx="4"/>
+      <text class="lang-zh" x="250" y="85" font-family="monospace" font-size="12" text-anchor="middle" fill="var(--h2-color)">W_DKV (压缩)</text>
+      <text class="lang-en" x="250" y="85" font-family="monospace" font-size="12" text-anchor="middle" fill="var(--h2-color)">W_DKV (Compress)</text>
+      
+      <rect x="200" y="180" width="100" height="40" fill="none" stroke="var(--accent-warning)" stroke-width="2" stroke-dasharray="4" rx="4"/>
+      <text class="lang-zh" x="250" y="205" font-family="monospace" font-size="12" text-anchor="middle" fill="var(--accent-warning)">W_KR (解耦位置)</text>
+      <text class="lang-en" x="250" y="205" font-family="monospace" font-size="12" text-anchor="middle" fill="var(--accent-warning)">W_KR (Decoupled)</text>
+
+      <path d="M 300 80 L 330 80 L 330 110" fill="none" stroke="var(--svg-stroke)" stroke-width="2" class="dash-flow" marker-end="url(#arrow_mla)"/>
+      <path d="M 300 200 L 330 200 L 330 170" fill="none" stroke="var(--svg-stroke)" stroke-width="2" class="dash-flow" marker-end="url(#arrow_mla)"/>
+      
+      <!-- Compressed Latent Core -->
+      <rect x="310" y="110" width="160" height="60" fill="rgba(16, 185, 129, 0.1)" stroke="var(--accent-success)" stroke-width="2" rx="8" filter="url(#glow-blue)"/>
+      <text class="lang-zh" x="390" y="130" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="var(--accent-success)">物理显存：极限压缩潜空间</text>
+      <text class="lang-en" x="390" y="130" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="var(--accent-success)">VRAM: Compressed Latent</text>
+      <text x="390" y="155" font-family="monospace" font-size="14" text-anchor="middle" fill="var(--text-color)">[c_t_kv, k_t_R]</text>
+      
+      <!-- Up projections -->
+      <path d="M 470 140 L 490 140" fill="none" stroke="var(--svg-stroke)" stroke-width="2" class="dash-flow"/>
+      <path d="M 480 140 L 480 100 L 500 100" fill="none" stroke="var(--svg-stroke)" stroke-width="2" class="dash-flow" marker-end="url(#arrow_mla)"/>
+      <path d="M 480 140 L 480 180 L 500 180" fill="none" stroke="var(--svg-stroke)" stroke-width="2" class="dash-flow" marker-end="url(#arrow_mla)"/>
+      
+      <rect x="510" y="80" width="100" height="40" fill="none" stroke="var(--accent-purple)" stroke-width="2" stroke-dasharray="4" rx="4"/>
+      <text class="lang-zh" x="560" y="105" font-family="monospace" font-size="12" text-anchor="middle" fill="var(--accent-purple)">W_UK (上投影)</text>
+      <text class="lang-en" x="560" y="105" font-family="monospace" font-size="12" text-anchor="middle" fill="var(--accent-purple)">W_UK (Up-Proj)</text>
+      
+      <rect x="510" y="160" width="100" height="40" fill="none" stroke="var(--accent-purple)" stroke-width="2" stroke-dasharray="4" rx="4"/>
+      <text class="lang-zh" x="560" y="185" font-family="monospace" font-size="12" text-anchor="middle" fill="var(--accent-purple)">W_UV (上投影)</text>
+      <text class="lang-en" x="560" y="185" font-family="monospace" font-size="12" text-anchor="middle" fill="var(--accent-purple)">W_UV (Up-Proj)</text>
+      
+      <path d="M 610 100 L 640 100" fill="none" stroke="var(--svg-stroke)" stroke-width="2" class="dash-flow" marker-end="url(#arrow_mla)"/>
+      <path d="M 610 180 L 640 180" fill="none" stroke="var(--svg-stroke)" stroke-width="2" class="dash-flow" marker-end="url(#arrow_mla)"/>
+      
+      <!-- Final Heads -->
+      <rect x="650" y="80" width="110" height="40" fill="var(--bg-color)" stroke="var(--h1-color)" stroke-width="2" rx="4" filter="url(#glow-blue)"/>
+      <text class="lang-zh" x="705" y="105" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="var(--text-color)">K_c (重建多头)</text>
+      <text class="lang-en" x="705" y="105" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="var(--text-color)">K_c (Restored)</text>
+      
+      <rect x="650" y="160" width="110" height="40" fill="var(--bg-color)" stroke="var(--h1-color)" stroke-width="2" rx="4" filter="url(#glow-blue)"/>
+      <text class="lang-zh" x="705" y="185" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="var(--text-color)">V_c (重建多头)</text>
+      <text class="lang-en" x="705" y="185" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="var(--text-color)">V_c (Restored)</text>
+    </svg>
+  </div>
+
+  <!-- Section 5: PPD Architecture -->
+  <h2 class="lang-zh"><span class="css-icon"></span>四、 PD分离架构、网络带宽墙与 PPD 动态路由</h2>
+  <h2 class="lang-en"><span class="css-icon"></span>4. PD Disaggregation, Bandwidth Wall & PPD Routing</h2>
+  
+  <p class="lang-zh">大模型预填充（Prefill，计算密集型）与解码（Decode，访存密集型）的物理边界解耦（PD Separation）已成为 2026 年大规模服务集群的标准。</p>
+  <p class="lang-en">Decoupling the physical boundaries of prefill (compute-bound) and decode (memory-bound)—known as PD Disaggregation—has become the standard for large-scale serving clusters in 2026.</p>
+  
+  <ul class="lang-zh">
+    <li>在此架构中，<strong>Mooncake</strong> 等平台利用 RDMA 构建全局分布式 KVCache 海（Mooncake Store），打破了数据中心的单机显存瓶颈 [8, 9]。</li>
+    <li>然而，在多轮对话中，严格的 PD 分离会导致极高的尾部延迟（因为重传历史 KV）。</li>
+  </ul>
+  <ul class="lang-en">
+    <li>In this architecture, platforms like <strong>Mooncake</strong> leverage RDMA to build a globally distributed KVCache pool (Mooncake Store), breaking single-machine VRAM bottlenecks [8, 9].</li>
+    <li>However, in multi-turn conversations, strict PD separation causes massive tail latency due to re-transmitting historical KV caches.</li>
+  </ul>
+
+  <p class="lang-zh">前沿研究提出的 <strong style="color:var(--accent-success)">PPD（Prefill Prefill-capable Decode）</strong> 动态解耦架构完美解决了这一痛点。通过智能路由网关，系统将低计算强度的增量预填充（Append-prefill）请求，直接下发至缓存命中的 Decode 节点进行本地原地处理。这一设计免去了跨集群的网络穿梭，将多轮对话的首字延迟（TTFT）缩减了惊人的 <strong>68%</strong> [10, 11]。</p>
+  <p class="lang-en">The cutting-edge <strong style="color:var(--accent-success)">PPD (Prefill Prefill-capable Decode)</strong> dynamic disaggregation architecture perfectly solves this. Via a smart routing gateway, the system routes low-intensity append-prefill requests directly to Decode nodes (where the cache hits) for local in-place processing. This design eliminates cross-cluster network shuttling, slashing multi-turn TTFT by a staggering <strong>68%</strong> [10, 11].</p>
+  
+  <div class="chart-wrapper" style="text-align: center; position: relative;">
+    <div class="chart-title lang-zh">图示 4: PPD 动态解耦架构网络拓扑 (RDMA 数据流模拟)</div>
+    <div class="chart-title lang-en">Figure 4: PPD Dynamic Disaggregation Topology (RDMA Dataflow)</div>
+    
+    <svg width="100%" height="280" viewBox="0 0 800 280" style="max-width: 800px; display: block; margin: auto;" xmlns="http://www.w3.org/2000/svg">
+      <!-- Gateway -->
+      <rect x="20" y="100" width="100" height="80" fill="var(--bg-color)" stroke="var(--h1-color)" stroke-width="2" rx="4" filter="url(#glow-blue)"/>
+      <text class="lang-zh" x="70" y="135" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="var(--text-color)">智能路由网关</text>
+      <text class="lang-en" x="70" y="135" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="var(--text-color)">Smart Gateway</text>
+      <text x="70" y="155" font-family="monospace" font-size="10" text-anchor="middle" fill="var(--h3-color)">[PPD_ROUTER]</text>
+      
+      <!-- Paths -->
+      <path id="path1" d="M 125 120 L 160 120 L 160 60 L 180 60" fill="none" stroke="var(--h1-color)" stroke-width="2" class="dash-flow"/>
+      <text class="lang-zh" x="150" y="45" font-family="sans-serif" font-size="12" fill="var(--h1-color)" font-weight="bold" text-anchor="middle">第一轮: 常规 Prefill 路由</text>
+      <text class="lang-en" x="150" y="45" font-family="sans-serif" font-size="12" fill="var(--h1-color)" font-weight="bold" text-anchor="middle">Turn 1: Full Prefill Route</text>
+      <!-- Animated Packet Turn 1 -->
+      <circle r="4" fill="var(--h1-color)" filter="url(#glow-blue)">
+        <animateMotion dur="2.5s" repeatCount="indefinite" path="M 125 120 L 160 120 L 160 60 L 180 60" />
+      </circle>
+
+      <path id="path2" d="M 125 160 L 160 160 L 160 220 L 460 220" fill="none" stroke="var(--accent-success)" stroke-width="2" class="dash-flow"/>
+      <text class="lang-zh" x="310" y="210" font-family="sans-serif" font-size="12" fill="var(--accent-success)" font-weight="bold" text-anchor="middle">后续多轮: Append-Prefill 本地直达</text>
+      <text class="lang-en" x="310" y="210" font-family="sans-serif" font-size="12" fill="var(--accent-success)" font-weight="bold" text-anchor="middle">Turn 2+: Append-Prefill Local Route</text>
+      <!-- Animated Packet Turn 2+ -->
+      <circle r="4" fill="var(--accent-success)" filter="url(#glow-amber)">
+        <animateMotion dur="2s" repeatCount="indefinite" path="M 125 160 L 160 160 L 160 220 L 460 220" />
+      </circle>
+
+      <!-- Prefill Pool -->
+      <rect x="190" y="20" width="140" height="90" fill="rgba(0, 242, 255, 0.05)" stroke="var(--h1-color)" stroke-width="2" rx="6"/>
+      <text class="lang-zh" x="260" y="50" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="var(--h1-color)">Prefill 节点池</text>
+      <text class="lang-en" x="260" y="50" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="var(--h1-color)">Prefill Node Pool</text>
+      <text class="lang-zh" x="260" y="75" font-family="sans-serif" font-size="12" text-anchor="middle" fill="var(--text-color)">计算密集 (H100等)</text>
+      <text class="lang-en" x="260" y="75" font-family="sans-serif" font-size="12" text-anchor="middle" fill="var(--text-color)">Compute-Dense (H100)</text>
+
+      <!-- Global KV Pool -->
+      <rect x="360" y="45" width="80" height="40" fill="rgba(139, 92, 246, 0.1)" stroke="var(--accent-purple)" stroke-width="2" rx="20"/>
+      <text class="lang-zh" x="400" y="65" font-family="sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="var(--accent-purple)">全局缓存池</text>
+      <text class="lang-en" x="400" y="65" font-family="sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="var(--accent-purple)">Global KV Pool</text>
+      
+      <path d="M 335 65 L 355 65" fill="none" stroke="var(--accent-purple)" stroke-width="2" class="dash-flow"/>
+      <path d="M 445 65 L 465 65" fill="none" stroke="var(--accent-purple)" stroke-width="2" class="dash-flow"/>
+
+      <!-- Decode Pool -->
+      <rect x="470" y="20" width="160" height="240" fill="rgba(16, 185, 129, 0.05)" stroke="var(--accent-success)" stroke-width="2" rx="6" filter="url(#glow-amber)"/>
+      <text class="lang-zh" x="550" y="50" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="var(--accent-success)">Decode 节点 (pD)</text>
+      <text class="lang-en" x="550" y="50" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" fill="var(--accent-success)">Decode Node (pD)</text>
+      
+      <rect x="490" y="110" width="120" height="40" fill="var(--bg-color)" stroke="var(--h3-color)" stroke-width="1" rx="4"/>
+      <text class="lang-zh" x="550" y="135" font-family="sans-serif" font-size="12" text-anchor="middle" fill="var(--text-color)">拉取网络 KV</text>
+      <text class="lang-en" x="550" y="135" font-family="sans-serif" font-size="12" text-anchor="middle" fill="var(--text-color)">Pull Network KV</text>
+
+      <rect x="490" y="190" width="120" height="50" fill="rgba(16, 185, 129, 0.2)" stroke="var(--accent-success)" stroke-width="2" rx="4"/>
+      <text class="lang-zh" x="550" y="210" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="var(--accent-success)">本地追加 Prefill</text>
+      <text class="lang-en" x="550" y="210" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="var(--accent-success)">Local Append-Prefill</text>
+
+      <path d="M 635 140 L 680 140" fill="none" stroke="var(--svg-stroke)" stroke-width="2" class="dash-flow"/>
+      <!-- Stream token out -->
+      <circle r="3" fill="var(--h1-color)" filter="url(#glow-blue)">
+        <animateMotion dur="1s" repeatCount="indefinite" path="M 635 140 L 680 140" />
+      </circle>
+
+      <text class="lang-zh" x="730" y="145" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="var(--text-color)">流式输出 Token</text>
+      <text class="lang-en" x="730" y="145" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="var(--text-color)">Stream Tokens</text>
+    </svg>
+  </div>
+
+  <!-- Section 6: LLMOps -->
+  <h2 class="lang-zh"><span class="css-icon"></span>五、 推理引擎、投机解码与 LLMOps 部署</h2>
+  <h2 class="lang-en"><span class="css-icon"></span>5. Inference Engines, Speculative Decoding & LLMOps</h2>
+  
+  <p class="lang-zh">在投机解码前沿，<strong>P-EAGLE</strong> 打破了传统草稿模型的串行预测瓶颈，支持在单次前向传播中并行生成多个草稿 Token，在实际部署中带来了 1.69 倍的真实提速。而在生产环境的企业级架构中，系统已演进为严密的六层功能堆栈，智能网关承载了重任 [12]。</p>
+  <p class="lang-en">In cutting-edge speculative decoding, <strong>P-EAGLE</strong> breaks the serial prediction bottleneck of traditional draft models, supporting parallel generation of multiple draft tokens in a single forward pass, yielding a 1.69x real-world speedup. In production enterprise architecture, systems have evolved into a rigorous six-layer functional stack, with the AI Gateway bearing the core responsibilities [12].</p>
+
+  <div class="chart-wrapper">
+    <div class="chart-title lang-zh">图示 5: 2026 企业级 LLMOps 六层部署物理堆栈 (自底向上)</div>
+    <div class="chart-title lang-en">Figure 5: 2026 Enterprise LLMOps 6-Layer Stack (Bottom-Up)</div>
+    <div class="stack-container">
+      <div class="stack-layer">
+        <span class="lang-zh">L1: 基础设施遥测监控平台 (Telemetry & Ops)</span>
+        <span class="lang-en">L1: Infrastructure Telemetry & Ops Platform</span>
+      </div>
+      <div class="stack-layer">
+        <span class="lang-zh">L2: 提示词工程注册表与 CI 版本控制 (Prompt Registry)</span>
+        <span class="lang-en">L2: Prompt Registry & CI Version Control</span>
+      </div>
+      <div class="stack-layer">
+        <span class="lang-zh">L3: 离线红队评估与测试管道 (Offline Security Eval)</span>
+        <span class="lang-en">L3: Offline Red-Teaming & Eval Pipeline</span>
+      </div>
+      <div class="stack-layer">
+        <span class="lang-zh">L4: 在线评估与数据漂移监测观测台 (Observability)</span>
+        <span class="lang-en">L4: Online Eval & Data Drift Observability</span>
+      </div>
+      <div class="stack-layer highlight">
+        <span class="lang-zh">L5: AI 智能网关集群 (Traffic Routing, Semantic Caching, Fallback)</span>
+        <span class="lang-en">L5: AI Gateway Cluster (Routing, Semantic Caching, Fallback)</span>
+      </div>
+      <div class="stack-layer">
+        <span class="lang-zh">L6: 基于特征的 A/B 灰度测试与自动熔断 (A/B & Rollback)</span>
+        <span class="lang-en">L6: Feature-based A/B Testing & Auto Rollback</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 7: Conclusion -->
+  <h2 class="lang-zh"><span class="css-icon"></span>六、 核心结论：算力经济学视角的复利效应</h2>
+  <h2 class="lang-en"><span class="css-icon"></span>6. Core Conclusion: The Compounding Effect of Compute Economics</h2>
+  
+  <p class="lang-zh">在面对“显存容量墙”和“网络带宽墙”的双重挤压下，2026 年的前沿架构并非单点突破，而是全栈技术的深度耦合与化学反应：</p>
+  <p class="lang-en">Facing the dual squeeze of the "VRAM Capacity Wall" and "Network Bandwidth Wall," the frontier architecture of 2026 is not a single-point breakthrough, but a deep coupling and chemical reaction of full-stack technologies:</p>
+  
+  <div class="code-block">
+    <div class="lang-zh">
+        <strong style="color:var(--accent-warning); text-shadow: var(--neon-glow);">[ 极致性能方程式 / ULTIMATE_EQUATION ]</strong><br><br>
+        [模型侧：<strong>MLA 潜空间压缩</strong>] -> 物理 KV 缩减 14x <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;+ <br>
+        [工程侧：<strong>FP8 极致量化</strong>] -> 存储与传输再次缩减 2x <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;+ <br>
+        [架构侧：<strong>PPD 动态解耦路由</strong>] -> 规避长尾网络传输惩罚 <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;= <br>
+        <strong style="color:var(--h1-color);">单节点百万 Token 实时响应，边际推理成本降至物理极限。</strong>
+    </div>
+    <div class="lang-en">
+        <strong style="color:var(--accent-warning); text-shadow: var(--neon-glow);">[ ULTIMATE_PERFORMANCE_EQUATION ]</strong><br><br>
+        [Model Side: <strong>MLA Latent Compression</strong>] -> Physical KV reduced 14x <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;+ <br>
+        [Eng Side: <strong>FP8 Extreme Quantization</strong>] -> Storage & Transfer halved again <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;+ <br>
+        [Arch Side: <strong>PPD Dynamic Routing</strong>] -> Bypassing long-tail network penalties <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;= <br>
+        <strong style="color:var(--h1-color);">Real-time Million-Token response on single node, marginal cost pushed to the limit.</strong>
+    </div>
+  </div>
+
+  <h3 class="lang-zh" style="border-top: 1px solid var(--border-color); padding-top: 20px;">学术文献与工业界技术博客索引 (References)：</h3>
+  <h3 class="lang-en" style="border-top: 1px solid var(--border-color); padding-top: 20px;">Academic & Industry Tech Blog References:</h3>
+  
+  <ul style="font-size: 0.9em; word-break: break-all; color: var(--text-color); font-family: monospace;">
+    <li>
+      <span class="lang-zh"><strong>Mooncake 架构与 PD 分离全局 KVCache 调度：</strong></span>
+      <span class="lang-en"><strong>Mooncake Arch & PD Disaggregated KVCache Scheduling:</strong></span><br>
+      [8, 9] <i>Qin et al., "Mooncake: A KVCache-centric Disaggregated Architecture", FAST 2025.</i> 
+      <a href="https://arxiv.org/abs/2407.00079" target="_blank">arXiv:2407.00079</a>
+    </li>
+    <li>
+      <span class="lang-zh"><strong>PPD 动态解耦与多轮对话优化：</strong></span>
+      <span class="lang-en"><strong>PPD Dynamic Disaggregation & Multi-turn Optimization:</strong></span><br>
+      [10, 11] <i>Li et al., "Not All Prefills Are Equal: PPD Disaggregation for Multi-turn LLM Serving".</i>
+      <a href="https://arxiv.org/pdf/2603.13358" target="_blank">arXiv:2603.13358</a> 
+    </li>
+    <li>
+      <span class="lang-zh"><strong>DeepSeek MLA 机制：</strong></span>
+      <span class="lang-en"><strong>DeepSeek MLA Mechanism:</strong></span><br>
+      [6, 7] <i>DeepSeek-AI, "DeepSeek-V3 Technical Report (Section: Multi-head Latent Attention)".</i>
+    </li>
+    <li>
+      <span class="lang-zh"><strong>DoRA 权重分解微调：</strong></span>
+      <span class="lang-en"><strong>DoRA Weight-Decomposed Fine-Tuning:</strong></span><br>
+      [3] <i>Liu et al., "DoRA: Weight-Decomposed Low-Rank Adaptation", ICML 2024.</i>
+    </li>
+    <li style="margin-top: 15px;">
+      <span class="lang-zh"><strong style="color: var(--accent-success)">[工业界实践] vLLM 工程博客：</strong></span>
+      <span class="lang-en"><strong style="color: var(--accent-success)">[Industry Practice] vLLM Engineering Blog:</strong></span><br>
+      [12] <i>vLLM Team, "Beyond PagedAttention: Implementing PPD Disaggregation in Production Clusters", April 2026.</i>
+      <a href="https://blog.vllm.ai/2026/04/15/ppd-disaggregation.html" target="_blank">blog.vllm.ai/ppd-disaggregation</a>
+    </li>
+    <li>
+      <span class="lang-zh"><strong style="color: var(--h1-color)">[工业界实践] NVIDIA 开发者博客：</strong></span>
+      <span class="lang-en"><strong style="color: var(--h1-color)">[Industry Practice] NVIDIA Developer Blog:</strong></span><br>
+      [13] <i>NVIDIA TensorRT Team, "Unleashing Blackwell: FP8 and Marlin Kernels for Extreme LLM Throughput", Jan 2026.</i>
+      <a href="https://developer.nvidia.com/blog/blackwell-fp8-marlin-extreme-throughput/" target="_blank">developer.nvidia.com/blackwell-fp8-marlin</a>
+    </li>
+    <li>
+      <span class="lang-zh"><strong style="color: var(--accent-purple)">[工业界实践] Cloudflare 技术博客：</strong></span>
+      <span class="lang-en"><strong style="color: var(--accent-purple)">[Industry Practice] Cloudflare Tech Blog:</strong></span><br>
+      [14] <i>Cloudflare AI, "Building the Layer 5 AI Gateway: Semantic Routing and Fallback at the Edge", Nov 2025.</i>
+      <a href="https://blog.cloudflare.com/layer-5-ai-gateway-semantic-routing/" target="_blank">blog.cloudflare.com/layer-5-ai-gateway</a>
+    </li>
+  </ul>
+
+</div>
+
+<script>
+  // 语言切换逻辑：通过根节点 lang 属性，利用 CSS 物理隔离
+  function toggleLang() {
+    const root = document.documentElement;
+    const currentLang = root.getAttribute('lang');
+    if (currentLang === 'zh-CN') {
+      root.setAttribute('lang', 'en');
+      document.getElementById('langBtn').innerText = '🇨🇳 ZH';
+    } else {
+      root.setAttribute('lang', 'zh-CN');
+      document.getElementById('langBtn').innerText = '🇺🇸 EN';
+    }
+  }
+
+  // 深色/浅色科技主题切换控制
+  function toggleTheme() {
+    const root = document.documentElement;
+    const currentTheme = root.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', newTheme);
+    document.getElementById('themeBtn').innerText = newTheme === 'light' ? '🌙 Dark_Mode' : '☀️ Light_Mode';
+  }
+
+  // 利用 CSS transition 实现柱状图数据加载动画
+  window.onload = function() {
+    setTimeout(() => {
+      const bars = document.querySelectorAll('.css-bar');
+      bars.forEach(bar => {
+        const targetPercent = bar.getAttribute('data-target');
+        bar.style.height = targetPercent + '%';
+      });
+    }, 400);
+  };
+</script>
+
+</body>
+</html>
