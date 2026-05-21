@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh" class="light" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta AI: Mapping Tribal Knowledge (Comprehensive)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        metaBlue: '#0668E1',
+                        darkBg: '#0F172A',
+                        darkCard: '#1E293B',
+                        darkBorder: '#334155'
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { transition: background-color 0.3s, color 0.3s; }
+        .glass { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .hover-lift { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        .gradient-text { background: linear-gradient(90deg, #0668E1, #8B5CF6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        /* Custom scrollbar for inner content */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background-color: #475569; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-darkBg dark:text-slate-200 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 glass bg-white/80 dark:bg-darkCard/90 border-b border-slate-200 dark:border-darkBorder shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <svg class="w-7 h-7 text-metaBlue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <h1 class="text-xl font-bold gradient-text hidden sm:block" data-i18n="navTitle">Meta 隐性知识图谱：全景分析报告</h1>
+                <h1 class="text-xl font-bold gradient-text sm:hidden">Meta AI Report</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="toggleTheme()" id="theme-btn" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition shadow-inner">
+                    <span id="theme-icon"></span>
+                </button>
+                <button onclick="toggleLang()" class="px-4 py-1.5 text-sm font-semibold rounded-md border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition shadow-sm" data-i18n="langBtn">
+                    English
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12 w-full">
+        
+        <!-- SECTION 1: Background & Objectives -->
+        <section>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 text-metaBlue flex items-center justify-center font-bold">1</div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white" data-i18n="sec1Title">背景与目标 (Context & Objectives)</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Background -->
+                <div class="bg-white dark:bg-darkCard p-6 rounded-2xl border border-slate-200 dark:border-darkBorder shadow-sm">
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+                        <span class="text-xl">🏔️</span> <span data-i18n="bgTitle">冰山下的部落知识</span>
+                    </h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4" data-i18n="bgDesc">
+                        Meta 拥有极为庞大的数据处理管道（Data Pipelines）。由于历史包袱，这些管道横跨 <b>4 个巨型代码库、3 种编程语言，包含 4,100 多个核心文件</b>。
+                    </p>
+                    <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-300">
+                        <span class="font-bold text-rose-500" data-i18n="bgProblemLabel">核心痛点：</span>
+                        <span data-i18n="bgProblemText">系统运转高度依赖高级工程师脑子里的“部落知识（Tribal Knowledge）”——那些未写在官方文档中的跨模块隐性依赖、非直观故障模式和修改潜规则。新人和AI由于缺乏这些知识，寸步难行。</span>
+                    </div>
+                </div>
+                <!-- Objectives -->
+                <div class="bg-white dark:bg-darkCard p-6 rounded-2xl border border-slate-200 dark:border-darkBorder shadow-sm">
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+                        <span class="text-xl">🎯</span> <span data-i18n="objTitle">破除壁垒，赋能 AI 智能体</span>
+                    </h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4" data-i18n="objDesc">
+                        随着AI原生开发的推进，Meta 发现通用的大模型 (LLMs) 在面对这种错综复杂的内部系统时频繁出错（幻觉频发）。
+                    </p>
+                    <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300 list-disc list-inside">
+                        <li data-i18n="obj1">将工程师大脑中的隐性知识转化为机器可读的结构化地图。</li>
+                        <li data-i18n="obj2">让内部的 AI Agent 能够自动、准确地在 4100+ 个文件中进行逻辑导航。</li>
+                        <li data-i18n="obj3">构建一个具有“自愈（Self-healing）”能力的知识网络基础设施。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: Historical Countermeasures & Limitations -->
+        <section>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-600 flex items-center justify-center font-bold">2</div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white" data-i18n="sec2Title">历史对策与困境 (Historical Countermeasures & Dilemma)</h2>
+            </div>
+            <div class="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-2xl p-6 lg:p-8 relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+                    <svg class="w-64 h-64 text-amber-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/></svg>
+                </div>
+                <h3 class="text-lg font-bold text-amber-900 dark:text-amber-400 mb-2" data-i18n="histTitle">为什么传统的 Vector RAG（向量检索增强）失败了？</h3>
+                <p class="text-sm text-amber-800 dark:text-amber-200/80 mb-6" data-i18n="histDesc">在采用当前方案前，Meta 尝试了业界主流的 RAG 方案：即将海量源码和内部Wiki切块存入向量数据库，供大模型实时检索。这导致了三个灾难性问题：</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
+                    <div class="bg-white/60 dark:bg-darkCard/60 backdrop-blur-sm p-4 rounded-xl border border-amber-100 dark:border-amber-900/50">
+                        <div class="font-bold text-amber-700 dark:text-amber-500 mb-1">⚠️ Context Window Overload</div>
+                        <div class="text-xs text-slate-700 dark:text-slate-300" data-i18n="hist1">每次跨模块依赖查询需要向LLM喂入高达 <b>~6,000 Tokens</b> 的原始代码。不仅响应极慢，而且超出部分模型的处理甜区。</div>
+                    </div>
+                    <div class="bg-white/60 dark:bg-darkCard/60 backdrop-blur-sm p-4 rounded-xl border border-amber-100 dark:border-amber-900/50">
+                        <div class="font-bold text-amber-700 dark:text-amber-500 mb-1">⚠️ Needle in a Haystack</div>
+                        <div class="text-xs text-slate-700 dark:text-slate-300" data-i18n="hist2">RAG 召回了大量无关紧要的“百科全书式”语法定义。大模型在这些噪音中<b>迷失了真正关键的业务逻辑依赖</b>，导致频繁产生看似正确实则报错的幻觉代码。</div>
+                    </div>
+                    <div class="bg-white/60 dark:bg-darkCard/60 backdrop-blur-sm p-4 rounded-xl border border-amber-100 dark:border-amber-900/50">
+                        <div class="font-bold text-amber-700 dark:text-amber-500 mb-1">⚠️ 5% Navigation Cap</div>
+                        <div class="text-xs text-slate-700 dark:text-slate-300" data-i18n="hist3">由于无法有效理解跨仓库上下文，AI 助手在整个代码库中的<b>成功导航覆盖率卡死在 5% 左右</b>，完全无法胜任生产环境需求。</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: The Architecture Soul (Compass vs Encyclopedia) -->
+        <section>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 flex items-center justify-center font-bold">3</div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white" data-i18n="sec3Title">核心破局哲学：指南针 vs 百科全书</h2>
+            </div>
+            <p class="text-sm text-slate-600 dark:text-slate-400 max-w-4xl mb-6" data-i18n="sec3Desc">
+                Meta 意识到，喂给 AI 的知识不应该是全量的字典，而应该是高度浓缩的坐标。他们提出了 <b>"What We Built: A Compass, Not An Encyclopedia"</b> 的核心架构思想。
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                <!-- Left: Encyclopedia (The Old Way) -->
+                <div class="bg-red-50 dark:bg-red-900/10 rounded-2xl p-6 border border-red-200 dark:border-red-800/30 flex flex-col items-center text-center hover-lift relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 px-3 py-1 rounded-bl-xl text-xs font-bold" data-i18n="oldWay">传统 RAG (百科全书)</div>
+                    <div class="w-20 h-20 bg-white dark:bg-darkCard rounded-full shadow-md flex items-center justify-center mb-4 mt-6 border-4 border-red-100 dark:border-red-900/50">
+                        <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2" data-i18n="encTitle">臃肿的全局文档流</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-6" data-i18n="encDesc">输入海量API文档、完整源码、长篇大论的Wiki。包含大量无关紧要的句法细节。</p>
+                </div>
+
+                <!-- Right: Compass (The Meta Way) -->
+                <div class="bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl p-6 border border-emerald-200 dark:border-emerald-800/30 flex flex-col items-center text-center hover-lift relative overflow-hidden ring-2 ring-emerald-400 dark:ring-emerald-500/50 shadow-lg">
+                    <div class="absolute top-0 right-0 bg-emerald-500 text-white px-3 py-1 rounded-bl-xl text-xs font-bold shadow-sm" data-i18n="newWay">Meta 架构 (指南针)</div>
+                    <div class="w-20 h-20 bg-white dark:bg-darkCard rounded-full shadow-md flex items-center justify-center mb-4 mt-6 border-4 border-emerald-100 dark:border-emerald-900/50 relative">
+                        <div class="absolute inset-0 rounded-full border border-emerald-400 animate-pulse-slow scale-125"></div>
+                        <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2" data-i18n="compTitle">极简的隐性知识提取</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4" data-i18n="compDesc">摒弃语法说明，浓缩为25-35行的核心坐标（仅~1000 Tokens）。最终仅产出 59 份结构化文件，每份包含四大基石：</p>
+                    <div class="w-full grid grid-cols-2 gap-2 mt-auto">
+                        <div class="bg-white dark:bg-darkCard p-2 rounded border border-emerald-100 dark:border-emerald-800 flex flex-col justify-center">
+                            <span class="text-xs text-emerald-600 dark:text-emerald-400 font-bold mb-1">1. Quick Commands</span>
+                            <span class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight" data-i18n="p1">高频/Opt-in操作指令</span>
+                        </div>
+                        <div class="bg-white dark:bg-darkCard p-2 rounded border border-emerald-100 dark:border-emerald-800 flex flex-col justify-center">
+                            <span class="text-xs text-emerald-600 dark:text-emerald-400 font-bold mb-1">2. Key Files</span>
+                            <span class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight" data-i18n="p2">最相关的3-5个核心文件</span>
+                        </div>
+                        <div class="bg-white dark:bg-darkCard p-2 rounded border border-emerald-100 dark:border-emerald-800 flex flex-col justify-center">
+                            <span class="text-xs text-emerald-600 dark:text-emerald-400 font-bold mb-1">3. Non-Obvious</span>
+                            <span class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight" data-i18n="p3">非直观的隐藏故障模式</span>
+                        </div>
+                        <div class="bg-white dark:bg-darkCard p-2 rounded border border-emerald-100 dark:border-emerald-800 flex flex-col justify-center">
+                            <span class="text-xs text-emerald-600 dark:text-emerald-400 font-bold mb-1">4. See Also</span>
+                            <span class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight" data-i18n="p4">跨模块硬性依赖 (Graph)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: Implementation (The Engine & ORCHESTRATOR) -->
+        <section>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-600 flex items-center justify-center font-bold">4</div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white" data-i18n="sec4Title">当前实现：多智能体预计算引擎与调度枢纽</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- The Agent Pipeline -->
+                <div class="lg:col-span-2 bg-white dark:bg-darkCard rounded-2xl p-6 border border-slate-200 dark:border-darkBorder shadow-sm">
+                    <h3 class="font-bold text-slate-800 dark:text-slate-200 mb-4" data-i18n="implSub1">50+ 智能体协同流水线</h3>
+                    <p class="text-xs text-slate-500 mb-6" data-i18n="implDesc1">Meta 打造了一个后台的预计算引擎（Pre-compute Engine）。而这一切的灵魂，是处于中枢的 <b>Orchestrator（编排器）</b>，它协调 50+ 个 Agent 完成复杂的博弈流传。</p>
+                    
+                    <div class="flex flex-col gap-3 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 dark:before:via-slate-600 before:to-transparent">
+                        
+                        <!-- Step 0: Orchestrator (NEWLY ADDED) -->
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white dark:border-darkBg bg-amber-400 dark:bg-amber-600 text-white text-xl z-10 shadow-lg shadow-amber-500/40 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 relative">
+                                <!-- Pulse ring for Orchestrator -->
+                                <span class="absolute inset-0 rounded-full border-2 border-amber-400 animate-pulse"></span>
+                                🎛️
+                            </div>
+                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl border border-amber-200 dark:border-amber-700 shadow-sm ring-1 ring-amber-400/50">
+                                <h4 class="font-bold text-sm text-amber-800 dark:text-amber-300 flex items-center gap-1" data-i18n="ag0Title">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                    Orchestrator (编排路由枢纽)
+                                </h4>
+                                <p class="text-xs text-amber-700/80 dark:text-amber-200/70 mt-1" data-i18n="ag0Desc">作为系统的“大脑”，负责解析庞大的扫描任务。它动态规划 4100+ 文件的处理路径，维护全局上下文状态，并向下游分配任务。</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 1 -->
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white dark:border-darkBg bg-slate-200 dark:bg-slate-700 text-xl z-10 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+                                🔍
+                            </div>
+                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                <h4 class="font-bold text-sm text-slate-800 dark:text-slate-200" data-i18n="ag1Title">探索者 (Explorers) & 分析师 (Analysts)</h4>
+                                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1" data-i18n="ag1Desc">接收 Orchestrator 的指令，阅读指定文件区块，通过强制问答提取元数据。</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white dark:border-darkBg bg-blue-200 dark:bg-blue-900 text-xl z-10 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+                                ⚖️
+                            </div>
+                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-blue-50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-800/50 shadow-sm">
+                                <h4 class="font-bold text-sm text-slate-800 dark:text-slate-200" data-i18n="ag2Title">审查者 (Critics) & 修复者 (Fixers)</h4>
+                                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1" data-i18n="ag2Desc">执行 3 轮独立的严格代码审查门禁，剔除啰嗦的废话和幻觉，确保符合极简格式，最后将结果返回 Orchestrator。</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white dark:border-darkBg bg-emerald-200 dark:bg-emerald-900 text-xl z-10 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+                                🧭
+                            </div>
+                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-emerald-50 dark:bg-emerald-900/10 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800/50 shadow-sm">
+                                <h4 class="font-bold text-sm text-slate-800 dark:text-slate-200" data-i18n="ag3Title">最终产出：59 份 Context Files</h4>
+                                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1" data-i18n="ag3Desc">由 Orchestrator 最终组装生成“指南针”文件。同时系统挂载 Cron Jobs 进行周期性自愈和链接修复。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- The 5 Questions -->
+                <div class="bg-white dark:bg-darkCard rounded-2xl p-6 border border-slate-200 dark:border-darkBorder shadow-sm">
+                    <h3 class="font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+                        <span class="text-metaBlue">❓</span> <span data-i18n="implSub2">分析师的“灵魂五问”</span>
+                    </h3>
+                    <p class="text-xs text-slate-500 mb-4" data-i18n="implDesc2">为了防止大模型直接总结代码带来的废话，分析师 Agent 被 Orchestrator 限制**仅提取**能回答以下 5 个问题的信息：</p>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-2">
+                            <span class="text-metaBlue mt-0.5">•</span>
+                            <span class="text-sm text-slate-700 dark:text-slate-300"><b data-i18n="q1">这个模块配置了什么？</b> <br><span class="text-xs text-slate-500 opacity-80">(What does this module config?)</span></span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-metaBlue mt-0.5">•</span>
+                            <span class="text-sm text-slate-700 dark:text-slate-300"><b data-i18n="q2">常见的修改范式是什么？</b> <br><span class="text-xs text-slate-500 opacity-80">(Common modification patterns?)</span></span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-metaBlue mt-0.5">•</span>
+                            <span class="text-sm text-slate-700 dark:text-slate-300"><b data-i18n="q3">导致构建失败的非直观模式？</b> <br><span class="text-xs text-slate-500 opacity-80">(Non-obvious patterns causing failures?)</span></span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-metaBlue mt-0.5">•</span>
+                            <span class="text-sm text-slate-700 dark:text-slate-300"><b data-i18n="q4">跨模块的隐性依赖有哪些？</b> <br><span class="text-xs text-slate-500 opacity-80">(Cross-module dependencies?)</span></span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-metaBlue mt-0.5">•</span>
+                            <span class="text-sm text-slate-700 dark:text-slate-300"><b data-i18n="q5">代码注释中埋藏了哪些部落知识？</b> <br><span class="text-xs text-slate-500 opacity-80">(Tribal knowledge buried in comments?)</span></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: Results -->
+        <section>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 flex items-center justify-center font-bold">5</div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white" data-i18n="sec5Title">落地成效 (Results & Impact)</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Token Cost Chart -->
+                <div class="bg-white dark:bg-darkCard p-6 rounded-2xl border border-slate-200 dark:border-darkBorder shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-800 dark:text-slate-200" data-i18n="resTokenTitle">查询 Token 成本下降</h3>
+                        <span class="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded">⬇ 96%</span>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1 text-slate-600 dark:text-slate-400">
+                                <span data-i18n="resTokenBefore">传统 RAG 机制</span>
+                                <span>~6,000 Tokens</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-4 overflow-hidden">
+                                <div class="bg-red-400 h-4 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1 text-slate-600 dark:text-slate-400">
+                                <span class="font-bold text-emerald-600 dark:text-emerald-400" data-i18n="resTokenAfter">Meta 指南针架构</span>
+                                <span class="font-bold text-emerald-600 dark:text-emerald-400">~200 Tokens</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-4 overflow-hidden">
+                                <div class="bg-emerald-500 h-4 rounded-full" style="width: 4%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coverage Chart -->
+                <div class="bg-white dark:bg-darkCard p-6 rounded-2xl border border-slate-200 dark:border-darkBorder shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-800 dark:text-slate-200" data-i18n="resCovTitle">AI 导航覆盖率飙升</h3>
+                        <span class="px-2 py-1 bg-metaBlue/10 text-metaBlue text-xs font-bold rounded">⬆ 20 倍</span>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1 text-slate-600 dark:text-slate-400">
+                                <span data-i18n="resCovBefore">部署前 (容易迷失在代码海中)</span>
+                                <span>5%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-4 overflow-hidden">
+                                <div class="bg-slate-400 h-4 rounded-full" style="width: 5%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1 text-slate-600 dark:text-slate-400">
+                                <span class="font-bold text-metaBlue" data-i18n="resCovAfter">部署后 (全面覆盖 4100+ 模块)</span>
+                                <span class="font-bold text-metaBlue">100%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-4 overflow-hidden">
+                                <div class="bg-metaBlue h-4 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: References -->
+        <section class="bg-slate-100 dark:bg-slate-900/50 rounded-xl p-6 border border-slate-200 dark:border-darkBorder">
+            <h3 class="text-sm font-bold text-slate-800 dark:text-slate-300 mb-4 flex items-center gap-2">
+                <svg class="w-4 h-4 text-metaBlue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                <span data-i18n="refTitle">参考文献 (References & Citations)</span>
+            </h3>
+            <ul class="text-sm space-y-3">
+                <li class="flex items-start gap-2 text-slate-600 dark:text-slate-400">
+                    <span class="text-metaBlue mt-0.5">[1]</span>
+                    <div>
+                        <strong class="text-slate-800 dark:text-slate-300">Meta Engineering Blog.</strong> 
+                        <span class="italic">"How Meta Used AI to Map Tribal Knowledge in Large-Scale Data Pipelines."</span> (April 6, 2026).
+                        <a href="https://engineering.fb.com/2026/04/06/developer-tools/how-meta-used-ai-to-map-tribal-knowledge-in-large-scale-data-pipelines/" target="_blank" class="text-metaBlue hover:underline break-all block mt-1">
+                            https://engineering.fb.com/2026/04/06/developer-tools/how-meta-used-ai-to-map-tribal-knowledge-in-large-scale-data-pipelines/
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+    </main>
+
+    <footer class="mt-auto py-8 text-center text-xs text-slate-500 border-t border-slate-200 dark:border-darkBorder bg-white/50 dark:bg-darkCard/50">
+        Generated Analysis Report • Orchestrator-driven architecture based on Meta's 2026 publication.
+    </footer>
+
+    <script>
+        const translations = {
+            zh: {
+                navTitle: "Meta 隐性知识图谱：全景分析报告",
+                langBtn: "English",
+                
+                sec1Title: "背景与目标 (Context & Objectives)",
+                bgTitle: "冰山下的部落知识",
+                bgDesc: "Meta 拥有极为庞大的数据处理管道（Data Pipelines）。由于历史包袱，这些管道横跨 <b>4 个巨型代码库、3 种编程语言，包含 4,100 多个核心文件</b>。",
+                bgProblemLabel: "核心痛点：",
+                bgProblemText: "系统运转高度依赖高级工程师脑子里的“部落知识（Tribal Knowledge）”——那些未写在官方文档中的跨模块隐性依赖、非直观故障模式和修改潜规则。新人和AI由于缺乏这些知识，寸步难行。",
+                objTitle: "破除壁垒，赋能 AI 智能体",
+                objDesc: "随着AI原生开发的推进，Meta 发现通用的大模型 (LLMs) 在面对这种错综复杂的内部系统时频繁出错（幻觉频发）。",
+                obj1: "将工程师大脑中的隐性知识转化为机器可读的结构化地图。",
+                obj2: "让内部的 AI Agent 能够自动、准确地在 4100+ 个文件中进行逻辑导航。",
+                obj3: "构建一个具有“自愈（Self-healing）”能力的知识网络基础设施。",
+                
+                sec2Title: "历史对策与困境 (Historical Countermeasures & Dilemma)",
+                histTitle: "为什么传统的 Vector RAG（向量检索增强）失败了？",
+                histDesc: "在采用当前方案前，Meta 尝试了业界主流的 RAG 方案：即将海量源码和内部Wiki切块存入向量数据库，供大模型实时检索。这导致了三个灾难性问题：",
+                hist1: "每次跨模块依赖查询需要向LLM喂入高达 <b>~6,000 Tokens</b> 的原始代码。不仅响应极慢，而且超出部分模型的处理甜区。",
+                hist2: "RAG 召回了大量无关紧要的“百科全书式”语法定义。大模型在这些噪音中<b>迷失了真正关键的业务逻辑依赖</b>，导致频繁产生看似正确实则报错的幻觉代码。",
+                hist3: "由于无法有效理解跨仓库上下文，AI 助手在整个代码库中的<b>成功导航覆盖率卡死在 5% 左右</b>，完全无法胜任生产环境需求。",
+
+                sec3Title: "核心破局哲学：指南针 vs 百科全书",
+                sec3Desc: "Meta 意识到，喂给 AI 的知识不应该是全量的字典，而应该是高度浓缩的坐标。他们提出了 <b>\"What We Built: A Compass, Not An Encyclopedia\"</b> 的核心架构思想。",
+                oldWay: "传统 RAG (百科全书)",
+                encTitle: "臃肿的全局文档流",
+                encDesc: "输入海量API文档、完整源码、长篇大论的Wiki。包含大量无关紧要的句法细节与噪音。",
+                newWay: "Meta 架构 (指南针)",
+                compTitle: "极简的隐性知识提取",
+                compDesc: "摒弃语法说明，浓缩为25-35行的核心坐标（仅~1000 Tokens）。最终仅产出 59 份结构化文件，每份包含四大基石：",
+                p1: "高频/Opt-in操作指令",
+                p2: "最相关的3-5个核心文件",
+                p3: "非直观的隐藏故障模式",
+                p4: "跨模块硬性依赖 (Graph)",
+
+                sec4Title: "当前实现：多智能体预计算引擎与调度枢纽",
+                implSub1: "50+ 智能体协同流水线 (Multi-Agent Engine)",
+                implDesc1: "Meta 打造了一个后台的预计算引擎（Pre-compute Engine）。而这一切的灵魂，是处于中枢的 <b>Orchestrator（编排器）</b>，它协调 50+ 个 Agent 完成复杂的博弈流传。",
+                ag0Title: "<svg class='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'><path fill-rule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clip-rule='evenodd'></path></svg> Orchestrator (编排路由枢纽)",
+                ag0Desc: "作为系统的“大脑”，负责解析庞大的扫描任务。它动态规划 4100+ 文件的处理路径，维护全局上下文状态，并向下游分配任务。",
+                ag1Title: "探索者 (Explorers) & 分析师 (Analysts)",
+                ag1Desc: "接收 Orchestrator 的指令，阅读指定文件区块，通过强制问答提取元数据。",
+                ag2Title: "审查者 (Critics) & 修复者 (Fixers)",
+                ag2Desc: "执行 3 轮独立的严格代码审查门禁，剔除啰嗦的废话和幻觉，确保符合极简格式，最后将结果返回 Orchestrator。",
+                ag3Title: "最终产出：59 份 Context Files",
+                ag3Desc: "由 Orchestrator 最终组装生成“指南针”文件。同时系统挂载 Cron Jobs 进行周期性自愈和链接修复。",
+                implSub2: "分析师的“灵魂五问”",
+                implDesc2: "为了防止大模型直接总结代码带来的废话，分析师 Agent 被 Orchestrator 限制**仅提取**能回答以下 5 个问题的信息：",
+                q1: "这个模块配置了什么？",
+                q2: "常见的修改范式是什么？",
+                q3: "导致构建失败的非直观模式？",
+                q4: "跨模块的隐性依赖有哪些？",
+                q5: "代码注释中埋藏了哪些部落知识？",
+
+                sec5Title: "落地成效 (Results & Impact)",
+                resTokenTitle: "查询 Token 成本下降",
+                resTokenBefore: "传统 RAG 机制",
+                resTokenAfter: "Meta 指南针架构",
+                resCovTitle: "AI 导航覆盖率飙升",
+                resCovBefore: "部署前 (容易迷失在代码海中)",
+                resCovAfter: "部署后 (全面覆盖 4100+ 模块)",
+                
+                refTitle: "参考文献 (References & Citations)"
+            },
+            en: {
+                navTitle: "Meta Tribal Knowledge: Full Report",
+                langBtn: "中文",
+                
+                sec1Title: "Context & Objectives",
+                bgTitle: "Tribal Knowledge Beneath the Surface",
+                bgDesc: "Meta operates massively complex data pipelines. Due to technical debt, these span <b>4 large repositories, 3 programming languages, and over 4,100 core files</b>.",
+                bgProblemLabel: "Core Problem: ",
+                bgProblemText: "The system relies heavily on 'Tribal Knowledge' locked in senior engineers' heads—unwritten cross-module dependencies, non-obvious failure modes, and hidden modification rules. Juniors and AI agents are completely blocked without it.",
+                objTitle: "Breaking Barriers, Empowering AI",
+                objDesc: "As Meta pushed for AI-native development, they found that generic LLMs frequently hallucinated when navigating this complex internal system.",
+                obj1: "Translate implicit tribal knowledge from human brains into structured, machine-readable maps.",
+                obj2: "Enable AI Agents to navigate 4,100+ files logically and accurately, on autopilot.",
+                obj3: "Build a 'self-healing' knowledge network infrastructure.",
+                
+                sec2Title: "Historical Countermeasures & Dilemma",
+                histTitle: "Why did traditional Vector RAG fail?",
+                histDesc: "Before this solution, Meta tried standard RAG: chunking massive source code and wikis into vector databases for LLMs to query. This led to three catastrophic issues:",
+                hist1: "Every cross-module query required feeding <b>~6,000 Tokens</b> of raw code to the LLM. It was slow and pushed the limits of context windows.",
+                hist2: "RAG retrieved 'encyclopedic' syntax noise. The LLM <b>lost track of the actual business logic dependencies</b>, resulting in confident but broken hallucinated code.",
+                hist3: "Unable to grasp cross-repo context, the AI's <b>successful navigation coverage capped at roughly 5%</b>, rendering it useless for production.",
+
+                sec3Title: "The Breakthrough: Compass vs. Encyclopedia",
+                sec3Desc: "Meta realized AI doesn't need an exhaustive dictionary; it needs compressed coordinates. They introduced the core philosophy: <b>'What We Built: A Compass, Not An Encyclopedia.'</b>",
+                oldWay: "Traditional RAG (Encyclopedia)",
+                encTitle: "Bloated Global Context",
+                encDesc: "Dumping massive API docs, full source code, and long wikis. Filled with syntactic noise.",
+                newWay: "Meta Architecture (Compass)",
+                compTitle: "Distilled Implicit Knowledge",
+                compDesc: "Scrapping syntax rules for a 25-35 line core coordinate system (~1000 tokens). Resulted in just 59 structured files built on 4 pillars:",
+                p1: "High-freq opt-in commands",
+                p2: "3-5 most relevant core files",
+                p3: "Non-obvious failure modes hidden in logic",
+                p4: "Cross-module hard dependencies (Graph)",
+
+                sec4Title: "Current Implementation: Pre-compute Engine & Orchestrator",
+                implSub1: "The 50+ Multi-Agent Swarm",
+                implDesc1: "Meta built a background 'Pre-compute Engine'. The soul of this system is the <b>Orchestrator</b>, which coordinates 50+ Agents through complex workflows.",
+                ag0Title: "<svg class='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'><path fill-rule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clip-rule='evenodd'></path></svg> Orchestrator Agent",
+                ag0Desc: "Acts as the central 'Brain'. It maps out the massive scanning tasks, dynamically routes workloads for the 4,100+ files, maintains global state, and dispatches jobs downstream.",
+                ag1Title: "Explorers & Analysts",
+                ag1Desc: "Receive instructions from the Orchestrator, read assigned file chunks, and extract metadata through strict QA formats.",
+                ag2Title: "Critics & Fixers",
+                ag2Desc: "Run 3 independent, rigorous quality gates. Strip out fluff and enforce the minimal 'Compass' format before returning results to the Orchestrator.",
+                ag3Title: "Final Output: 59 Context Files",
+                ag3Desc: "The Orchestrator assembles the final Compass files. Cron jobs are attached for periodic self-healing and dead-link fixing.",
+                implSub2: "The 5 Questions of Analysts",
+                implDesc2: "To prevent LLMs from writing useless summaries, Analyst Agents were constrained by the Orchestrator to extract **only** information answering these 5 questions:",
+                q1: "What does this module config?",
+                q2: "Common modification patterns?",
+                q3: "Non-obvious patterns causing failures?",
+                q4: "Cross-module dependencies?",
+                q5: "Tribal knowledge buried in comments?",
+
+                sec5Title: "Results & Impact",
+                resTokenTitle: "Token Cost Dropped",
+                resTokenBefore: "Traditional RAG",
+                resTokenAfter: "Meta Compass Architecture",
+                resCovTitle: "AI Navigation Coverage Soared",
+                resCovBefore: "Before (Lost in codebase)",
+                resCovAfter: "After (Covered all 4100+ modules)",
+                
+                refTitle: "References & Citations"
+            }
+        };
+
+        const sunIcon = `<svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`;
+        const moonIcon = `<svg class="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>`;
+
+        let currentLang = 'zh';
+        let isDark = false;
+
+function toggleTheme() {
+isDark = !isDark;
+const htmlEl = document.documentElement;
+const iconEl = document.getElementById('theme-icon');
+if (isDark) {
+htmlEl.classList.add('dark');
+htmlEl.setAttribute('data-theme', 'dark');
+iconEl.innerHTML = sunIcon;
+} else {
+htmlEl.classList.remove('dark');
+htmlEl.setAttribute('data-theme', 'light');
+iconEl.innerHTML = moonIcon;
+}
+}
+
+function toggleLang() {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            const els = document.querySelectorAll('[data-i18n]');
+            els.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.innerHTML = translations[currentLang][key];
+                }
+            });
+        }
+
+// Init Theme Icon
+document.getElementById('theme-icon').innerHTML = moonIcon;
+
+// ===== Iframe Theme Sync =====
+(function() {
+const inIframe = window.self !== window.top;
+if (inIframe) {
+const btn = document.getElementById('theme-btn');
+if (btn) btn.style.display = 'none';
+}
+
+const observer = new MutationObserver((mutations) => {
+mutations.forEach((m) => {
+if (m.attributeName === 'data-theme') {
+const theme = document.documentElement.getAttribute('data-theme');
+const htmlEl = document.documentElement;
+const iconEl = document.getElementById('theme-icon');
+if (theme === 'dark') {
+htmlEl.classList.add('dark');
+isDark = true;
+if (iconEl) iconEl.innerHTML = sunIcon;
+} else {
+htmlEl.classList.remove('dark');
+isDark = false;
+if (iconEl) iconEl.innerHTML = moonIcon;
+}
+}
+});
+});
+observer.observe(document.documentElement, { attributes: true });
+})();
+</script>
+</body>
+</html>

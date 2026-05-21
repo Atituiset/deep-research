@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TriAttention 技术原理与 vLLM/SGLang 落地深度分析报告</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- MathJax for Mathematical Formulas (with custom macros for safe rendering) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$']],
+                displayMath: [['$$', '$$']],
+                processEscapes: true,
+                macros: {
+                    norm: ['\\left\\lVert#1\\right\\rVert', 1],
+                    expected: ['\\mathbb{E}\\left[#1\\right]', 1]
+                }
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            scroll-behavior: smooth;
+        }
+        code, pre {
+            font-family: 'Fira Code', monospace;
+        }
+        .math-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+        }
+        .glow-blue {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+        }
+        
+        /* Language Toggle CSS Logic (Strict Separation) */
+        body.lang-zh-mode .lang-en { display: none !important; }
+        body.lang-en-mode .lang-zh { display: none !important; }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-100 antialiased leading-relaxed font-sans lang-zh-mode">
+
+    <!-- Language Toggle Floating Panel -->
+    <div class="fixed top-20 right-6 z-50">
+        <button id="lang-toggle-btn" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-extrabold rounded-full shadow-lg border border-white/20 text-xs tracking-wider flex items-center space-x-2 transition-all duration-300 transform hover:scale-105 glow-blue">
+            <span>🌐</span>
+            <span class="lang-zh">Switch to English</span>
+            <span class="lang-en">切换为中文</span>
+        </button>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-[#0b0f19]/80 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500">
+                    TriAttention TechReport
+                </span>
+                <span class="px-2 py-0.5 text-xs bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full font-semibold">
+                    v0.2.0 GA
+                </span>
+            </div>
+            <nav class="hidden md:flex space-x-6 text-sm font-medium text-slate-300">
+                <a href="#abstract" class="hover:text-blue-400 transition-colors">
+                    <span class="lang-zh">摘要</span><span class="lang-en">Abstract</span>
+                </a>
+                <a href="#principles" class="hover:text-blue-400 transition-colors">
+                    <span class="lang-zh">核心原理</span><span class="lang-en">Principles</span>
+                </a>
+                <a href="#math" class="hover:text-blue-400 transition-colors">
+                    <span class="lang-zh">数学模型</span><span class="lang-en">Math Model</span>
+                </a>
+                <a href="#vllm" class="hover:text-blue-400 transition-colors">
+                    <span class="lang-zh">vLLM 落地</span><span class="lang-en">vLLM Deploy</span>
+                </a>
+                <a href="#sglang" class="hover:text-blue-400 transition-colors">
+                    <span class="lang-zh">SGLang 落地</span><span class="lang-en">SGLang Deploy</span>
+                </a>
+                <a href="#calibration" class="hover:text-blue-400 transition-colors">
+                    <span class="lang-zh">离线标定</span><span class="lang-en">Calibration</span>
+                </a>
+                <a href="#benchmark" class="hover:text-blue-400 transition-colors">
+                    <span class="lang-zh">性能基准</span><span class="lang-en">Benchmarks</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="relative py-20 overflow-hidden border-b border-slate-900 bg-gradient-to-b from-[#0e1424] to-[#0b0f19]">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent"></div>
+        <div class="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-7 space-y-6">
+                <div class="inline-flex items-center space-x-2 px-3 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full text-xs font-semibold">
+                    <span class="lang-zh">🔥 2026年长文本推理重大技术突破</span>
+                    <span class="lang-en">🔥 2026 Milestone in Long-Context Reasoning</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl lg:text-6.5xl font-extrabold tracking-tight leading-none text-white">
+                    TriAttention: <br>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 lang-zh">
+                        基于三角函数极值投影的 <br>KV Cache 压缩技术
+                    </span>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 lang-en">
+                        Trigonometric Extrema Projection <br>for KV Cache Compression
+                    </span>
+                </h1>
+                <p class="text-lg text-slate-400 max-w-2xl font-light lang-zh">
+                    长推理序列下 KV 瓶颈的终结者。通过 Pre-RoPE 空间中 Q/K 凝聚特性，在不依赖 live query 的情况下，以三角级数预测长距离注意力偏好，实现 10.7× 显存衰减与 2.5× 吞吐量暴增。
+                </p>
+                <p class="text-lg text-slate-400 max-w-2xl font-light lang-en">
+                    The ultimate terminator for KV bottlenecks in long reasoning sequences. By exploiting Pre-RoPE Q/K concentration properties without relying on live queries, it predicts long-range attention preferences via trigonometric series, achieving a 10.7× memory reduction and 2.5× throughput spike.
+                </p>
+                <div class="flex flex-wrap gap-4 pt-4">
+                    <a href="#principles" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 transition-all rounded-lg font-semibold text-white shadow-lg shadow-blue-500/20">
+                        <span class="lang-zh">深入理解技术细节</span><span class="lang-en">Deep Dive into Tech Specs</span>
+                    </a>
+                    <a href="#vllm" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 transition-all rounded-lg font-semibold text-slate-300 border border-slate-700">
+                        <span class="lang-zh">查看工程落地</span><span class="lang-en">View Engine Deployment</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="lg:col-span-5 bg-slate-900/60 border border-slate-800 rounded-2xl p-6 glow-blue relative overflow-hidden backdrop-blur-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                        <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                        <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                    </div>
+                    <span class="text-xs text-slate-500 font-mono">Q/K Concentration Visualization</span>
+                </div>
+                <!-- Interactive SVG Canvas for RoPE space comparison -->
+                <div class="h-64 flex flex-col justify-between items-center bg-slate-950/80 rounded-xl p-4 relative">
+                    <div class="absolute top-2 right-2 flex space-x-2 text-[10px] font-mono">
+                        <span class="flex items-center text-blue-400"><span class="w-2 h-2 rounded-full bg-blue-400 mr-1"></span>Pre-RoPE</span>
+                        <span class="flex items-center text-purple-400"><span class="w-2 h-2 rounded-full bg-purple-400 mr-1"></span>Post-RoPE</span>
+                    </div>
+                    <div class="w-full h-4/5 flex justify-around items-center">
+                        <div class="relative w-28 h-28 border border-slate-800 rounded-full flex items-center justify-center">
+                            <span class="absolute text-[9px] text-slate-600 bottom-1">Pre-RoPE</span>
+                            <div class="w-8 h-8 rounded-full bg-blue-500/30 border border-blue-400/50 absolute top-8 left-14 animate-pulse"></div>
+                            <div class="w-2 h-2 rounded-full bg-blue-400 absolute top-11 left-16"></div>
+                            <div class="w-1.5 h-1.5 rounded-full bg-blue-300 absolute top-10 left-15"></div>
+                            <div class="w-1.5 h-1.5 rounded-full bg-blue-500 absolute top-12 left-18"></div>
+                            <div class="absolute w-full h-[1px] bg-slate-800/60"></div>
+                            <div class="absolute h-full w-[1px] bg-slate-800/60"></div>
+                        </div>
+                        <div class="relative w-28 h-28 border border-slate-800 rounded-full flex items-center justify-center">
+                            <span class="absolute text-[9px] text-slate-600 bottom-1">Post-RoPE</span>
+                            <svg class="absolute w-full h-full rotate-45">
+                                <circle cx="56" cy="56" r="32" fill="none" stroke="rgba(168, 85, 247, 0.3)" stroke-dasharray="4 4" stroke-width="2"/>
+                            </svg>
+                            <div class="w-2 h-2 rounded-full bg-purple-400 absolute top-4 left-10"></div>
+                            <div class="w-2 h-2 rounded-full bg-purple-400 absolute top-12 left-20"></div>
+                            <div class="w-2 h-2 rounded-full bg-purple-400 absolute top-20 left-16"></div>
+                            <div class="w-2 h-2 rounded-full bg-purple-400 absolute top-16 left-5"></div>
+                            <div class="absolute w-full h-[1px] bg-slate-800/60"></div>
+                            <div class="absolute h-full w-[1px] bg-slate-800/60"></div>
+                        </div>
+                    </div>
+                    <div class="w-full text-center text-[11px] text-indigo-400 font-mono">
+                        <span class="lang-zh">Q/K在Pre-RoPE空间高度凝聚 (R → 1)</span>
+                        <span class="lang-en">Q/K highly concentrate in Pre-RoPE space (R → 1)</span>
+                    </div>
+                </div>
+                <div class="mt-4 grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-slate-950/40 p-3 rounded-lg border border-slate-800">
+                        <div class="text-2xl font-black text-emerald-400">10.7×</div>
+                        <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
+                            <span class="lang-zh">KV显存减少</span><span class="lang-en">VRAM Reduction</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-950/40 p-3 rounded-lg border border-slate-800">
+                        <div class="text-2xl font-black text-blue-400">2.5×</div>
+                        <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
+                            <span class="lang-zh">长推理吞吐量</span><span class="lang-en">Throughput Boost</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="max-w-7xl mx-auto px-6 py-12 space-y-24">
+        <section id="abstract" class="scroll-mt-20">
+            <div class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-8 backdrop-blur-sm">
+                <h2 class="text-2xl font-bold text-white mb-4 flex items-center space-x-2">
+                    <span class="w-1.5 h-6 bg-blue-500 rounded-full"></span>
+                    <span class="lang-zh">1. 摘要 & 背景</span>
+                    <span class="lang-en">1. Abstract & Motivation</span>
+                </h2>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <div class="lg:col-span-7 space-y-4 text-slate-300 text-justify">
+                        
+                        <p class="lang-zh">
+                            随着以 <strong>DeepSeek-R1</strong>、<strong>Qwen3-8B-Instruct</strong>、<strong>Llama3-8B</strong> 为首的长链推理模型 (Long Reasoning LLMs) 的广泛普及，模型在单次调用中生成多达数万个 Token 的思维链 (Chain-of-Thought, CoT) 成为常态。这种<b>强思维密集、长文本迭代</b>的场景，导致 Transformer 的 <strong>Key-Value (KV) Cache</strong> 显存占用呈线性暴涨，极速触及硬件的“物理显存墙 (Memory Wall)”。
+                        </p>
+                        <p class="lang-en">
+                            With the widespread adoption of Long Reasoning LLMs pioneered by <strong>DeepSeek-R1</strong>, <strong>Qwen3-8B-Instruct</strong>, and <strong>Llama3-8B</strong>, it has become common for models to generate Chain-of-Thought (CoT) sequences containing tens of thousands of tokens in a single call. This <b>computationally intensive, long-context iterative</b> scenario causes the <strong>Key-Value (KV) Cache</strong> memory footprint to skyrocket linearly, rapidly hitting the hardware's physical "Memory Wall".
+                        </p>
+
+                        <p class="lang-zh">
+                            此前，工业界常使用 <strong>H2O</strong>、<strong>SnapKV</strong> 或 <strong>Accumulative Attention Eviction</strong> 机制。其核心逻辑是在解码时观察哪些 KV Token 被近期的 Query 强烈关注，从而淘汰注意力权重极低的历史 Token。
+                        </p>
+                        <p class="lang-en">
+                            Previously, the industry frequently utilized mechanisms like <strong>H2O</strong>, <strong>SnapKV</strong>, or <strong>Accumulative Attention Eviction</strong>. Their core logic relies on observing which historical KV Tokens are strongly attended to by recent Queries during decoding, thereby evicting tokens with extremely low attention weights.
+                        </p>
+
+                        <!-- Warnings -->
+                        <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-sm text-red-200 space-y-2">
+                            <span class="font-bold flex items-center lang-zh">
+                                🚨 传统 Post-RoPE 淘汰机制的物理崩塌：
+                            </span>
+                            <span class="font-bold flex items-center lang-en">
+                                🚨 The Physical Collapse of Traditional Post-RoPE Eviction:
+                            </span>
+                            <p class="lang-zh">
+                                旋转位置编码 (RoPE) 在生成时会将 Query 向量按照位置进行非线性旋转。由于 <strong>Query 不断随生成位置发生角度偏移</strong>，代表性 Query 的范围极其局限（仅能覆盖最近的约 25 个位置）。
+                            </p>
+                            <p class="lang-en">
+                                Rotary Position Embedding (RoPE) non-linearly rotates the Query vectors according to their positions during generation. Because <strong>Queries constantly undergo angular shifts based on their generation position</strong>, the scope of a representative Query is extremely limited (only covering approximately the last 25 positions).
+                            </p>
+                            <p class="lang-zh">
+                                此时，通过 Post-RoPE query-key 点积计算出来的注意力打分，是高度位置依赖且极其瞬态的。对于在长逻辑推理中<b>“当前不重要、但后文极其关键”</b>的暗线物理 Token，传统方法会将其<b>永久性误淘汰</b>，这直接造成推理准确率“断崖式下跌”。
+                            </p>
+                            <p class="lang-en">
+                                Consequently, attention scores calculated via Post-RoPE query-key dot products are highly position-dependent and extremely transient. For implicit physical Tokens that are <b>"unimportant now, but critically vital later"</b> in long logical reasoning, traditional methods will <b>permanently and mistakenly evict them</b>, causing a "cliff-like drop" in reasoning accuracy.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-5 space-y-4">
+                        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-6 relative">
+                            <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-3 lang-zh">
+                                TriAttention 新范式特征
+                            </h3>
+                            <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-3 lang-en">
+                                TriAttention Paradigm Features
+                            </h3>
+                            <ul class="space-y-3 text-xs text-slate-400">
+                                <li class="flex items-start">
+                                    <span class="text-blue-400 mr-2">✦</span>
+                                    <span class="lang-zh">
+                                        <b class="text-slate-200">Pre-RoPE 空间求值：</b>
+                                        彻底规避了 RoPE 带来的非线性高频旋转干扰，捕捉到恒定的分布中心。
+                                    </span>
+                                    <span class="lang-en">
+                                        <b class="text-slate-200">Pre-RoPE Evaluation:</b>
+                                        Completely circumvents the non-linear high-frequency rotational interference brought by RoPE, capturing constant distribution centers.
+                                    </span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-blue-400 mr-2">✦</span>
+                                    <span class="lang-zh">
+                                        <b class="text-slate-200">极低延迟投影评分：</b>
+                                        基于离线校准的 Q-Center 与 Q-Norm，无须在线计算 Query 的瞬时注意力，极大地节省了算力。
+                                    </span>
+                                    <span class="lang-en">
+                                        <b class="text-slate-200">Ultra-Low Latency Projection Scoring:</b>
+                                        Based on offline-calibrated Q-Centers and Q-Norms, it eliminates the need to calculate instantaneous Query attention online, vastly saving compute.
+                                    </span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-blue-400 mr-2">✦</span>
+                                    <span class="lang-zh">
+                                        <b class="text-slate-200">免模型改动：</b>
+                                        不修改模型本体结构与参数，纯工程侧零成本无缝集成。
+                                    </span>
+                                    <span class="lang-en">
+                                        <b class="text-slate-200">No Model Modifications:</b>
+                                        Seamlessly integrates on the engineering side at zero cost without modifying the model's structural parameters.
+                                    </span>
+                                </li>
+                            </ul>
+                            <!-- SVG Decorative Graph -->
+                            <div class="mt-4 pt-4 border-t border-slate-800 flex justify-center">
+                                <svg width="240" height="80" viewBox="0 0 240 80" class="text-slate-500">
+                                    <path d="M 10 70 Q 50 10, 90 70 T 170 70 T 230 40" fill="none" stroke="currentColor" stroke-width="2"/>
+                                    <circle cx="90" cy="70" r="4" fill="#3b82f6"/>
+                                    <text x="95" y="65" font-size="9" fill="#94a3b8">Trigger Pruning (Period N)</text>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="principles" class="scroll-mt-20">
+            <div class="space-y-6">
+                <h2 class="text-3xl font-bold text-white flex items-center space-x-2">
+                    <span class="w-1.5 h-8 bg-blue-500 rounded-full"></span>
+                    <span class="lang-zh">2. TriAttention 核心技术原理</span>
+                    <span class="lang-en">2. Core Technical Principles of TriAttention</span>
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-semibold font-mono">
+                                Insight 01
+                            </span>
+                            <span class="text-xs text-slate-500 font-mono">Q/K Concentration</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white lang-zh">Q/K 向量的高凝聚性</h3>
+                        <h3 class="text-xl font-bold text-white lang-en">High Concentration of Q/K Vectors</h3>
+                        
+                        <div class="space-y-2 text-sm text-slate-400 text-justify lang-zh">
+                            <p>
+                                TriAttention 提出，如果把视线转移到 <strong>Pre-RoPE 空间</strong> (即未加载旋转位置向量前的自注意力查询与键空间)，会观察到一个惊人的自然现象：
+                                <span class="text-blue-400 font-medium">无论是 Query 还是 Key，在不同的位置、不同的序列上下文输入下，均高度聚敛在一个恒定且不为零的“成核中心 (Mean Center)”周围</span>。
+                            </p>
+                            <p>
+                                这意味着，RoPE 旋转本身才是注意力震荡变化的主要推手。一旦排除 RoPE 的“万花筒效应”，注意力的概率密度就可以通过这个恒定中心结合两者的物理距离，进行直接的、代数级别的解耦和预测。
+                            </p>
+                        </div>
+                        <div class="space-y-2 text-sm text-slate-400 text-justify lang-en">
+                            <p>
+                                TriAttention posits that if we shift our focus to the <strong>Pre-RoPE space</strong> (the self-attention query and key space before rotary position vectors are loaded), an astonishing natural phenomenon is observed:
+                                <span class="text-blue-400 font-medium">Whether Query or Key, across different positions and varying sequence context inputs, they are highly concentrated around a constant, non-zero "Mean Center".</span>
+                            </p>
+                            <p>
+                                This implies that the RoPE rotation itself is the primary driver of attention oscillation. Once the "kaleidoscope effect" of RoPE is eliminated, the probability density of attention can be directly decoupled and algebraically predicted using this constant center combined with their physical distance.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-full text-xs font-semibold font-mono">
+                                Insight 02
+                            </span>
+                            <span class="text-xs text-slate-500 font-mono">Distance Preferences</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white lang-zh">可预测的位置/距离偏好</h3>
+                        <h3 class="text-xl font-bold text-white lang-en">Predictable Distance Preferences</h3>
+                        
+                        <div class="space-y-2 text-sm text-slate-400 text-justify lang-zh">
+                            <p>
+                                既然 Pre-RoPE 空间的 $Q$ 向量高度靠拢它的期望中心 $\expected{q}$，那么只要确定了当前 Key 向量 $k$ 所在的具体坐标，注意力的强度就不再依赖动态实时变化、反复计算的 Query，而是转为 $k$ 与 $\expected{q}$ 在旋转频率域内的相位偏好。
+                            </p>
+                            <p>
+                                由于 RoPE 对每个复数维度 slice 存在着固定的频率步长 $\omega_f$，这种中心偏好便可严密写为一组关于 Query-Key 物理索引差值（即 $\Delta = p_q - p_k$）的<strong>三角级数之和 (Trigonometric Series Sum)</strong>。这也正是 TriAttention 名字中 "Tri" 的代数来源。
+                            </p>
+                        </div>
+                        <div class="space-y-2 text-sm text-slate-400 text-justify lang-en">
+                            <p>
+                                Since the $Q$ vectors in the Pre-RoPE space closely hug their expected center $\expected{q}$, as long as the specific coordinate of the current Key vector $k$ is determined, the attention intensity no longer relies on dynamically changing, repeatedly calculated Queries. It transitions into a phase preference between $k$ and $\expected{q}$ within the rotational frequency domain.
+                            </p>
+                            <p>
+                                Because RoPE exhibits a fixed frequency step size $\omega_f$ for each complex dimension slice, this center preference can be rigorously written as a <strong>Trigonometric Series Sum</strong> regarding the physical index difference between Query and Key ($\Delta = p_q - p_k$). This is exactly the algebraic origin of the "Tri" in TriAttention's name.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6">
+                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 text-center lang-zh">
+                        交互探究：RoPE 前后的 Q 向量聚敛特征对比
+                    </h3>
+                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 text-center lang-en">
+                        Interactive Exploration: Q-Vector Concentration Comparison Before and After RoPE
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                        <div class="md:col-span-4 space-y-4">
+                            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                                <h4 class="text-xs font-bold text-white uppercase tracking-wider lang-zh">交互调节器</h4>
+                                <h4 class="text-xs font-bold text-white uppercase tracking-wider lang-en">Interactive Controller</h4>
+                                <p class="text-xs text-slate-500 lang-zh">
+                                    拉动滑块观察在不同聚敛度 (Mean Resultant Length $R$) 下，三角预测打分与真实注意力曲线的拟合度：
+                                </p>
+                                <p class="text-xs text-slate-500 lang-en">
+                                    Drag the slider to observe how the trigonometric prediction scores fit the true attention curve under different concentration levels (Mean Resultant Length $R$):
+                                </p>
+                                <div class="space-y-1">
+                                    <div class="flex justify-between text-[11px] font-mono text-slate-400">
+                                        <span class="lang-zh">当前聚敛度 $R_f$:</span>
+                                        <span class="lang-en">Current Concentration $R_f$:</span>
+                                        <span id="r-val" class="text-blue-400 font-bold">0.95</span>
+                                    </div>
+                                    <input type="range" id="r-slider" min="0.1" max="0.99" step="0.05" value="0.95" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+                                </div>
+                            </div>
+                            <div class="text-xs text-slate-400 leading-relaxed bg-slate-900/40 p-4 rounded-xl border border-slate-800 text-justify lang-zh">
+                                <span class="text-blue-400 font-semibold">数学机理：</span><br>
+                                当 $R_f \to 1$ 时，Query 向量的分布高度收拢为微小半径的超球体。三角函数预测分量 $S_{trig}$ 处于主导状态，预测值与真实注意力的 Pearson 相关系数通常超过 <b>0.85</b>。
+                            </div>
+                            <div class="text-xs text-slate-400 leading-relaxed bg-slate-900/40 p-4 rounded-xl border border-slate-800 text-justify lang-en">
+                                <span class="text-blue-400 font-semibold">Mathematical Mechanism:</span><br>
+                                As $R_f \to 1$, the distribution of Query vectors tightly converges into a hypersphere of minuscule radius. The trigonometric prediction component $S_{trig}$ becomes dominant, and the Pearson correlation coefficient between the predicted value and true attention typically exceeds <b>0.85</b>.
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-8 flex justify-center bg-slate-950 p-4 rounded-xl border border-slate-900 relative">
+                            <div class="absolute top-2 left-2 text-[10px] text-slate-500 lang-zh">
+                                注意力概率强度 (Attention Logits)
+                            </div>
+                            <div class="absolute top-2 left-2 text-[10px] text-slate-500 lang-en">
+                                Attention Probability Intensity (Logits)
+                            </div>
+                            <svg id="chart-svg" width="500" height="200" viewBox="0 0 500 200" class="w-full overflow-visible">
+                                <line x1="40" y1="170" x2="480" y2="170" stroke="#334155" stroke-width="1" />
+                                <line x1="40" y1="20" x2="40" y2="170" stroke="#334155" stroke-width="1" />
+                                <text x="260" y="190" font-size="10" fill="#475569" text-anchor="middle">Q-K Position Distance (Δ)</text>
+                                <path id="gt-path" d="" fill="none" stroke="#1e3a8a" stroke-width="1.5" stroke-dasharray="4 4"/>
+                                <path id="pred-path" d="" fill="none" stroke="#f97316" stroke-width="2"/>
+                                <g transform="translate(350, 20)">
+                                    <line x1="0" y1="5" x2="15" y2="5" stroke="#1e40af" stroke-width="1.5" stroke-dasharray="2 2" />
+                                    <text x="20" y="8" font-size="9" fill="#64748b" class="lang-zh">真实注意力</text>
+                                    <text x="20" y="8" font-size="9" fill="#64748b" class="lang-en">True Attention</text>
+                                    <line x1="0" y1="18" x2="15" y2="18" stroke="#f97316" stroke-width="2" />
+                                    <text x="20" y="21" font-size="9" fill="#64748b" class="lang-zh">TriAttn 预测值</text>
+                                    <text x="20" y="21" font-size="9" fill="#64748b" class="lang-en">TriAttn Prediction</text>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="math" class="scroll-mt-20">
+            <div class="space-y-6">
+                <h2 class="text-3xl font-bold text-white flex items-center space-x-2">
+                    <span class="w-1.5 h-8 bg-blue-500 rounded-full"></span>
+                    <span class="lang-zh">3. 三角极值投影数学模型</span>
+                    <span class="lang-en">3. Trigonometric Extrema Projection Math Model</span>
+                </h2>
+                
+                <p class="text-slate-300 lang-zh">
+                    TriAttention 的打分模块由两个子项构成：<b>三角投影打分 ($S_{trig}$)</b> 与 <b>期望模长修正打分 ($S_{norm}$)</b>。两者通过中心凝聚度测度 $R_f$ 自动平衡。
+                </p>
+                <p class="text-slate-300 lang-en">
+                    The scoring module of TriAttention consists of two sub-terms: <b>Trigonometric Projection Score ($S_{trig}$)</b> and <b>Expected Norm Correction Score ($S_{norm}$)</b>. Both are automatically balanced via the central concentration measure $R_f$.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                    <div class="lg:col-span-5 math-card rounded-2xl p-6 flex flex-col justify-between space-y-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-blue-400 mb-2 lang-zh">凝聚度测度：平均结果长度</h3>
+                            <h3 class="text-lg font-bold text-blue-400 mb-2 lang-en">Concentration Measure: Mean Resultant Length</h3>
+                            
+                            <p class="text-xs text-slate-400 leading-relaxed text-justify lang-zh">
+                                定量衡量每个自注意力头（或频段子空间 $f$）在 Pre-RoPE 空间的聚敛度，公式如下：
+                            </p>
+                            <p class="text-xs text-slate-400 leading-relaxed text-justify lang-en">
+                                Quantitatively measures the convergence of each self-attention head (or frequency band subspace $f$) in the Pre-RoPE space, formulated as:
+                            </p>
+                        </div>
+                        <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 text-center font-mono my-4">
+                            $$R_f = \frac{\norm{\expected{q_f}}}{\expected{\norm{q_f}}}$$
+                        </div>
+                        <p class="text-xs text-slate-400 text-justify font-sans lang-zh">
+                            其中 $q_f \in \mathbb{C}$ 为复平面的坐标，$\norm{\cdot}$ 为复数模。$R_f$ 取值于 $[0, 1]$；值越接近 1.0，说明 Query 在该频段的方差越小，凝聚性越强。
+                        </p>
+                        <p class="text-xs text-slate-400 text-justify font-sans lang-en">
+                            Where $q_f \in \mathbb{C}$ are coordinates on the complex plane, and $\norm{\cdot}$ denotes the complex modulus. $R_f$ ranges from $[0, 1]$; values closer to 1.0 indicate smaller variance of Queries in that frequency band, implying stronger concentration.
+                        </p>
+                    </div>
+
+                    <div class="lg:col-span-7 math-card rounded-2xl p-6 flex flex-col justify-between space-y-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-indigo-400 mb-2 lang-zh">三角级数投影分量 ($S_{trig}$)</h3>
+                            <h3 class="text-lg font-bold text-indigo-400 mb-2 lang-en">Trigonometric Series Projection Component ($S_{trig}$)</h3>
+                            
+                            <p class="text-xs text-slate-400 leading-relaxed text-justify font-sans lang-zh">
+                                假设 Q 在期望中心 $\expected{q_f}$ 处完美坍缩。代入旋转变换，Key 的三角级数分量计算如下：
+                            </p>
+                            <p class="text-xs text-slate-400 leading-relaxed text-justify font-sans lang-en">
+                                Assuming Q collapses perfectly at the expected center $\expected{q_f}$. By substituting the rotational transformation, the Key's trigonometric series component is calculated as:
+                            </p>
+                        </div>
+                        <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 text-center font-mono my-2 text-sm overflow-x-auto">
+                            $$S_{trig}(k, \Delta) = \sum_f \norm{\expected{q_f}} \cdot \norm{k_f} \cdot \cos(\omega_f \Delta + \phi_f)$$
+                        </div>
+                        <p class="text-xs text-slate-400 text-justify font-sans lang-zh">
+                            其中 $\phi_f = \text{arg}(\expected{q_f}) - \text{arg}(k_f)$ 为期望查询质心与当前 Key 在 Pre-RoPE 复平面下的角度偏好角。$\omega_f$ 是频段 $f$ 的旋转速率（由 RoPE 旋转步长控制）。
+                        </p>
+                        <p class="text-xs text-slate-400 text-justify font-sans lang-en">
+                            Where $\phi_f = \text{arg}(\expected{q_f}) - \text{arg}(k_f)$ is the angular preference between the expected query centroid and the current Key in the Pre-RoPE complex plane. $\omega_f$ is the rotation rate of frequency band $f$ (controlled by the RoPE rotation step size).
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                    <div class="lg:col-span-6 math-card rounded-2xl p-6 space-y-4">
+                        <h3 class="text-lg font-bold text-emerald-400 lang-zh">期望模长补充项 ($S_{norm}$)</h3>
+                        <h3 class="text-lg font-bold text-emerald-400 lang-en">Expected Norm Supplement Term ($S_{norm}$)</h3>
+                        
+                        <p class="text-xs text-slate-400 text-justify font-sans lang-zh">
+                            为了兼容极少数未能展示出强凝聚性的注意力头 ($R_f \ll 1$)，引入以下不依赖绝对位置的修正项：
+                        </p>
+                        <p class="text-xs text-slate-400 text-justify font-sans lang-en">
+                            To accommodate the rare attention heads that fail to exhibit strong concentration ($R_f \ll 1$), the following position-independent correction term is introduced:
+                        </p>
+                        
+                        <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 text-center font-mono text-sm overflow-x-auto">
+                            $$S_{norm}(k) = \sum_f (1 - R_f) \cdot \expected{\norm{q_f}} \cdot \norm{k_f}$$
+                        </div>
+                        <p class="text-xs text-slate-400 text-justify font-sans lang-zh">
+                            等价展开后可写作 $\sum_f (\expected{\norm{q_f}} - \norm{\expected{q_f}}) \cdot \norm{k_f}$。对于高凝聚频段，$1 - R_f \to 0$ 使其几乎不参与打分；对于低凝聚频段，该项将保留完整的权重。
+                        </p>
+                        <p class="text-xs text-slate-400 text-justify font-sans lang-en">
+                            Equivalently expanded, this can be written as $\sum_f (\expected{\norm{q_f}} - \norm{\expected{q_f}}) \cdot \norm{k_f}$. For highly concentrated bands, $1 - R_f \to 0$ makes it barely participate in scoring; for low concentration bands, this term retains its full weight.
+                        </p>
+                    </div>
+
+                    <div class="lg:col-span-6 math-card rounded-2xl p-6 space-y-4 flex flex-col justify-between font-sans">
+                        <div>
+                            <h3 class="text-lg font-bold text-pink-400 lang-zh">综合最终注意力预测打分 ($\tilde{S}$)</h3>
+                            <h3 class="text-lg font-bold text-pink-400 lang-en">Comprehensive Final Attention Prediction Score ($\tilde{S}$)</h3>
+                            <p class="text-xs text-slate-400 lang-zh">
+                                两项组合为自适应联合评分，作为物理剔除的历史关键度评测机制：
+                            </p>
+                            <p class="text-xs text-slate-400 lang-en">
+                                The combination of both terms yields an adaptive joint score, serving as the historical criticality evaluation mechanism for physical eviction:
+                            </p>
+                        </div>
+                        <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 text-center font-mono text-base font-bold text-white">
+                            $$\tilde{S}(k, \Delta) = S_{trig}(k, \Delta) + S_{norm}(k)$$
+                        </div>
+                        <p class="text-xs text-indigo-300 text-justify bg-indigo-950/30 p-2.5 rounded-lg border border-indigo-900/40 lang-zh">
+                            <strong>💡 Insight:</strong>
+                            通过此模型，具有强中心偏好偏向（RoPE 决定）的层使用精确的余弦旋转代数投影打分；而分布散乱的层则退化为按预期 Query-Norm 加权的 Key-Norm。边界条件完美无缝契合。
+                        </p>
+                        <p class="text-xs text-indigo-300 text-justify bg-indigo-950/30 p-2.5 rounded-lg border border-indigo-900/40 lang-en">
+                            <strong>💡 Insight:</strong>
+                            Through this model, layers with strong center-preference biases (dictated by RoPE) utilize precise cosine rotational algebraic projection for scoring; whereas scattered layers degrade to Key-Norms weighted by expected Query-Norms. Boundary conditions fit seamlessly.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="vllm" class="scroll-mt-20 font-sans">
+            <div class="space-y-6">
+                <h2 class="text-3xl font-bold text-white flex items-center space-x-2">
+                    <span class="w-1.5 h-8 bg-blue-500 rounded-full"></span>
+                    <span class="lang-zh">4. 在 vLLM 生态中的工程落地</span>
+                    <span class="lang-en">4. Engineering Deployment in the vLLM Ecosystem</span>
+                </h2>
+                
+                <p class="text-slate-300 lang-zh">
+                    在 vLLM 中，TriAttention 作为<b>非侵入式的运行时 KV 压缩插件</b>注入，在无需改动任何模型结构的情况下，直接接入 PagedAttention 的物理内存块管理。
+                </p>
+                <p class="text-slate-300 lang-en">
+                    In vLLM, TriAttention is injected as a <b>non-intrusive runtime KV compression plugin</b>. It directly hooks into PagedAttention's physical memory block management without altering any underlying model structures.
+                </p>
+
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6">
+                    <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-6 text-center lang-zh">
+                        vLLM 运行时动态压缩与内存回收工作流
+                    </h3>
+                    <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-6 text-center lang-en">
+                        vLLM Runtime Dynamic Compression & Memory Reclaim Workflow
+                    </h3>
+                    <div class="flex justify-center">
+                        <svg width="760" height="200" viewBox="0 0 760 200" class="w-full max-w-4xl">
+                            <line x1="80" y1="100" x2="680" y2="100" stroke="#334155" stroke-width="2" />
+                            
+                            <g transform="translate(40, 60)">
+                                <rect x="0" y="0" width="100" height="80" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+                                <text x="50" y="25" fill="#fff" font-size="9" font-weight="bold" text-anchor="middle" class="lang-zh">1. 启动服务</text>
+                                <text x="50" y="25" fill="#fff" font-size="9" font-weight="bold" text-anchor="middle" class="lang-en">1. Init Service</text>
+                                <text x="50" y="45" fill="#94a3b8" font-size="8" text-anchor="middle" class="lang-zh">加载离线.pt文件</text>
+                                <text x="50" y="45" fill="#94a3b8" font-size="8" text-anchor="middle" class="lang-en">Load offline .pt</text>
+                                <text x="50" y="60" fill="#94a3b8" font-size="8" text-anchor="middle" class="lang-zh">拦截 Scheduler</text>
+                                <text x="50" y="60" fill="#94a3b8" font-size="8" text-anchor="middle" class="lang-en">Hook Scheduler</text>
+                            </g>
+                            <polygon points="155,100 165,95 165,105" fill="#3b82f6" />
+
+                            <g transform="translate(180, 60)">
+                                <rect x="0" y="0" width="110" height="80" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1"/>
+                                <text x="55" y="25" fill="#fff" font-size="9" font-weight="bold" text-anchor="middle" class="lang-zh">2. 前向预填充</text>
+                                <text x="55" y="25" fill="#fff" font-size="9" font-weight="bold" text-anchor="middle" class="lang-en">2. Forward Prefill</text>
+                                <text x="55" y="45" fill="#94a3b8" font-size="8" text-anchor="middle" class="lang-zh">建立初始 KV Cache</text>
+                                <text x="55" y="45" fill="#94a3b8" font-size="8" text-anchor="middle" class="lang-en">Build Initial KV Cache</text>
+                                <text x="55" y="60" fill="#f59e0b" font-size="8" text-anchor="middle" class="lang-zh">限制 chunk 大小</text>
+                                <text x="55" y="60" fill="#f59e0b" font-size="8" text-anchor="middle" class="lang-en">Limit Chunk Size</text>
+                            </g>
+                            <polygon points="305,100 315,95 315,105" fill="#3b82f6" />
+
+                            <g transform="translate(330, 60)">
+                                <rect x="0" y="0" width="120" height="80" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+                                <text x="60" y="25" fill="#fff" font-size="9" font-weight="bold" text-anchor="middle" class="lang-zh">3. 触发淘汰机制</text>
+                                <text x="60" y="25" fill="#fff" font-size="9" font-weight="bold" text-anchor="middle" class="lang-en">3. Trigger Eviction</text>
+                                <text x="60" y="45" fill="#f43f5e" font-size="8" font-weight="bold" text-anchor="middle">Δt = 128 Tokens</text>
+                                <text x="60" y="60" fill="#94a3b8" font-size="8" text-anchor="middle" class="lang-zh">计算 Top-B 保留向量</text>
+                                <text x="60" y="60" fill="#94a3b8" font-size="8" text-anchor="middle" class="lang-en">Compute Top-B Retain</text>
+                            </g>
+                            <polygon points="465,100 475,95 475,105" fill="#f59e0b" />
+
+                            <g transform="translate(490, 60)">
+                                <rect x="0" y="0" width="110" height="80" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="1"/>
+                                <text x="55" y="25" fill="#fff" font-size="9" font-weight="bold" text-anchor="middle" class="lang-zh">4. GPU 物理压缩</text>
+                                <text x="55" y="25" fill="#fff" font-size="9" font-weight="bold" text-anchor="middle" class="lang-en">4. GPU Compaction</text>
+                                <text x="55" y="45" fill="#10b981" font-size="8" text-anchor="middle" class="lang-zh">就地 (In-place) 挤压</text>
+                                <text x="55" y="45" fill="#10b981" font-size="8" text-anchor="middle" class="lang-en">In-place Squeeze</text>
+                                <text x="55" y="60" fill="#94a3b8" font-size="8" text-anchor="middle" class="lang-zh">Triton 高性能重排</text>
+                                <text x="55" y="60" fill="#94a3b8" font-size="8" text-anchor="middle" class="lang-en">Triton Rearrangement</text>
+                            </g>
+                            <polygon points="615,100 625,95 625,105" fill="#10b981" />
+
+                            <g transform="translate(640, 60)">
+                                <rect x="0" y="0" width="100" height="80" rx="8" fill="#1e293b" stroke="#a855f7" stroke-width="2"/>
+                                <text x="50" y="25" fill="#fff" font-size="9" font-weight="bold" text-anchor="middle" class="lang-zh">5. 物理页面回收</text>
+                                <text x="50" y="25" fill="#fff" font-size="9" font-weight="bold" text-anchor="middle" class="lang-en">5. Page Reclamation</text>
+                                <text x="50" y="45" fill="#a855f7" font-size="8" text-anchor="middle" class="lang-zh">释放空置 Paged 块</text>
+                                <text x="50" y="45" fill="#a855f7" font-size="8" text-anchor="middle" class="lang-en">Free Empty Blocks</text>
+                                <text x="50" y="60" fill="#94a3b8" font-size="8" text-anchor="middle" class="lang-zh">物理显存返还空闲池</text>
+                                <text x="50" y="60" fill="#94a3b8" font-size="8" text-anchor="middle" class="lang-en">Return VRAM to Pool</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-6 space-y-4">
+                        <h3 class="text-xl font-bold text-white flex items-center">
+                            <span class="w-1 h-5 bg-blue-400 mr-2 rounded"></span>
+                            <span class="lang-zh">拦截器挂钩与猴子补丁逻辑</span>
+                            <span class="lang-en">Interceptor Hooks and Monkeypatch Logic</span>
+                        </h3>
+                        <p class="text-sm text-slate-400 lang-zh">
+                            服务初始化时，执行以下脚本即可无缝拦截 vLLM 执行树：
+                        </p>
+                        <p class="text-sm text-slate-400 lang-en">
+                            Upon service initialization, executing the following script seamlessly intercepts the vLLM execution tree:
+                        </p>
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3 text-xs">
+                            <div>
+                                <span class="font-semibold text-blue-400 lang-zh">❶ 调度器拦截 (Scheduler Patch)</span>
+                                <span class="font-semibold text-blue-400 lang-en">❶ Scheduler Patch</span>
+                                <p class="text-slate-400 mt-1 lang-zh">
+                                    覆写 vLLM 的 <code>BlockSpaceManager</code> 块分配管理器，动态监控生成物理 Token 的序列步长。一旦步长触及阈值 <code>DIVIDE_LENGTH</code>（默认 128），即向底层执行引擎发送压缩显卡指令。
+                                </p>
+                                <p class="text-slate-400 mt-1 lang-en">
+                                    Overwrites vLLM's <code>BlockSpaceManager</code> block allocator to dynamically monitor the sequence step size of generated physical Tokens. Once the step size hits the <code>DIVIDE_LENGTH</code> threshold (default 128), it issues a GPU compression command to the underlying execution engine.
+                                </p>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-blue-400 lang-zh">❷ 执行器拦截 (Worker Patch)</span>
+                                <span class="font-semibold text-blue-400 lang-en">❷ Worker Patch</span>
+                                <p class="text-slate-400 mt-1 lang-zh">
+                                    重写自注意力前向前置层。在自注意力内核执行前，它首先获取标定物理期望中心与当前 Key 的偏差角度（在 Pre-RoPE 坐标系），进而计算得到保留掩码，并直接修改物理 Key / Value 指针，剥离无意义项。
+                                </p>
+                                <p class="text-slate-400 mt-1 lang-en">
+                                    Rewrites the self-attention forward pre-layer. Before the self-attention kernel executes, it calculates the deviation angle between the calibrated physical expected center and the current Key (in the Pre-RoPE coordinate system), derives a retention mask, and directly modifies physical Key/Value pointers to strip out meaningless items.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-6 space-y-4">
+                        <h3 class="text-xl font-bold text-white flex items-center">
+                            <span class="w-1 h-5 bg-indigo-400 mr-2 rounded"></span>
+                            <span class="lang-zh">物理压缩与页面级内存回收</span>
+                            <span class="lang-en">Physical Compaction and Page-Level Memory Reclamation</span>
+                        </h3>
+                        <p class="text-sm text-slate-400 lang-zh">
+                            仅对指针进行掩码拦截会导致空闲物理碎片残留在显存，必须彻底回收方可规避推理 OOM：
+                        </p>
+                        <p class="text-sm text-slate-400 lang-en">
+                            Merely performing mask interception on pointers leaves idle physical fragments residing in VRAM. Complete reclamation is mandatory to avoid inference OOMs:
+                        </p>
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3 text-xs">
+                            <div>
+                                <span class="font-semibold text-indigo-400 lang-zh">❶ 原位物理重组 (In-place GPU Compaction)</span>
+                                <span class="font-semibold text-indigo-400 lang-en">❶ In-place GPU Compaction</span>
+                                <p class="text-slate-400 mt-1 lang-zh">
+                                    集成高度优化的 <strong>Triton / HIP Gather 内核</strong>。它在 GPU 原位物理段执行高速“往前挪移挤压”，无须开辟临时的影子镜像缓冲区（Shadow Buffer），即可将分散残留的活跃 KV 数据在物理块内紧密排布。
+                                </p>
+                                <p class="text-slate-400 mt-1 lang-en">
+                                    Integrates a highly optimized <strong>Triton / HIP Gather kernel</strong>. It performs high-speed "forward shifting and squeezing" directly in GPU physical segments without creating temporary Shadow Buffers, tightly packing the dispersed active KV data within physical blocks.
+                                </p>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-indigo-400 lang-zh">❷ 页面级块回收 (Block Page Reclamation)</span>
+                                <span class="font-semibold text-indigo-400 lang-en">❷ Block Page Reclamation</span>
+                                <p class="text-slate-400 mt-1 lang-zh">
+                                    在 PagedAttention 体系中，内存按每块 16 / 32 粒度的页面划分。一旦经过压缩，某整块逻辑分配页面的 16 个 Token 均被淘汰，回收钩子强制将其在 <code>BlockSpaceManager</code> 处的引用计数清零，并将物理地址扔回空闲队列以供重新分配。
+                                </p>
+                                <p class="text-slate-400 mt-1 lang-en">
+                                    In the PagedAttention system, memory is divided into page blocks of 16/32 granularity. Once a logically allocated block has all its tokens evicted post-compression, the reclamation hook forces its reference count in <code>BlockSpaceManager</code> to zero, returning the physical address to the free queue for reallocation.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Python & Config Snippets (Universal Code) -->
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                    <h3 class="text-sm font-semibold text-white uppercase tracking-wider">
+                        <span class="lang-zh">vLLM 生产级启动与部署配置</span>
+                        <span class="lang-en">vLLM Production Launch and Deployment Configs</span>
+                    </h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <span class="text-xs text-slate-400 font-mono">1. Python API Integration Method</span>
+                            <pre class="bg-slate-950 p-4 rounded-lg border border-slate-800 text-[11px] overflow-x-auto text-blue-300"><code>from triattention.vllm.runtime.integration_monkeypatch import (
+    install_vllm_integration_monkeypatches
+)
+
+# Core: Interception MUST execute before any LLM engine init
+install_vllm_integration_monkeypatches(
+    patch_scheduler=True, 
+    patch_worker=True
+)
+
+from vllm import LLM, SamplingParams
+# Standard calling process, transparent to users
+llm = LLM(
+    model="Qwen/Qwen3-8B-Instruct",
+    dtype="bfloat16",
+    max_model_len=32768,
+    enforce_eager=True # Eager execution is mandatory
+)</code></pre>
+                        </div>
+                        <div class="space-y-2">
+                            <span class="text-xs text-slate-400 font-mono">2. OpenAI-Compatible CLI Server Deploy</span>
+                            <pre class="bg-slate-950 p-4 rounded-lg border border-slate-800 text-[11px] overflow-x-auto text-emerald-300"><code># 1. Export pre-calibrated frequency expectation data
+export TRIATTN_RUNTIME_SPARSE_STATS_PATH=stats/qwen3_8b.pt
+# 2. Specify physical retention budget per request
+export TRIATTN_RUNTIME_KV_BUDGET=2048
+export ENABLE_TRIATTENTION=1
+
+vllm serve Qwen/Qwen3-8B-Instruct \
+    --dtype bfloat16 \
+    --max-model-len 32768 \
+    --enforce-eager \
+    --trust-remote-code \
+    --enable-prefix-caching false # Disable Prefix Caching</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 p-4 bg-indigo-950/20 border border-indigo-900/40 rounded-xl space-y-3">
+                        <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-wider">
+                            💡 
+                            <span class="lang-zh">极限界碑：长序列多轮对话/Agent 工作载荷配置</span>
+                            <span class="lang-en">Extreme Milestones: Long-Sequence Multi-Turn/Agent Workload Configs</span>
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div class="space-y-1">
+                                <span class="font-bold text-slate-200">
+                                    <span class="lang-zh">对话场景预算：</span><span class="lang-en">Chat Scenario Budget:</span>
+                                </span>
+                                <p class="text-slate-400 lang-zh">
+                                    建议指定 <code>TRIATTN_RUNTIME_KV_BUDGET=12000</code>。多轮长对话历史含有长效指令，较大的 KV 预算能避免遗忘早期关键对话指令。
+                                </p>
+                                <p class="text-slate-400 lang-en">
+                                    Recommended to specify <code>TRIATTN_RUNTIME_KV_BUDGET=12000</code>. Multi-turn long chat histories contain long-term instructions; larger KV budgets prevent forgetting early critical dialogue commands.
+                                </p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="font-bold text-slate-200">
+                                    <span class="lang-zh">限制 Prefill 块：</span><span class="lang-en">Limit Prefill Chunks:</span>
+                                </span>
+                                <p class="text-slate-400 lang-zh">
+                                    强制配置 <code>--max-num-batched-tokens 1024</code>。过大的 Prefill 块会在首轮计算中瞬间撑爆物理显存，限制单步最大 Token 预充可拦截避免 OOM。
+                                </p>
+                                <p class="text-slate-400 lang-en">
+                                    Force configuration <code>--max-num-batched-tokens 1024</code>. Oversized Prefill chunks will instantly explode physical VRAM during initial calculations. Limiting max step token prefill intercepts and avoids OOMs.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-4 bg-purple-950/20 border border-purple-900/40 rounded-xl space-y-3">
+                        <h4 class="text-xs font-bold text-purple-400 uppercase tracking-wider">
+                            🚀 
+                            <span class="lang-zh">NVIDIA DGX Spark / GB10 系统极致运行配置</span>
+                            <span class="lang-en">NVIDIA DGX Spark / GB10 Extreme Running Configurations</span>
+                        </h4>
+                        <p class="text-xs text-slate-400 lang-zh">
+                            针对高端计算节点（sm-121 / Blackwell），利用 <code>uv</code> 执行如下流程可解锁極限加速吞吐：
+                        </p>
+                        <p class="text-xs text-slate-400 lang-en">
+                            For high-end compute nodes (sm-121 / Blackwell), utilizing <code>uv</code> to execute the following pipeline unlocks extreme accelerated throughput:
+                        </p>
+                        <pre class="bg-slate-950 p-4 rounded-lg border border-slate-800 text-[11px] overflow-x-auto text-purple-300"><code># Hardware drivers & CUDA13.0 integration steps
+uv venv . && . .venv/bin/activate
+uv pip install --index-url https://download.pytorch.org/whl/cu130 torch torchvision torchaudio
+uv pip install \
+  https://github.com/vllm-project/vllm/releases/download/v0.19.0/vllm-0.19.0-cp38-abi3-manylinux_2_31_aarch64.whl \
+  --extra-index-url https://download.pytorch.org/whl/cu130 --extra-index-url https://pypi.org/simple
+uv pip install -e .
+
+# Bind Triton fast cache
+export TRITON_CACHE_DIR=~/.cache/.triton-cache
+PY_SITE=$(.venv/bin/python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
+export LD_LIBRARY_PATH="$PY_SITE/torch/lib:$PY_SITE/nvidia/cu13/lib:/usr/local/cuda/targets/sbsa-linux/lib:${LD_LIBRARY_PATH:-}"
+
+vllm serve Qwen/Qwen3-8B --dtype bfloat16 --max-model-len 32768 --enforce-eager --no-enable-prefix-caching --gpu-memory-utilization 0.7</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sglang" class="scroll-mt-20 font-sans">
+            <div class="space-y-6">
+                <h2 class="text-3xl font-bold text-white flex items-center space-x-2">
+                    <span class="w-1.5 h-8 bg-blue-500 rounded-full"></span>
+                    <span class="lang-zh">5. 在 SGLang 框架中的高吞吐设计</span>
+                    <span class="lang-en">5. High Throughput Design in SGLang Framework</span>
+                </h2>
+                
+                <p class="text-slate-300 lang-zh">
+                    2026 年 4 月 21 日发布的 <strong>TriAttention v0.2.0</strong> 中，官方正式将 SGLang 作为第一等公民进行深度对接。SGLang 自身高度追求极限吞吐与算子融合，对其落地提出了特定的工程需求。
+                </p>
+                <p class="text-slate-300 lang-en">
+                    In <strong>TriAttention v0.2.0</strong> released on April 21, 2026, SGLang was officially embraced as a first-class citizen for deep integration. SGLang's intense pursuit of extreme throughput and operator fusion posed specific engineering requirements for its deployment.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
+                        <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center font-bold text-lg">TP</div>
+                        <h3 class="text-md font-bold text-white lang-zh">TP-Aware 统计参数多卡分片</h3>
+                        <h3 class="text-md font-bold text-white lang-en">TP-Aware Stats Parameter Multi-GPU Sharding</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed text-justify lang-zh">
+                            在多卡张量并行 (Tensor Parallel, TP) 状态下，自注意力头的计算会被物理切分。SGLang 端的 TriAttention 会根据 Rank ID 自动将加载的 <code>model_stats.pt</code> 进行切片分装，每张卡仅持有和加载属于自己卡对应 Head 的 Q-Center 与 Q-Norm，从而规避了分布式环境下的跨卡 All-Reduce 全局通信，实现完全并行的多卡高频推理。
+                        </p>
+                        <p class="text-xs text-slate-400 leading-relaxed text-justify lang-en">
+                            Under Tensor Parallel (TP) conditions, self-attention head calculations are physically partitioned. TriAttention on SGLang automatically slices the loaded <code>model_stats.pt</code> based on Rank IDs, ensuring each GPU only holds and loads Q-Centers and Q-Norms for its corresponding heads. This avoids cross-GPU All-Reduce global communications in distributed environments, enabling fully parallel, high-frequency multi-GPU inference.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
+                        <div class="w-10 h-10 bg-indigo-500/10 text-indigo-400 rounded-lg flex items-center justify-center font-bold text-lg">PH</div>
+                        <h3 class="text-md font-bold text-white lang-zh">基于 Head 级别的细粒度物理压缩</h3>
+                        <h3 class="text-md font-bold text-white lang-en">Fine-Grained Physical Compression at Head-Level</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed text-justify lang-zh">
+                            与粗暴统一剔除 Token 的粗放方式不同，不同注意力头对于同一个物理 Token 具有天差地别的相位距离和语义偏好。SGLang 联动高度定制的 <code>sgl_kernel</code>，在细粒度的 Per-Head 维度维持和推进异构非连续内存布局，最大程度护航数学推理上的熵信息完整性。
+                        </p>
+                        <p class="text-xs text-slate-400 leading-relaxed text-justify lang-en">
+                            Unlike the crude approach of uniform Token eviction, different attention heads possess vastly different phase distances and semantic preferences for the same physical Token. SGLang, in conjunction with the highly customized <code>sgl_kernel</code>, maintains and advances heterogeneous, non-contiguous memory layouts at the fine-grained Per-Head dimension, maximizing the preservation of entropy integrity in mathematical reasoning.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
+                        <div class="w-10 h-10 bg-purple-500/10 text-purple-400 rounded-lg flex items-center justify-center font-bold text-lg">RC</div>
+                        <h3 class="text-md font-bold text-white lang-zh">Radix Cache 前缀树缓存隔离</h3>
+                        <h3 class="text-md font-bold text-white lang-en">Radix Cache Prefix Tree Isolation</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed text-justify lang-zh">
+                            SGLang 标志性的核心技术为 Radix Cache。然而，由于动态 KV Cache 压缩在解码中由于对各历史 Token 掩码并不一致，会使前缀物理快散落重构并导致缓存树失真失效。为了维持系统稳定，SGLang 启动器的 TriAttention 默认会强行注入 <code>--disable-radix-cache</code> 命令以隔离树逻辑干扰。
+                        </p>
+                        <p class="text-xs text-slate-400 leading-relaxed text-justify lang-en">
+                            SGLang's iconic core technology is Radix Cache. However, because dynamic KV Cache compression applies inconsistent historical Token masks during decoding, it scatters and reconstructs prefix physical blocks, causing the cache tree to distort and fail. To maintain system stability, TriAttention's SGLang launcher defaults to forcefully injecting the <code>--disable-radix-cache</code> command to isolate tree logic interference.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-3 font-sans">
+                    <span class="text-xs font-semibold text-white uppercase tracking-wider font-mono lang-zh">SGLang 生产级极速部署启动指令</span>
+                    <span class="text-xs font-semibold text-white uppercase tracking-wider font-mono lang-en">SGLang Production Quick Launch Commands</span>
+                    <p class="text-xs text-slate-400 lang-zh">
+                        直接调用 <code>triattention.sglang</code> 启动器，可在无须修改 SGLang 上游源码的状态下极速激活：
+                    </p>
+                    <p class="text-xs text-slate-400 lang-en">
+                        Invoke the <code>triattention.sglang</code> launcher directly to instantly activate without modifying SGLang upstream source code:
+                    </p>
+                    <pre class="bg-slate-950 p-4 rounded-lg border border-slate-800 text-[11px] overflow-x-auto text-indigo-300"><code># 1. Export calibration path and budget configuration
+export TRIATTN_RUNTIME_SPARSE_STATS_PATH=triattention/calibration/qwen3_8b.pt
+export TRIATTN_RUNTIME_KV_BUDGET=2048
+
+# 2. Invoke SGLang backend launcher
+python -m triattention.sglang \
+    --model-path /path/to/Qwen3-8B \
+    --dtype bfloat16 \
+    --context-length 32768 \
+    --trust-remote-code</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="calibration" class="scroll-mt-20 font-sans">
+            <div class="bg-slate-900/30 border border-slate-800 rounded-2xl p-8 space-y-6">
+                <h2 class="text-3xl font-bold text-white flex items-center space-x-2">
+                    <span class="w-1.5 h-8 bg-blue-500 rounded-full"></span>
+                    <span class="lang-zh">6. 离线期望中心标定指南</span>
+                    <span class="lang-en">6. Offline Expectation Center Calibration Guide</span>
+                </h2>
+                
+                <p class="text-slate-300 text-sm lang-zh">
+                    TriAttention 需要在推理前獲取預先計算的 Q/K 頻率統計數據（即 Pre-RoPE 凝聚中心 $\expected{q_f}$ 與期望模長 $\expected{\norm{q_f}}$）。您可以通過官方提供的標定腳本快速生成自定義模型的 <code>.pt</code> 數據包：
+                </p>
+                <p class="text-slate-300 text-sm lang-en">
+                    TriAttention requires pre-computed Q/K frequency statistics (i.e., Pre-RoPE concentration centers $\expected{q_f}$ and expected norms $\expected{\norm{q_f}}$) before inference. You can quickly generate a `.pt` package for custom models using the officially provided calibration script:
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <div class="lg:col-span-6 space-y-4">
+                        <span class="text-xs font-semibold text-slate-400 font-mono uppercase tracking-wider block lang-zh">1. 运行 Calibration 管道</span>
+                        <span class="text-xs font-semibold text-slate-400 font-mono uppercase tracking-wider block lang-en">1. Run the Calibration Pipeline</span>
+                        <pre class="bg-slate-950 p-4 rounded-lg border border-slate-800 text-[11px] overflow-x-auto text-cyan-300"><code>python scripts/calibrate.py \
+  --model &lt;your-model-id-or-path&gt; \
+  --input &lt;calibration_text.txt&gt; \
+  --output triattention/calibration/model_stats.pt</code></pre>
+                        
+                        <div class="bg-slate-950/40 p-4 rounded-lg border border-slate-800 text-xs text-slate-400 space-y-2 text-justify">
+                            <span class="font-bold text-white block lang-zh">標定文本要求：</span>
+                            <span class="font-bold text-white block lang-en">Calibration Text Requirements:</span>
+                            <ul class="list-disc list-inside space-y-1 lang-zh">
+                                <li><b>领域无关：</b>標定文本的領域無須與下游任務匹配，通用文本如 Wikipedia 或代碼源文件均可。</li>
+                                <li><b>長度推薦：</b>標定數據方差對長度極其魯棒，但強烈建議提供接近 <b>32,768</b> 字元的文本。</li>
+                            </ul>
+                            <ul class="list-disc list-inside space-y-1 lang-en">
+                                <li><b>Domain-Agnostic:</b> The calibration text domain does not need to match downstream tasks. Generic texts like Wikipedia or source code files work perfectly.</li>
+                                <li><b>Length Recommendation:</b> Calibration data variance is highly robust to length, but providing texts approaching <b>32,768</b> characters is strongly recommended.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-6 space-y-4 text-xs text-slate-400">
+                        <span class="text-xs font-semibold text-slate-400 font-mono uppercase tracking-wider block lang-zh">2. 标定脚本底层执行机理</span>
+                        <span class="text-xs font-semibold text-slate-400 font-mono uppercase tracking-wider block lang-en">2. Underlying Mechanics of the Calibration Script</span>
+                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-5 space-y-4 text-justify">
+                            <div class="space-y-1">
+                                <span class="font-bold text-white lang-zh">㈠ Token 預充與前向捕獲</span>
+                                <span class="font-bold text-white lang-en">㈠ Token Prefill and Forward Capture</span>
+                                <p class="lang-zh">腳本將輸入文本 Token 化後送入模型執行一次標準的前向傳播，在每個 Attention 模塊對 Q 進行攔截。</p>
+                                <p class="lang-en">The script tokenizes input text, runs a standard forward pass through the model, and intercepts Q at every Attention module.</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="font-bold text-white lang-zh">㈡ 逆向旋轉變換 (RoPE Inversion)</span>
+                                <span class="font-bold text-white lang-en">㈡ RoPE Inversion</span>
+                                <p class="lang-zh">在複數二維平面對 Query 進行逆向旋轉（解鎖 RoPE 的相位移 $\omega_f p$），將其映射回 Pre-RoPE 純淨空間。</p>
+                                <p class="lang-en">Reversely rotates Queries in the complex 2D plane (unlocking the RoPE phase shift $\omega_f p$) to map them back to the pure Pre-RoPE space.</p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="font-bold text-white lang-zh">㈢ 頭級平均計算 (Head-level Aggregation)</span>
+                                <span class="font-bold text-white lang-en">㈢ Head-level Aggregation</span>
+                                <p class="lang-zh">按自注意力頭 (Head) 對逆向得到的坐標點計算中心均值 $\expected{q_f}$ 與期望模長，歸一化打包保存至 <code>.pt</code> 中。</p>
+                                <p class="lang-en">Calculates the center mean $\expected{q_f}$ and expected norm of inverted coordinate points per Head, normalizing and packing them into the `.pt` file.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="benchmark" class="scroll-mt-20 font-sans">
+            <div class="space-y-6">
+                <h2 class="text-3xl font-bold text-white flex items-center space-x-2">
+                    <span class="w-1.5 h-8 bg-blue-500 rounded-full"></span>
+                    <span class="lang-zh">7. 运行期核心参数矩阵与性能基准评估</span>
+                    <span class="lang-en">7. Runtime Parameter Matrix and Performance Benchmarks</span>
+                </h2>
+                
+                <p class="text-slate-300 lang-zh">
+                    调优核心运行参数将直接决定模型推理准确率（Accuracy）与物理显卡吞吐速率（Throughput）的黄金权衡。
+                </p>
+                <p class="text-slate-300 lang-en">
+                    Tuning core runtime parameters directly determines the golden trade-off between model inference accuracy and physical GPU throughput.
+                </p>
+
+                <div class="overflow-x-auto border border-slate-800 rounded-2xl">
+                    <table class="w-full text-left text-xs text-slate-400">
+                        <thead class="bg-slate-900 text-[10px] uppercase text-slate-400 tracking-wider font-mono border-b border-slate-800">
+                            <tr>
+                                <th class="p-4">ENV OPTION</th>
+                                <th class="p-4">DEFAULT</th>
+                                <th class="p-4">RECOMMENDED</th>
+                                <th class="p-4">DESCRIPTION</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800 font-sans">
+                            <tr>
+                                <td class="p-4 font-mono text-blue-400 font-semibold">TRIATTN_RUNTIME_KV_BUDGET</td>
+                                <td class="p-4 font-mono">2048</td>
+                                <td class="p-4 font-mono">CoT: 2048 | Chat: 12000</td>
+                                <td class="p-4 text-slate-300 lang-zh">单次请求中每个 Head 最大允许常驻的 Key/Value 元素量，直接锚定显存占用。</td>
+                                <td class="p-4 text-slate-300 lang-en" style="display:none;">Max Key/Value elements allowed per Head per request, directly anchoring VRAM footprint.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-mono text-blue-400 font-semibold">TRIATTN_RUNTIME_DIVIDE_LENGTH</td>
+                                <td class="p-4 font-mono">128</td>
+                                <td class="p-4 font-mono">128 - 256</td>
+                                <td class="p-4 text-slate-300 lang-zh">触发物理压缩与内存回收的步长间隔。生成每新增 N 个 Token 物理上就地执行一次挤压。</td>
+                                <td class="p-4 text-slate-300 lang-en" style="display:none;">Step interval triggering physical compaction and memory reclamation. Triggers in-place squeezing every N new Tokens.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-mono text-blue-400 font-semibold">TRIATTN_RUNTIME_WINDOW_SIZE</td>
+                                <td class="p-4 font-mono">128</td>
+                                <td class="p-4 font-mono">128 - 256</td>
+                                <td class="p-4 text-slate-300 lang-zh">末尾滑动局域上下文窗口大小。最近 N 个生成的 Token 处于最高物理敏感区，绝对排除不淘汰。</td>
+                                <td class="p-4 text-slate-300 lang-en" style="display:none;">Trailing sliding local context window size. The latest N Tokens are strictly immune to eviction.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-mono text-blue-400 font-semibold">TRIATTN_RUNTIME_PRUNING_MODE</td>
+                                <td class="p-4 font-mono">per_head</td>
+                                <td class="p-4 font-mono">per_head | per_layer_per_head</td>
+                                <td class="p-4 text-slate-300 lang-zh">Token 淘汰策略。选择 <code>per_layer_per_head</code> 允许在多层之间倾斜分配资源以提升质量。</td>
+                                <td class="p-4 text-slate-300 lang-en" style="display:none;">Token eviction strategy. <code>per_layer_per_head</code> allows skewed resource allocation across layers for better quality.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-mono text-blue-400 font-semibold">TRIATTN_RUNTIME_PROTECT_PREFILL</td>
+                                <td class="p-4 font-mono">false</td>
+                                <td class="p-4 font-mono">true</td>
+                                <td class="p-4 text-slate-300 lang-zh">是否全面保护初始 Prompt 基础 Token（首轮 Input）免受淘汰，在 Agent 指令复杂场景建议开启。</td>
+                                <td class="p-4 text-slate-300 lang-en" style="display:none;">Whether to fully protect initial Prompt tokens (Input) from eviction; recommended for complex Agent scenarios.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-slate-900/30 border border-slate-800 rounded-2xl p-6">
+                    <div class="lg:col-span-5 space-y-4">
+                        <h3 class="text-xl font-bold text-white lang-zh">AIME25 32K 极限界碑测试成绩</h3>
+                        <h3 class="text-xl font-bold text-white lang-en">AIME25 32K Extreme Benchmark Results</h3>
+                        <p class="text-sm text-slate-400 text-justify leading-relaxed lang-zh">
+                            在极具挑战性的 <strong>AIME25</strong> (含 32K Token 超长数学逻辑推理与思维链) 任务中，当 KV 显存预算压缩到只有原先的 <b>1/10.7 (9.3%)</b> 的物理极限界限时，传统淘汰基线 (如 R-KV) 会丢失关键逻辑节点而“思维崩溃”，准确率暴跌至原先的一半。而 TriAttention 完美咬住了全量注意力机制的最高准确率，保全了长链推理不泄露。
+                        </p>
+                        <p class="text-sm text-slate-400 text-justify leading-relaxed lang-en">
+                            In the highly challenging <strong>AIME25</strong> task (involving 32K Token ultra-long math logic reasoning and CoT), when the KV VRAM budget is compressed to a physical extreme of only <b>1/10.7 (9.3%)</b>, traditional eviction baselines (like R-KV) suffer "cognitive collapse" by losing critical logic nodes, plummeting accuracy by half. TriAttention perfectly matches the peak accuracy of full attention mechanisms, preserving long-chain reasoning without leakage.
+                        </p>
+                    </div>
+
+                    <div class="lg:col-span-7 bg-slate-950 p-6 rounded-xl border border-slate-900 space-y-4 font-sans">
+                        <div class="text-xs text-slate-500 font-mono uppercase tracking-wider text-center">
+                            AIME25 Accuracy vs Memory Retention Comparison
+                        </div>
+                        <div class="space-y-4">
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs text-slate-300">
+                                    <span>Full Attention (No Eviction)</span>
+                                    <span class="font-bold text-blue-400">40.8% <span class="text-[10px] text-slate-500 font-normal font-mono">(VRAM: 100%)</span></span>
+                                </div>
+                                <div class="w-full h-4 bg-slate-900 rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-500 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs text-slate-300">
+                                    <span class="font-bold text-slate-200">TriAttention (KV Budget = 2048)</span>
+                                    <span class="font-bold text-emerald-400">40.8% <span class="text-[10px] text-slate-500 font-normal font-mono">(VRAM: 9.3%)</span></span>
+                                </div>
+                                <div class="w-full h-4 bg-slate-900 rounded-full overflow-hidden">
+                                    <div class="h-full bg-emerald-500 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-xs text-slate-300">
+                                    <span>Standard Baseline R-KV (KV Budget = 2048)</span>
+                                    <span class="font-bold text-rose-500">21.2% <span class="text-[10px] text-slate-500 font-normal font-mono">(VRAM: 9.3%)</span></span>
+                                </div>
+                                <div class="w-full h-4 bg-slate-900 rounded-full overflow-hidden">
+                                    <div class="h-full bg-rose-500 rounded-full" style="width: 52%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-[10px] text-center text-slate-500 leading-relaxed font-sans lang-zh">
+                            数据源自 MIT, ZJU 与 NVIDIA 联合测试报告 (基于 Qwen3-8B)
+                        </div>
+                        <div class="text-[10px] text-center text-slate-500 leading-relaxed font-sans lang-en">
+                            Data sourced from joint test reports by MIT, ZJU, and NVIDIA (based on Qwen3-8B)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="references" class="scroll-mt-20 border-t border-slate-800 pt-12 font-sans">
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center space-x-2 font-sans">
+                <span class="w-1.5 h-6 bg-blue-500 rounded-full"></span>
+                <span class="lang-zh">引用与参考出处</span>
+                <span class="lang-en">References</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-400 font-mono">
+                <div class="bg-slate-900/30 p-4 rounded-xl border border-slate-800/60 space-y-2">
+                    <span class="text-blue-400 font-bold block lang-zh">[1] 核心研究文献:</span>
+                    <span class="text-blue-400 font-bold block lang-en">[1] Core Research Literature:</span>
+                    <p class="text-slate-300 font-sans">
+                        Weian Mao, Xi Lin, Wei Huang, Yuxin Xie, Tianfu Fu, Bohan Zhuang, Song Han, Yukang Chen. 
+                        "TriAttention: Efficient Long Reasoning with Trigonometric KV Compression." 
+                        arXiv preprint arXiv:2604.04921 (April 2026).
+                        <br>
+                        <a href="https://arxiv.org/abs/2604.04921" target="_blank" class="text-blue-400 hover:underline inline-flex items-center space-x-1 mt-2.5 font-mono">
+                            <span>📄 arXiv Paper Link</span>
+                            <span>↗</span>
+                        </a>
+                    </p>
+                </div>
+                <div class="bg-slate-900/30 p-4 rounded-xl border border-slate-800/60 space-y-2">
+                    <span class="text-blue-400 font-bold block lang-zh">[2] 官方开源社区实现:</span>
+                    <span class="text-blue-400 font-bold block lang-en">[2] Official Open Source Community Implementation:</span>
+                    <p class="text-slate-300 font-sans">
+                        Weian Mao et al. TriAttention Repository. Github Community.
+                        <br>
+                        <a href="https://github.com/WeianMao/triattention" target="_blank" class="text-blue-400 hover:underline inline-flex items-center space-x-1 mt-2.5 font-mono">
+                            <span>💻 GitHub Repository</span>
+                            <span>↗</span>
+                        </a>
+                    </p>
+                </div>
+                <div class="bg-slate-900/30 p-4 rounded-xl border border-slate-800/60 space-y-2">
+                    <span class="text-indigo-400 font-bold block lang-zh">[3] SGLang 生态集成更新:</span>
+                    <span class="text-indigo-400 font-bold block lang-en">[3] SGLang Ecosystem Integration Updates:</span>
+                    <p class="text-slate-300 font-sans">
+                        "SGLang Backend Integration (triattention.sglang) v0.2.0."
+                        SGLang Official Release Tag Documentation (April 21, 2026).
+                        <br>
+                        <a href="https://github.com/WeianMao/triattention/releases" target="_blank" class="text-blue-400 hover:underline inline-flex items-center space-x-1 mt-2.5 font-mono">
+                            <span>🚀 Releases History</span>
+                            <span>↗</span>
+                        </a>
+                    </p>
+                </div>
+                <div class="bg-slate-900/30 p-4 rounded-xl border border-slate-800/60 space-y-2">
+                    <span class="text-indigo-400 font-bold block lang-zh">[4] 联合技术生态文献:</span>
+                    <span class="text-indigo-400 font-bold block lang-en">[4] Joint Tech Ecosystem Literature:</span>
+                    <p class="text-slate-300 font-sans">
+                        "TurboQuant: Fused Triton Store/Decode Paths and Sub-3-Bit KV cache Quantization on DGX Spark."
+                        vLLM Community Contribution PR #39890 (April 15, 2026).
+                        <br>
+                        <a href="https://github.com/vllm-project/vllm/issues/39193" target="_blank" class="text-blue-400 hover:underline inline-flex items-center space-x-1 mt-2.5 font-mono">
+                            <span>🔗 vLLM Pull Request Discussions</span>
+                            <span>↗</span>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-950 border-t border-slate-900 py-12 text-slate-500 text-center text-xs space-y-2 font-sans">
+        <p class="lang-zh">© 2026 TriAttention Research Group. This HTML technical review is built dynamically using CSS, JS, SVG, and MathJax.</p>
+        <p class="lang-en">© 2026 TriAttention Research Group. This HTML technical review is built dynamically using CSS, JS, SVG, and MathJax.</p>
+    </footer>
+
+    <!-- Script for Interactive Graph and Lang Toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Language Toggle Logic
+            const langBtn = document.getElementById('lang-toggle-btn');
+            let currentLang = 'zh';
+
+            langBtn.addEventListener('click', () => {
+                if (currentLang === 'zh') {
+                    document.body.classList.replace('lang-zh-mode', 'lang-en-mode');
+                    currentLang = 'en';
+                } else {
+                    document.body.classList.replace('lang-en-mode', 'lang-zh-mode');
+                    currentLang = 'zh';
+                }
+                
+                // For nested tables display toggling
+                document.querySelectorAll('td.lang-en, td.lang-zh').forEach(td => {
+                    if (td.classList.contains('lang-' + currentLang)) {
+                        td.style.display = 'table-cell';
+                    } else {
+                        td.style.display = 'none';
+                    }
+                });
+            });
+
+            // Interactive Graph Logic
+            const slider = document.getElementById('r-slider');
+            const rVal = document.getElementById('r-val');
+            
+            function updateChart() {
+                const r = parseFloat(slider.value);
+                rVal.textContent = r.toFixed(2);
+
+                const gtPath = document.getElementById('gt-path');
+                const predPath = document.getElementById('pred-path');
+
+                let gtD = "M ";
+                let predD = "M ";
+
+                for (let x = 40; x <= 460; x += 5) {
+                    const normalizedX = (x - 40) / 420;
+                    
+                    const realAttn = 20 + 80 * Math.exp(-3 * normalizedX) + 40 * Math.sin(20 * normalizedX) * Math.exp(-2 * normalizedX);
+                    
+                    const noise = (1 - r) * 35 * Math.sin(70 * normalizedX);
+                    const predAttn = realAttn + noise;
+
+                    const svgGtY = 170 - realAttn;
+                    const svgPredY = 170 - predAttn;
+
+                    gtD += `${x} ${svgGtY} `;
+                    predD += `${x} ${svgPredY} `;
+                    
+                    if (x < 460) {
+                        gtD += "L ";
+                        predD += "L ";
+                    }
+                }
+
+                gtPath.setAttribute('d', gtD);
+                predPath.setAttribute('d', predD);
+            }
+
+            slider.addEventListener('input', updateChart);
+            updateChart();
+        });
+    </script>
+</body>
+</html>
