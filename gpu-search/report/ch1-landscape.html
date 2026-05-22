@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page="ch1" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='3' width='18' height='18' rx='4' stroke='url(%23g)' stroke-width='2' fill='none'/%3E%3Crect x='7' y='7' width='10' height='10' rx='2' fill='url(%23g)' opacity='0.8'/%3E%3Cpath d='M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22' stroke='url(%23g)' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="common.css">
+<title>AI Chips 2026 Report</title>
+<style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.tag-cyan{background:rgba(6,182,212,.15);color:#22d3ee}
+.timeline{position:relative;padding-left:30px;margin:30px 0}
+.timeline::before{content:'';position:absolute;left:12px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--accent),var(--accent2),var(--green))}
+.tl-item{position:relative;margin-bottom:28px}
+.tl-item::before{content:'';position:absolute;left:-22px;top:6px;width:12px;height:12px;border-radius:50%;border:2px solid var(--accent);background:var(--bg)}
+.tl-item.green::before{border-color:var(--green)}
+.tl-item.orange::before{border-color:var(--orange)}
+.tl-year{font-size:13px;color:var(--accent);font-weight:700}
+.tl-text{font-size:14px;color:var(--text2);margin-top:4px}
+.ref-list{font-size:13px;color:var(--text3);margin-top:40px;padding:20px;background:var(--surface2);border-radius:8px}
+.ref-list strong{color:var(--text2)}
+
+
+.prev-next a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<nav class="nav-bar">
+<a class="logo" href="index.html"><svg class="logo-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient></defs><rect x="3" y="3" width="18" height="18" rx="4" stroke="url(#logo-grad)" stroke-width="2" fill="none" /><rect x="7" y="7" width="10" height="10" rx="2" fill="url(#logo-grad)" opacity="0.8" /><path d="M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round" /></svg><span class="logo-text">AI Chips 2026</span></a>
+<div class="nav-links">
+<a href="index.html" data-i18n="nav.0">首页</a>
+<a href="ch1-landscape.html" class="active" data-i18n="nav.1">行业全景</a>
+<a href="ch2-architecture.html" data-i18n="nav.2">架构原理</a>
+<a href="ch3-nvidia.html" data-i18n="nav.3">NVIDIA</a>
+<a href="ch4-asic.html" data-i18n="nav.4">定制ASIC</a>
+<a href="ch5-edge-npu.html" data-i18n="nav.5">端侧NPU</a>
+<a href="ch6-data-format.html" data-i18n="nav.6">数据格式</a>
+<a href="ch7-lithography.html" data-i18n="nav.7">光刻与封装</a>
+<a href="ch8-china-vendors.html" data-i18n="nav.8">国产芯片与算力突围</a>
+<a href="ch9-amd-instinct.html" data-i18n="nav.9">AMD</a>
+<a href="ch10-intel-emerging.html" data-i18n="nav.10">Intel+新兴</a>
+<a href="ch11-software-ecosystem.html" data-i18n="nav.11">软件生态</a>
+<a href="ch12-distributed-training.html" data-i18n="nav.12">分布式训练</a>
+<a href="ch13-conclusion.html" data-i18n="nav.13">结论</a>
+</div>
+<div class="nav-toggles"></div>
+</nav>
+
+<div class="content">
+<h1 data-i18n="ch1.title">第一章：行业宏观图景与范式转移</h1>
+
+<h2 data-i18n="ch1.s1">1.1 AI计算进入异构时代</h2>
+<p data-i18n="html_leaves.ch1_p1">截至2026年，全球人工智能计算硬件产业已正式迈入"多模态（Multimodal）"与"智能体（Agentic AI）"双轮驱动的异构计算时代。随着万亿参数规模大语言模型的常态化以及具身智能在物理世界的广泛部署，传统的冯·诺依曼架构在"存储墙"与"功耗墙"面前已遭遇难以逾越的物理瓶颈。单纯依靠晶体管物理尺寸的微缩（如向1.4nm节点的极限推进）已无法满足以指数级增长的系统级算力需求 <span class="tag tag-blue">[1][2][3]</span>。</p>
+
+<p data-i18n="html_leaves.ch1_p2">当前的行业核心趋势表明，计算芯片的竞争已从单一的逻辑计算单元的频率与密度比拼，全面升级为系统级协同设计的综合博弈。云端数据中心正在演变为一台具有高度凝聚力的"超级计算机"，而在这个宏大的进程中，底层计算单元的形态发生了前所未有的显著分化。</p>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch1_div1" class="chart-title">2026 AI 计算生态版图</div>
+<canvas id="ecosystemChart" height="420"></canvas>
+</div>
+
+<h2 data-i18n="ch1.s2">1.2 三大计算阵营的分化</h2>
+<p data-i18n="html_leaves.ch1_p3">以<span class="tag tag-blue">NVIDIA</span>为代表的通用GPU阵营继续深化极度并行的SIMT架构，试图以无与伦比的互连带宽维持统治地位 <span class="tag tag-blue">[5][6][7]</span>；以<span class="tag tag-green">Google</span>为代表的云厂商自研TPU在脉动阵列道路上实现了训练与推理的架构硬分化 <span class="tag tag-green">[3][8]</span>；而专用神经处理单元（NPU）则在<span class="tag tag-orange">Apple</span>、<span class="tag tag-orange">高通</span>与<span class="tag tag-orange">特斯拉</span>等巨头的推动下，凭借空间计算架构确立了端侧高能效比的霸主地位 <span class="tag tag-orange">[7][9][10]</span>。</p>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch1_div2" class="chart-title">三大架构阵营核心指标对比</div>
+<canvas id="campsChart" height="350"></canvas>
+</div>
+
+<h2 data-i18n="ch1.s3">1.3 制造工艺的范式转移</h2>
+<p data-i18n="html_leaves.ch1_p4">芯片制造与封装工艺正在经历一场深刻的范式转移。先进封装技术取代了传统的单芯片光刻，构建起超越物理光罩极限的"封装堡垒" <span class="tag tag-purple">[11][12]</span>；微缩放格式（MX）与超低精度（如FP4）数据类型的标准化，正在从数据结构的数学底层重构AI模型的软硬件生态 <span class="tag tag-purple">[13][14]</span>。而在复杂的全球地缘政治博弈与出口管制的深刻影响下，全球AI算力供应链正在形成以技术制裁、关税壁垒与国产化突围为特征的平行体系 <span class="tag tag-red">[15][16]</span>。</p>
+
+<h2 data-i18n="ch1.s4">1.4 关键里程碑时间线</h2>
+<div class="timeline">
+<div class="tl-item"><div class="tl-year">2022 Q3</div><div data-i18n="html_leaves.ch1_div3" class="tl-text">NVIDIA H100 (Hopper) 发布，80GB HBM3，确立AI训练算力基线</div></div>
+<div class="tl-item"><div class="tl-year">2024 Q1</div><div data-i18n="html_leaves.ch1_div4" class="tl-text">NVIDIA B200 (Blackwell) 发布，2080亿晶体管，FP4推理9 PFLOPS</div></div>
+<div class="tl-item green"><div class="tl-year">2024 Q4</div><div data-i18n="html_leaves.ch1_div5" class="tl-text">Google TPU Trillium (v6e) 全面商用，BF16算力918 TFLOPS，4.7x代际跃升</div></div>
+<div class="tl-item orange"><div class="tl-year">2025 H2</div><div data-i18n="html_leaves.ch1_div6" class="tl-text">Apple M4/M5 发布，统一内存架构 + GPU内嵌Neural Accelerator</div></div>
+<div class="tl-item"><div class="tl-year">2026 Q1</div><div data-i18n="html_leaves.ch1_div7" class="tl-text">NVIDIA Vera Rubin (R100) 推向市场，3360亿晶体管，FP4 50 PFLOPS</div></div>
+<div class="tl-item green"><div class="tl-year">2026 Q1</div><div data-i18n="html_leaves.ch1_div8" class="tl-text">Google TPU Ironwood (v8) 发布，首次训练/推理硬分化 (8t/8i)</div></div>
+<div class="tl-item orange"><div class="tl-year">2026 Q1</div><div data-i18n="html_leaves.ch1_div9" class="tl-text">ASML High-NA EUV EXE:5200 跨越实验阶段，50万片晶圆商用级量产</div></div>
+<div class="tl-item"><div class="tl-year">2026 Q2</div><div data-i18n="html_leaves.ch1_div10" class="tl-text">华为Ascend 910C大规模铺货，规划年交付60万颗</div></div>
+</div>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch1_div11" class="chart-title">AI加速器单卡FP4算力代际演进 (PFLOPS)</div>
+<canvas id="flopsChart" height="320"></canvas>
+</div>
+
+<div data-i18n="html_leaves.ch1_div12" class="ref-list">
+<strong>参考资料：</strong><br>
+[1] How NVIDIA GPUs Are Made – THE MAKING &nbsp;|&nbsp; [2] How do Graphics Cards Work? – Branch Education &nbsp;|&nbsp; [3] 京东全工程自动化仓库 &nbsp;|&nbsp; [5] Introducing Amazon EC2 P6e-GB200 – AWS &nbsp;|&nbsp; [6] NVIDIA GTC Keynote with Jensen Huang &nbsp;|&nbsp; [7] Biggest Problems Humanoid Robots Face – CNET &nbsp;|&nbsp; [8] Why Nvidia Tesla Amazon Bet On Humanoid Robots – CNBC &nbsp;|&nbsp; [9] How Cars Are Made – Engineering World &nbsp;|&nbsp; [10] Tesla Optimus Robot – The Independent &nbsp;|&nbsp; [11] Inside a Google Data Center &nbsp;|&nbsp; [12] Computational Lithography – ASML &nbsp;|&nbsp; [13] Transformers Tech Behind LLMs – 3Blue1Brown &nbsp;|&nbsp; [14] Deutsche Telekom NVIDIA Industrial AI Cloud &nbsp;|&nbsp; [15] Nvidia Jensen Huang Unveils Vera Rubin – WSJ &nbsp;|&nbsp; [16] TSMC Fab Tour
+</div>
+
+<div class="prev-next">
+<span></span>
+<a href="ch2-architecture.html"><span data-i18n="common.next">下一章 →</span>：<span data-i18n="nav.2">架构原理</span></a>
+</div>
+</div>
+
+<script src="charts.js"></script>
+<script>
+window.__renderCharts = () => {
+drawEcosystem('ecosystemChart')
+drawCamps('campsChart')
+drawFlopsEvolution('flopsChart')
+};
+window.addEventListener('DOMContentLoaded', window.__renderCharts)
+</script>
+
+<script src="i18n.js"></script>
+<script src="common.js"></script>
+</body>
+</html>

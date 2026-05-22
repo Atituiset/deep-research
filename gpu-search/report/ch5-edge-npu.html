@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page="ch5" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='3' width='18' height='18' rx='4' stroke='url(%23g)' stroke-width='2' fill='none'/%3E%3Crect x='7' y='7' width='10' height='10' rx='2' fill='url(%23g)' opacity='0.8'/%3E%3Cpath d='M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22' stroke='url(%23g)' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="common.css">
+<title>AI Chips 2026 Report</title>
+<style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.prev-next a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<nav class="nav-bar">
+<a class="logo" href="index.html"><svg class="logo-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient></defs><rect x="3" y="3" width="18" height="18" rx="4" stroke="url(#logo-grad)" stroke-width="2" fill="none" /><rect x="7" y="7" width="10" height="10" rx="2" fill="url(#logo-grad)" opacity="0.8" /><path d="M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round" /></svg><span class="logo-text">AI Chips 2026</span></a>
+<div class="nav-links">
+<a href="index.html" data-i18n="nav.0">首页</a>
+<a href="ch1-landscape.html" data-i18n="nav.1">行业全景</a>
+<a href="ch2-architecture.html" data-i18n="nav.2">架构原理</a>
+<a href="ch3-nvidia.html" data-i18n="nav.3">NVIDIA</a>
+<a href="ch4-asic.html" data-i18n="nav.4">定制ASIC</a>
+<a href="ch5-edge-npu.html" class="active" data-i18n="nav.5">端侧NPU</a>
+<a href="ch6-data-format.html" data-i18n="nav.6">数据格式</a>
+<a href="ch7-lithography.html" data-i18n="nav.7">光刻与封装</a>
+<a href="ch8-china-vendors.html" data-i18n="nav.8">国产芯片与算力突围</a>
+<a href="ch9-amd-instinct.html" data-i18n="nav.9">AMD</a>
+<a href="ch10-intel-emerging.html" data-i18n="nav.10">Intel+新兴</a>
+<a href="ch11-software-ecosystem.html" data-i18n="nav.11">软件生态</a>
+<a href="ch12-distributed-training.html" data-i18n="nav.12">分布式训练</a>
+<a href="ch13-conclusion.html" data-i18n="nav.13">结论</a>
+</div>
+<div class="nav-toggles"></div>
+</nav>
+
+<div class="content">
+<h1 data-i18n="ch5.title">第五章：端侧NPU与具身智能时代</h1>
+
+<p data-i18n="html_leaves.ch5_p1">在云端重型算力展开军备竞赛的同时，由于隐私保护、通信网络延迟以及长连接带宽成本的严苛限制，让AI模型运行在终端本地（On-device AI）成为2026年最澎湃的消费级硬件浪潮。专门针对功耗与空间限制进行优化的端侧NPU以及全新的统一内存架构，正在深刻重塑个人计算与机器人控制的底层体系结构。</p>
+
+<h2 data-i18n="ch5.s1">5.1 Apple M5 Fusion：统一内存架构的端侧革命</h2>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch5_div1" class="chart-title">Apple M5 Fusion 统一内存分发架构</div>
+<canvas id="appleM5Chart" height="380"></canvas>
+</div>
+
+<p data-i18n="html_leaves.ch5_p2">2025年底至2026年发布的Apple M5系列芯片，向全球完美诠释了消费级芯片的端侧AI极限。在传统的x86 Windows PC体系中，独立GPU与主板CPU的系统内存存在物理割裂，导致在运行动辄占用数十GB显存的大参数语言模型时，系统必须频繁通过低速PCIe总线进行换页操作，严重拖垮了推理速度。</p>
+
+<p data-i18n="html_leaves.ch5_p3">苹果的M系列芯片革命性地利用了统一内存架构（UMA）彻底根除了这一痛点。M5 Pro/Max采用TSMC第三代3nm制程技术，构建了创新的Fusion Architecture（将两块硅模片连同互连架构紧密集成的单芯片SoC方案）。</p>
+
+<p data-i18n="html_leaves.ch5_p4">在M5 Pro和M5 Max中，苹果不仅保留并改进了独立的16核神经引擎，更为极其惊艳的是，在其可扩展至高达40个核心的强大GPU管线中，每一个GPU核心内部都硬核植入了专用的神经加速器（Neural Accelerators）。配合M5平台高达153 GB/s的统一内存总带宽以及对高达128 GB本地物理内存的支持，苹果彻底去中心化了端侧算力。整体GPU端峰值AI算力飙升了4倍，赋予了MacBook和iPad在完全断网状态下满负荷运行数十亿乃至数百亿参数本地大模型的能力。</p>
+
+<h2 data-i18n="ch5.s2">5.2 高通Snapdragon X Elite：Copilot+ PC的能效标杆</h2>
+
+<p data-i18n="html_leaves.ch5_p5">微软推出的"Copilot+ PC"硬件标准强制规定：凡欲挂载此标识的设备，必须至少内建能够提供40 TOPS算力的独立NPU，以及标配至少16GB运行内存。</p>
+
+<p data-i18n="html_leaves.ch5_p6">高通Snapdragon X Elite处理器内置了专门针对深度学习推理高度优化的Hexagon NPU模块，能够持续稳定地独立输出高达45 TOPS的AI推断性能。该平台配备了带宽达135 GB/s的LPDDR5x内存控制器。</p>
+
+<p data-i18n="html_leaves.ch5_p7">在实际的办公与生产力应用场景中，这一高达45 TOPS的NPU全盘接管了视频会议的动态背景虚化、全局实时语音环境降噪，甚至是操作系统级别基于Copilot的连贯文本自动生成。由于这些繁重的AI任务被NPU以仅仅几瓦特的低热功耗高效吞噬，Oryon主控CPU和Adreno GPU得以长期保持极低频率待机休眠。搭载Snapdragon X Elite的笔记本电脑获得了长达数天的惊人无源续航能力 <span class="tag tag-orange">[10][18]</span>。</p>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch5_div2" class="chart-title">端侧NPU算力对比 (TOPS) 与能效比</div>
+<canvas id="npuCompareChart" height="380"></canvas>
+</div>
+
+<h2 data-i18n="ch5.s3">5.3 特斯拉Optimus与FSD芯片：迈向物理空间的具身智能</h2>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch5_div3" class="chart-title">特斯拉 Optimus 具身智能物理执行管线</div>
+<canvas id="optimusChart" height="350"></canvas>
+</div>
+
+<p data-i18n="html_leaves.ch5_p8">具身智能标志着端侧AI在空间维度和物理执行层的究极形态落地。特斯拉于2026年3月推向规模化量产的Optimus Gen 3人形机器人，展示了高级神经计算芯片与精密机电控制伺服系统融合的最高工业水准 <span class="tag tag-orange">[7][9][10]</span>。</p>
+
+<p data-i18n="html_leaves.ch5_p9">Optimus Gen 3彻底剥离了传统机器人的固定指令控制逻辑，转而采用几乎纯端到端的神经网络推理模式。机器人搭载了从自动驾驶领域移植而来的特斯拉全栈自研AI4及AI5端侧推理芯片作为核心物理计算大脑。该系列芯片内置超大容量NPU模块，专门优化用于消化来自机身多摄视觉阵列的实时图像数据，进行极低延迟的立体语义分割、三维物体空间检测，并毫秒级地生成涵盖22个手部自由度及全身执行器的实时动力学规划方案 <span class="tag tag-orange">[7][9][10]</span>。</p>
+
+<p data-i18n="html_leaves.ch5_p10">这款专用芯片在极其受限的热设计封存及仅有2.3 kWh电池容量下，允许机器人不依赖云端实现持续2小时以上的高负载复杂物理作业。支撑端侧精湛物理智能的底层基石，是远在数百公里外耗费庞大财力的超大型NVIDIA数据中心集群。特斯拉的端到端神经规划网络利用数以百万计的实车或模拟视觉切片，消耗了高达70,000个顶级GPU小时进行前置训练。云端提炼出的万亿参数级知识，经过极致剪枝与量化压缩，封装进端侧NPU内执行推理——这是云计算（宏大知识构建）与边缘计算（微观实时响应）相辅相成的教科书式缩影 <span class="tag tag-orange">[7][9]</span>。</p>
+
+<div class="prev-next">
+<a href="ch4-asic.html"><span data-i18n="common.prev">← 上一章</span>：<span data-i18n="nav.4">定制ASIC</span></a>
+<a href="ch6-data-format.html"><span data-i18n="common.next">下一章 →</span>：<span data-i18n="nav.6">数据格式</span></a>
+</div>
+</div>
+
+<script src="charts.js"></script>
+<script>
+window.__renderCharts = () => {
+drawAppleM5('appleM5Chart')
+drawEdgeNPUCompare('npuCompareChart')
+drawOptimus('optimusChart')
+};
+window.addEventListener('DOMContentLoaded', window.__renderCharts)
+</script>
+
+<script src="i18n.js"></script>
+<script src="common.js"></script>
+</body>
+</html>

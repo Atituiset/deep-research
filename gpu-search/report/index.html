@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<!-- AI Accelerator Chips Report v1.0.1 -->
+<html lang="zh-CN" data-page="index" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Accelerator Chips Deep Research 2026</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='3' width='18' height='18' rx='4' stroke='url(%23g)' stroke-width='2' fill='none'/%3E%3Crect x='7' y='7' width='10' height='10' rx='2' fill='url(%23g)' opacity='0.8'/%3E%3Cpath d='M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22' stroke='url(%23g)' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="common.css">
+<style>
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 20px 40px;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(59,130,246,.15) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(139,92,246,.1) 0%,transparent 50%);pointer-events:none}
+.hero h1{font-size:clamp(2rem,5vw,3rem);margin-bottom:16px;letter-spacing:-.02em}
+.hero .subtitle{font-size:clamp(1.05rem,2vw,1.35rem);color:var(--text2);max-width:700px;margin-bottom:40px}
+.chapters-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;max-width:1200px;width:100%;padding:0 20px;margin-bottom:60px}
+.chapter-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;cursor:pointer;transition:all .3s;text-decoration:none;color:inherit;position:relative;overflow:hidden}
+.chapter-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 8px 30px var(--card-shadow)}
+.chapter-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent);opacity:0;transition:opacity .3s}
+.chapter-card:hover::before{opacity:1}
+.chapter-num{font-size:13px;color:var(--accent);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.chapter-title{font-size:19.5px;font-weight:700;margin-bottom:8px}
+.chapter-desc{font-size:14.5px;color:var(--text2);line-height:1.6}
+.footer{text-align:center;padding:20px;color:var(--text3);font-size:12px}
+@media(max-width:768px){.chapters-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="nav-bar">
+<a class="logo" href="index.html"><svg class="logo-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient></defs><rect x="3" y="3" width="18" height="18" rx="4" stroke="url(#logo-grad)" stroke-width="2" fill="none" /><rect x="7" y="7" width="10" height="10" rx="2" fill="url(#logo-grad)" opacity="0.8" /><path d="M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round" /></svg><span class="logo-text">AI Chips 2026</span></a>
+<div class="nav-links">
+<a href="index.html" class="active" data-i18n="nav.0">首页</a>
+<a href="ch1-landscape.html" data-i18n="nav.1">行业全景</a>
+<a href="ch2-architecture.html" data-i18n="nav.2">架构原理</a>
+<a href="ch3-nvidia.html" data-i18n="nav.3">NVIDIA</a>
+<a href="ch4-asic.html" data-i18n="nav.4">定制ASIC</a>
+<a href="ch5-edge-npu.html" data-i18n="nav.5">端侧NPU</a>
+<a href="ch6-data-format.html" data-i18n="nav.6">数据格式</a>
+<a href="ch7-lithography.html" data-i18n="nav.7">光刻与封装</a>
+<a href="ch8-china-vendors.html" data-i18n="nav.8">国产芯片与算力突围</a>
+<a href="ch9-amd-instinct.html" data-i18n="nav.9">AMD</a>
+<a href="ch10-intel-emerging.html" data-i18n="nav.10">Intel+新兴</a>
+<a href="ch11-software-ecosystem.html" data-i18n="nav.11">软件生态</a>
+<a href="ch12-distributed-training.html" data-i18n="nav.12">分布式训练</a>
+<a href="ch13-conclusion.html" data-i18n="nav.13">结论</a>
+</div>
+<div class="nav-toggles"></div>
+</nav>
+
+<section class="hero">
+<h1 data-i18n="index.title">全球AI加速计算芯片<br>现状·架构·技术路径 深度研究报告</h1>
+<p class="subtitle" data-i18n="index.subtitle">GPU · TPU · NPU — 涵盖国内外主要厂商的芯片架构演进、制造工艺突破、地缘政治博弈与未来技术方向全景分析</p>
+
+<div class="chapters-grid">
+<a class="chapter-card" href="ch1-landscape.html">
+<div class="chapter-num">Chapter 01</div>
+<div class="chapter-title" data-i18n="index.cards.0.t">行业宏观图景与范式转移</div>
+<div class="chapter-desc" data-i18n="index.cards.0.d">AI计算进入多模态与智能体双轮驱动的异构时代</div>
+</a>
+<a class="chapter-card" href="ch2-architecture.html">
+<div class="chapter-num">Chapter 02</div>
+<div class="chapter-title" data-i18n="index.cards.1.t">底层架构原理深度剖析</div>
+<div class="chapter-desc" data-i18n="index.cards.1.d">SIMT、脉动阵列与空间计算三大核心架构范式</div>
+</a>
+<a class="chapter-card" href="ch3-nvidia.html">
+<div class="chapter-num">Chapter 03</div>
+<div class="chapter-title" data-i18n="index.cards.2.t">NVIDIA的系统级统治</div>
+<div class="chapter-desc" data-i18n="index.cards.2.d">Vera Rubin架构、HGX平台演进、NVLink 6与CUDA生态壁垒</div>
+</a>
+<a class="chapter-card" href="ch4-asic.html">
+<div class="chapter-num">Chapter 04</div>
+<div class="chapter-title" data-i18n="index.cards.3.t">定制化云端ASIC崛起</div>
+<div class="chapter-desc" data-i18n="index.cards.3.d">Google TPU Ironwood、微软Maia 200、Meta MTIA 500</div>
+</a>
+<a class="chapter-card" href="ch5-edge-npu.html">
+<div class="chapter-num">Chapter 05</div>
+<div class="chapter-title" data-i18n="index.cards.4.t">端侧NPU与具身智能</div>
+<div class="chapter-desc" data-i18n="index.cards.4.d">Apple M5统一内存、高通Hexagon NPU、特斯拉Optimus</div>
+</a>
+<a class="chapter-card" href="ch6-data-format.html">
+<div class="chapter-num">Chapter 06</div>
+<div class="chapter-title" data-i18n="index.cards.5.t">微缩放标准与超低精度量化</div>
+<div class="chapter-desc" data-i18n="index.cards.5.d">OCP MX格式体系、NVIDIA NVFP4混合格式、存储墙突破</div>
+</a>
+<a class="chapter-card" href="ch7-lithography.html">
+<div class="chapter-num">Chapter 07</div>
+<div class="chapter-title" data-i18n="index.cards.6.t">光刻与先进封装</div>
+<div class="chapter-desc" data-i18n="index.cards.6.d">ASML High-NA EUV光刻、TSMC CoPoS封装、硅光子互连</div>
+</a>
+<a class="chapter-card" href="ch8-china-vendors.html">
+<div class="chapter-num">Chapter 08</div>
+<div class="chapter-title" data-i18n="index.cards.7.t">中国国产AI芯片生态与算力突围</div>
+<div class="chapter-desc" data-i18n="index.cards.7.d">昆仑芯、华为昇腾、先进封装限制下的系统级补救与双轨并行生存法则</div>
+</a>
+<a class="chapter-card" href="ch9-amd-instinct.html">
+<div class="chapter-num">Chapter 09</div>
+<div class="chapter-title" data-i18n="index.cards.8.t">AMD Instinct</div>
+<div class="chapter-desc" data-i18n="index.cards.8.d">CDNA3/4架构、MI300X/325X、ROCm 6.0与UALink联盟</div>
+</a>
+<a class="chapter-card" href="ch10-intel-emerging.html">
+<div class="chapter-num">Chapter 10</div>
+<div class="chapter-title" data-i18n="index.cards.9.t">Intel Gaudi与新兴架构</div>
+<div class="chapter-desc" data-i18n="index.cards.9.d">Gaudi 3、Groq LPU确定性张量流、Cerebras晶圆级引擎</div>
+</a>
+<a class="chapter-card" href="ch11-software-ecosystem.html">
+<div class="chapter-num">Chapter 11</div>
+<div class="chapter-title" data-i18n="index.cards.10.t">软件生态 — AI芯片的真正护城河</div>
+<div class="chapter-desc" data-i18n="index.cards.10.d">CUDA帝国、ROCm/HIP追赶、SYCL/oneAPI、MLPerf对决</div>
+</a>
+<a class="chapter-card" href="ch12-distributed-training.html">
+<div class="chapter-num">Chapter 12</div>
+<div class="chapter-title" data-i18n="index.cards.11.t">分布式训练通信拓扑 <span class="tag tag-deep">深度</span></div>
+<div class="chapter-desc" data-i18n="index.cards.11.d">Ring/Tree/RHD All-Reduce详解、NVSwitch+SHARP卸载</div>
+</a>
+<a class="chapter-card" href="ch13-conclusion.html">
+<div class="chapter-num">Chapter 13</div>
+<div class="chapter-title" data-i18n="index.cards.12.t">结论：计算形态终极演化</div>
+<div class="chapter-desc" data-i18n="index.cards.12.d">四大宏观趋势与产业重构全景总结</div>
+</a>
+</div>
+</section>
+<div class="footer">AI Accelerator Chips Deep Research Report 2026</div>
+
+<script src="i18n.js"></script>
+<script src="common.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded',()=>{
+const navbar=document.querySelector('.nav-bar')
+let lastScroll=0
+window.addEventListener('scroll',()=>{
+const st=window.scrollY
+navbar.style.transform=st>lastScroll&&st>80?'translateY(-100%)':'none'
+lastScroll=st
+})
+})
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page="ch3" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='3' width='18' height='18' rx='4' stroke='url(%23g)' stroke-width='2' fill='none'/%3E%3Crect x='7' y='7' width='10' height='10' rx='2' fill='url(%23g)' opacity='0.8'/%3E%3Cpath d='M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22' stroke='url(%23g)' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="common.css">
+<title>AI Chips 2026 Report</title>
+<style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+tr:hover 
+
+
+
+
+
+
+
+
+
+.prev-next a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<nav class="nav-bar">
+<a class="logo" href="index.html"><svg class="logo-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient></defs><rect x="3" y="3" width="18" height="18" rx="4" stroke="url(#logo-grad)" stroke-width="2" fill="none" /><rect x="7" y="7" width="10" height="10" rx="2" fill="url(#logo-grad)" opacity="0.8" /><path d="M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round" /></svg><span class="logo-text">AI Chips 2026</span></a>
+<div class="nav-links">
+<a href="index.html" data-i18n="nav.0">首页</a>
+<a href="ch1-landscape.html" data-i18n="nav.1">行业全景</a>
+<a href="ch2-architecture.html" data-i18n="nav.2">架构原理</a>
+<a href="ch3-nvidia.html" class="active" data-i18n="nav.3">NVIDIA</a>
+<a href="ch4-asic.html" data-i18n="nav.4">定制ASIC</a>
+<a href="ch5-edge-npu.html" data-i18n="nav.5">端侧NPU</a>
+<a href="ch6-data-format.html" data-i18n="nav.6">数据格式</a>
+<a href="ch7-lithography.html" data-i18n="nav.7">光刻与封装</a>
+<a href="ch8-china-vendors.html" data-i18n="nav.8">国产芯片与算力突围</a>
+<a href="ch9-amd-instinct.html" data-i18n="nav.9">AMD</a>
+<a href="ch10-intel-emerging.html" data-i18n="nav.10">Intel+新兴</a>
+<a href="ch11-software-ecosystem.html" data-i18n="nav.11">软件生态</a>
+<a href="ch12-distributed-training.html" data-i18n="nav.12">分布式训练</a>
+<a href="ch13-conclusion.html" data-i18n="nav.13">结论</a>
+</div>
+<div class="nav-toggles"></div>
+</nav>
+
+<div class="content">
+<h1 data-i18n="ch3.title">第三章：NVIDIA的系统级统治与生态壁垒</h1>
+
+<p data-i18n="html_leaves.ch3_p1">在全尺寸、多模态的云端AI加速器战场，2026年的竞争早已不再是单一硅片的参数比拼，而是机架级乃至超级集群级的全栈系统竞争。内存带宽、芯片间互连技术（Scale-up/Scale-out）以及定制化CPU主控的整合，成为了决定集群实际有效算力的决定性因素。</p>
+
+<h2 data-i18n="ch3.s1">3.1 NVIDIA Vera Rubin架构：打破存储与互连的物理枷锁</h2>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch3_div1" class="chart-title">NVIDIA Vera Rubin 超级芯片平台拓扑</div>
+<canvas id="veraRubinChart" height="420"></canvas>
+</div>
+
+<p data-i18n="html_leaves.ch3_p2">NVIDIA的演进路线始终体现了强烈的"暴力美学"与深度的系统级协同。继2024年发布的Blackwell架构（B200系列）在业界确立了万亿参数模型的算力基线后，2026年全面推向市场的Vera Rubin架构（R100系列）以前所未有的规模再次突破了半导体工程的物理极限 <span class="tag tag-blue">[4][19][20]</span>。</p>
+
+<p data-i18n="html_leaves.ch3_p3">Rubin架构的核心技术方向明确指向两个最致命的行业痛点：打破内存带宽的桎梏，以及实现系统内部计算单元的无缝融合。随着AI大模型上下文长度呈指数级增长，系统在负载下保持流水线饱满运行的能力极大依赖于有效内存带宽。</p>
+
+<p data-i18n="html_leaves.ch3_p4">Rubin GPU是业界首个大规模采用新一代HBM4高带宽内存的AI加速器。通过与存储生态系统的深度协同工程以及全新的内存控制器设计，HBM4接口宽度较前代HBM3e实现翻倍。单块Rubin GPU容纳高达288 GB的超大容量HBM4显存，其单GPU聚合内存带宽达到了惊人的22 TB/s，几乎是Blackwell B200（8 TB/s）的三倍 <span class="tag tag-blue">[4][5][19]</span>。</p>
+
+<p data-i18n="html_leaves.ch3_p5">在核心计算性能层面，得益于台积电N3制程工艺的应用，单颗Rubin GPU的晶体管数量暴增至3360亿个。更为关键的是，Rubin搭载了专为极限低精度计算设计的全新张量引擎，其单卡FP4推理算力达到惊人的50 PFLOPS，实现了超过五倍的代际跃升 <span class="tag tag-blue">[5][19]</span>。</p>
+
+<h3 data-i18n="ch3.s1h1">三代架构核心参数对比</h3>
+<table>
+<thead><tr><th data-i18n="html_leaves.ch3_th1">架构参数</th><th>Hopper H100 SXM</th><th>Blackwell B200 SXM</th><th>Vera Rubin R100</th></tr></thead>
+<tbody>
+<tr><td data-i18n="html_leaves.ch3_td1"><b>制程节点</b></td><td>TSMC 4N</td><td>TSMC 4NP</td><td class="highlight-val">TSMC N3</td></tr>
+<tr><td data-i18n="html_leaves.ch3_td2"><b>晶体管数量</b></td><td data-i18n="html_leaves.ch3_td3">800亿</td><td data-i18n="html_leaves.ch3_td4">2080亿</td><td data-i18n="html_leaves.ch3_td5" class="highlight-val">3360亿</td></tr>
+<tr><td data-i18n="html_leaves.ch3_td6"><b>显存容量</b></td><td>80 GB HBM3</td><td>192 GB HBM3e</td><td class="highlight-val">288 GB HBM4</td></tr>
+<tr><td data-i18n="html_leaves.ch3_td7"><b>显存带宽</b></td><td>3.35 TB/s</td><td>8 TB/s</td><td class="highlight-val">22 TB/s</td></tr>
+<tr><td data-i18n="html_leaves.ch3_td8"><b>GPU间互连</b></td><td>900 GB/s</td><td>1.8 TB/s (NVLink 5)</td><td class="highlight-val">3.6 TB/s (NVLink 6)</td></tr>
+<tr><td data-i18n="html_leaves.ch3_td9"><b>FP4性能</b></td><td data-i18n="html_leaves.ch3_td10">不支持</td><td>9 PFLOPS</td><td class="highlight-val">50 PFLOPS</td></tr>
+</tbody>
+</table>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch3_div2" class="chart-title">NVIDIA 三代架构关键参数增长对比</div>
+<canvas id="nvidiaGenChart" height="350"></canvas>
+</div>
+
+<h2 data-i18n="ch3.s2">3.2 Vera CPU：从外部主机到数据引擎</h2>
+
+<p data-i18n="html_leaves.ch3_p6">Rubin架构最深刻的系统级变革在于彻底重构了主机与加速器的交互拓扑。在Vera Rubin超级芯片平台中，传统的x86 CPU被NVIDIA全栈自研的Vera CPU所取代。Vera CPU搭载了88个NVIDIA定制的Olympus核心，支持176个空间多线程，并配备2 MB L2缓存及164 MB的统一L3缓存，以及高达1.2 TB/s带宽的LPDDR5X内存 <span class="tag tag-blue">[4][5]</span>。</p>
+
+<p data-i18n="html_leaves.ch3_p7">Vera CPU不再仅仅扮演将数据发往GPU的传统"外部主机"角色，而是作为紧密耦合的"数据引擎"运作。通过第六代NVLink（为单卡提供3.6 TB/s的双向扩展带宽），以及连接CPU与GPU的NVLink-C2C（1.8 TB/s极速内存连贯带宽），传统的CPU与GPU物理边界被彻底打破。该架构在机架尺度上形成了一个统一的、内存一致的执行域（Unified Domain），从根本上消除了数据调度、同步与执行流中的系统性瓶颈 <span class="tag tag-blue">[4][5]</span>。</p>
+
+<h2 data-i18n="ch3.s3">3.3 AWS与NVIDIA深度绑定：集群级扩展</h2>
+
+<p data-i18n="html_leaves.ch3_p8">即便单芯片性能强悍，其在实际商业落地中仍需要通过云服务商的超大规模网络基础设施进行部署。亚马逊AWS在其全面部署的P6e-GB200 UltraServers产品线中，展示了如何将Blackwell架构压榨至物理极限。</p>
+
+<p data-i18n="html_leaves.ch3_p9">AWS P6e-GB200 UltraServers节点通过复杂的液冷架构与高密度NVLink全连接，提供多达36颗或72颗Blackwell GPU同处于一个无阻碍NVLink域的巨大算力池。以72卡配置为例，其提供了高达130 TB/s的系统内超低延迟通信带宽。在网络端层，AWS使用了其定制的AWS Nitro架构与EFAv4网络，单节点提供高达28.8 Tbps的总网络吞吐量。</p>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch3_div3" class="chart-title">HGX 平台规格演进 (8-GPU Baseboard)</div>
+<canvas id="hgxChart" height="350"></canvas>
+</div>
+
+<h2 data-i18n="ch3.s4">3.4 CUDA生态壁垒：软件护城河</h2>
+
+<p data-i18n="html_leaves.ch3_p10">NVIDIA的统治地位不仅仅源于硬件参数的领先，更深层的原因在于其构建了长达十余年的CUDA软件生态壁垒。CUDA为开发者提供了一套从底层算子库（cuBLAS、cuDNN）到上层框架（PyTorch、TensorFlow）的完整开发工具链，使得迁移成本极高。2026年，NVIDIA进一步推出了NIM（NVIDIA Inference Microservice）推理微服务架构，将模型部署的复杂度封装为一键式容器化服务，进一步巩固了其"从训练到推理"的全栈闭环优势 <span class="tag tag-blue">[6][14]</span>。</p>
+
+<div class="prev-next">
+<a href="ch2-architecture.html"><span data-i18n="common.prev">← 上一章</span>：<span data-i18n="nav.2">架构原理</span></a>
+<a href="ch4-asic.html"><span data-i18n="common.next">下一章 →</span>：<span data-i18n="nav.4">定制ASIC</span></a>
+</div>
+</div>
+
+<script src="charts.js"></script>
+<script>
+window.__renderCharts = () => {
+drawVeraRubin('veraRubinChart')
+drawNvidiaGen('nvidiaGenChart')
+drawHGX('hgxChart')
+};
+window.addEventListener('DOMContentLoaded', window.__renderCharts)
+</script>
+
+<script src="i18n.js"></script>
+<script src="common.js"></script>
+</body>
+</html>

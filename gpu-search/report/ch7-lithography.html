@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page="ch7" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='3' width='18' height='18' rx='4' stroke='url(%23g)' stroke-width='2' fill='none'/%3E%3Crect x='7' y='7' width='10' height='10' rx='2' fill='url(%23g)' opacity='0.8'/%3E%3Cpath d='M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22' stroke='url(%23g)' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="common.css">
+<title>AI Chips 2026 Report</title>
+<style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.prev-next a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<nav class="nav-bar">
+<a class="logo" href="index.html"><svg class="logo-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient></defs><rect x="3" y="3" width="18" height="18" rx="4" stroke="url(#logo-grad)" stroke-width="2" fill="none" /><rect x="7" y="7" width="10" height="10" rx="2" fill="url(#logo-grad)" opacity="0.8" /><path d="M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round" /></svg><span class="logo-text">AI Chips 2026</span></a>
+<div class="nav-links">
+<a href="index.html" data-i18n="nav.0">首页</a>
+<a href="ch1-landscape.html" data-i18n="nav.1">行业全景</a>
+<a href="ch2-architecture.html" data-i18n="nav.2">架构原理</a>
+<a href="ch3-nvidia.html" data-i18n="nav.3">NVIDIA</a>
+<a href="ch4-asic.html" data-i18n="nav.4">定制ASIC</a>
+<a href="ch5-edge-npu.html" data-i18n="nav.5">端侧NPU</a>
+<a href="ch6-data-format.html" data-i18n="nav.6">数据格式</a>
+<a href="ch7-lithography.html" class="active" data-i18n="nav.7">光刻与封装</a>
+<a href="ch8-china-vendors.html" data-i18n="nav.8">国产芯片与算力突围</a>
+<a href="ch9-amd-instinct.html" data-i18n="nav.9">AMD</a>
+<a href="ch10-intel-emerging.html" data-i18n="nav.10">Intel+新兴</a>
+<a href="ch11-software-ecosystem.html" data-i18n="nav.11">软件生态</a>
+<a href="ch12-distributed-training.html" data-i18n="nav.12">分布式训练</a>
+<a href="ch13-conclusion.html" data-i18n="nav.13">结论</a>
+</div>
+<div class="nav-toggles"></div>
+</nav>
+
+<div class="content">
+<h1 data-i18n="ch7.title">第七章：光刻与先进封装——延续摩尔定律的物理极限</h1>
+
+<p data-i18n="html_leaves.ch7_p1">如果说芯片架构的分化设计与数据格式的降维压缩属于驱动算力的"软件内功"，那么处于整个产业链最顶端的光刻工程与先进芯片封装技术，则是直接决定硅片生死存亡与宏大架构能否成功量产的"硬桥硬马"。</p>
+
+<h2 data-i18n="ch7.s1">7.1 ASML High-NA EUV：扼守1.4nm制程的"唯一咽喉"</h2>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch7_div1" class="chart-title">从低孔径到高孔径(High-NA)的光学突围</div>
+<canvas id="highnaChart" height="380"></canvas>
+</div>
+
+<p data-i18n="html_leaves.ch7_p2">总部位于荷兰的ASML集团，已经从一家传统的高精尖硬件供应商，实质性蜕变成为统御全球AI革命的唯一核心"物理咽喉"。2026年Q1，ASML宣告其单台造价高达4亿欧元的Twinscan EXE:5200 (High-NA EUV) 系统已在客户端成功完成了50万片晶圆的加工测试，并正式跨越实验阶段全面投入商用级量产。这标志着全球半导体逻辑制造工艺正式被拉入亚纳米级别的"埃米时代"。</p>
+
+<p data-i18n="html_leaves.ch7_p3">相较于标准低孔径EUV（NA 0.33），High-NA EUV搭载了史无前例的超巨大非球面反射镜组，将数值孔径极限暴力拉升至0.55。物理分辨率极限从13.5nm压缩至8nm级别。这使得代工厂能够在制造2nm甚至1.4nm晶体管栅极结构时，通过单次曝光即可清晰打印出微细特征线条，彻底避免了多重图形曝光工艺带来的良品率暴跌。</p>
+
+<h2 data-i18n="ch7.s2">7.2 封装堡垒：从CoWoS到CoPoS</h2>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch7_div2" class="chart-title">先进封装技术演进路线</div>
+<canvas id="packagingChart" height="380"></canvas>
+</div>
+
+<p data-i18n="html_leaves.ch7_p4">即便拥有了单纳米级别雕刻能力，当今超级AI加速器的体量已让单片硅晶圆制造陷入绝境。受制于"光罩面积极限"（单块芯片最大面积约858mm²），类似Vera Rubin这样需要堆砌数千亿晶体管的同时紧凑排布HBM4内存的计算阵列，已从物理规律上排除了单一硅晶片制造的可能性 <span class="tag tag-green">[11][16]</span>。</p>
+
+<p data-i18n="html_leaves.ch7_p5">以TSMC与Intel为首的代工厂构建起了"封装堡垒"。核心要义是在后期封装车间内，利用极精细的高密度连线网络将多块Chiplets天衣无缝地"缝合"在一起。</p>
+
+<h3 data-i18n="ch7.s2h1">TSMC CoWoS-L 与 CoPoS</h3>
+<p data-i18n="html_leaves.ch7_p6">TSMC继续大规模扩产基于局部微小硅桥接网络的CoWoS-L 2.5D高级封装技术外，更在2026年推进跨时代的巨幅面板级封装架构——CoPoS（Chip on Panel on Substrate）。CoPoS采用面积达310x310mm的方形巨幅承载面板进行高密度芯片组装，使得成品封装总面积实现翻番式膨胀，单个封装体内可容纳多达12颗以上HBM4内存颗粒以及数颗异构CPU/GPU核心。</p>
+
+<h3 data-i18n="ch7.s2h2">Intel EMIB</h3>
+<p data-i18n="html_leaves.ch7_p7">Intel继续凭借其成熟稳健的EMIB（嵌入式多芯片互连桥接）封装方案，在特定大型芯片的良率控制方面建立起极高的生产成本护城河优势，大幅降低了AI客户使用完整硅中介层的资金消耗。</p>
+
+<h2 data-i18n="ch7.s3">7.3 硅光子互连：数据传输的终极形态</h2>
+
+<p data-i18n="html_leaves.ch7_p8">传统铜导线在高频时钟节拍下因趋肤效应发热与信号串扰，在巨型封装基板内传输TBs级数据流时损耗极大。TSMC开始将硅光子技术（Silicon Photonics）深度整合入下一代封装工艺库。利用光子作为信息媒介替代电子进行微观距离数据传递，将大规模互连传输网络功耗削减数十个百分点，极大抹平了分布式芯片组集群间的信号同步与网络延迟落差。</p>
+
+<h2 data-i18n="ch7.s4">7.4 HBM4：高带宽内存的下一座里程碑</h2>
+
+<p data-i18n="html_leaves.ch7_p9">AI加速芯片的性能瓶颈早已不在计算（FLOPS），而在内存带宽（Memory Wall）。每一代HBM的升级，对AI芯片性能的贡献不亚于制程节点的跃进：</p>
+
+<table>
+<thead><tr><th data-i18n="html_leaves.ch7_th1">代际</th><th data-i18n="html_leaves.ch7_th2">带宽/堆叠</th><th data-i18n="html_leaves.ch7_th3">最大容量/堆叠</th><th data-i18n="html_leaves.ch7_th4">堆叠层数</th><th data-i18n="html_leaves.ch7_th5">接口位宽</th><th data-i18n="html_leaves.ch7_th6">代表产品</th></tr></thead>
+<tbody>
+<tr><td>HBM2e</td><td>460 GB/s</td><td>16 GB</td><td>8-Hi</td><td>1024-bit</td><td>A100 (2020)</td></tr>
+<tr><td>HBM3</td><td>819 GB/s</td><td>24 GB</td><td>12-Hi</td><td>1024-bit</td><td>H100 (2022)</td></tr>
+<tr><td>HBM3e</td><td>1.2 TB/s</td><td>36 GB</td><td>12-Hi</td><td>1024-bit</td><td>B200 (2024)</td></tr>
+<tr><td><b>HBM4</b></td><td><b>1.6+ TB/s</b></td><td><b>48+ GB</b></td><td><b>16-Hi</b></td><td><b>2048-bit</b></td><td>R100 (2026)</td></tr>
+</tbody>
+</table>
+
+<p data-i18n="html_leaves.ch7_p10">HBM4的关键突破在于<strong>2048-bit接口位宽</strong>（HBM3/HBM3e均为1024-bit），带宽翻倍的同时，逻辑基底芯片（Base Die）将采用更先进的制程独立制造（可能为12nm甚至7nm），实现更复杂的内存控制逻辑。但代价同样沉重：16-Hi堆叠的热管理和信号完整性挑战呈指数级增长，单颗HBM4芯片的厚度可能突破TSMC CoWoS的Z-height极限。</p>
+
+<h2 data-i18n="ch7.s5">7.5 CXL：内存池化的产业革命</h2>
+
+<p data-i18n="html_leaves.ch7_p11"><strong>Compute Express Link (CXL)</strong> 是建立在PCIe 5.0/6.0物理层之上的开放互连标准，旨在实现CPU、GPU、加速器和内存之间的缓存一致性互联。CXL 3.0（2024年发布）支持多级交换结构（Multi-level Switching），理论上可以将数百台服务器中的内存资源组成一个统一的<strong>内存池（Memory Pool）</strong>。</p>
+
+<p data-i18n="html_leaves.ch7_p12">对AI芯片而言，CXL的终极意义在于<strong>打破单卡HBM的容量上限</strong>：如果GPU可以通过CXL直接访问远端服务器的DDR5内存或持久内存（如Intel Optane/CXL-attached NAND），KV-Cache的容量约束将被根本性解除——模型可以用"无限"内存存储任意长度的上下文。当前CXL延迟（~100ns级）仍远高于HBM（~10ns级），但远低于SSD（~10μs级），为构建"近内存计算"架构提供了前所未有的可能性。</p>
+
+<h2 data-i18n="ch7.s6">7.6 数据中心功耗：AI芯片的终极物理瓶颈</h2>
+
+<p data-i18n="html_leaves.ch7_p13">到2026年，单个AI训练集群的功耗已经逼近甚至突破小型发电站的输出功率。NVIDIA GB200 NVL72（72颗B200 GPU）单机架功耗超过<strong>120kW</strong>——这相当于约30个美国家庭的峰值用电量。行业趋势正在将数据中心从"风冷时代"推向"液冷时代"：</p>
+
+<table>
+<thead><tr><th data-i18n="html_leaves.ch7_th7">冷却方式</th><th data-i18n="html_leaves.ch7_th8">散热能力</th><th data-i18n="html_leaves.ch7_th9">PUE (电力使用效率)</th><th data-i18n="html_leaves.ch7_th10">适用场景</th><th data-i18n="html_leaves.ch7_th11">代表案例</th></tr></thead>
+<tbody>
+<tr><td data-i18n="html_leaves.ch7_td1">传统风冷</td><td data-i18n="html_leaves.ch7_td2">~30kW/机架</td><td>1.4-1.6</td><td data-i18n="html_leaves.ch7_td3">低密度推理</td><td data-i18n="html_leaves.ch7_td4">多数传统DC</td></tr>
+<tr><td data-i18n="html_leaves.ch7_td5">后门热交换</td><td data-i18n="html_leaves.ch7_td6">~50kW/机架</td><td>1.2-1.4</td><td data-i18n="html_leaves.ch7_td7">中密度训练</td><td>Equinix</td></tr>
+<tr><td data-i18n="html_leaves.ch7_td8">直接液冷 (DLC)</td><td data-i18n="html_leaves.ch7_td9">~100kW/机架</td><td>1.05-1.15</td><td data-i18n="html_leaves.ch7_td10">高密度训练/推理</td><td>NVIDIA GB200 NVL72</td></tr>
+<tr><td data-i18n="html_leaves.ch7_td11">浸没式液冷</td><td data-i18n="html_leaves.ch7_td12">~200kW+/机架</td><td>1.02-1.05</td><td data-i18n="html_leaves.ch7_td13">超大规模集群</td><td data-i18n="html_leaves.ch7_td14">Microsoft Azure (实验)</td></tr>
+</tbody>
+</table>
+
+<p data-i18n="html_leaves.ch7_p14">功耗约束正在从根本上改变AI芯片的设计取舍：在120kW机架功率预算下，是用它来支撑72颗B200（每颗~1.7kW）全力训练；还是用同样功耗部署数百颗低功耗推理芯片实现更高的Token吞吐量？这种功耗-性能的权衡正在推动训练和推理硬件的加速分化——这也是Google TPU 8t/8i、Meta MTIA、微软 Maia 选择专用路线而非通用GPU的底层物理逻辑。</p>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch7_div3" class="chart-title">全球主要代工厂制程节点竞争格局</div>
+<canvas id="foundryChart" height="380"></canvas>
+</div>
+
+<div class="prev-next">
+<a href="ch6-data-format.html"><span data-i18n="common.prev">← 上一章</span>：<span data-i18n="nav.6">数据格式</span></a>
+<a href="ch8-china-vendors.html"><span data-i18n="common.next">下一章 →</span>：<span data-i18n="nav.8">国产芯片与算力突围</span></a>
+</div>
+</div>
+
+<script src="charts.js"></script>
+<script>
+window.__renderCharts = () => {
+drawHighNA('highnaChart')
+drawPackaging('packagingChart')
+drawFoundry('foundryChart')
+};
+window.addEventListener('DOMContentLoaded', window.__renderCharts)
+</script>
+
+<script src="i18n.js"></script>
+<script src="common.js"></script>
+</body>
+</html>

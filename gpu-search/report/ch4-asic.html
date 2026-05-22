@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page="ch4" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='3' width='18' height='18' rx='4' stroke='url(%23g)' stroke-width='2' fill='none'/%3E%3Crect x='7' y='7' width='10' height='10' rx='2' fill='url(%23g)' opacity='0.8'/%3E%3Cpath d='M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22' stroke='url(%23g)' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="common.css">
+<title>AI Chips 2026 Report</title>
+<style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+tr:hover 
+
+
+
+
+
+
+
+.tag-cyan{background:rgba(6,182,212,.15);color:#22d3ee}
+ul.featured{list-style:none;padding:0;margin:16px 0}
+ul.featured li{padding:8px 0 8px 24px;position:relative;color:var(--text2);font-size:14px}
+ul.featured li::before{content:'▸';position:absolute;left:0;color:var(--accent);font-weight:700}
+
+
+.prev-next a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<nav class="nav-bar">
+<a class="logo" href="index.html"><svg class="logo-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient></defs><rect x="3" y="3" width="18" height="18" rx="4" stroke="url(#logo-grad)" stroke-width="2" fill="none" /><rect x="7" y="7" width="10" height="10" rx="2" fill="url(#logo-grad)" opacity="0.8" /><path d="M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round" /></svg><span class="logo-text">AI Chips 2026</span></a>
+<div class="nav-links">
+<a href="index.html" data-i18n="nav.0">首页</a>
+<a href="ch1-landscape.html" data-i18n="nav.1">行业全景</a>
+<a href="ch2-architecture.html" data-i18n="nav.2">架构原理</a>
+<a href="ch3-nvidia.html" data-i18n="nav.3">NVIDIA</a>
+<a href="ch4-asic.html" class="active" data-i18n="nav.4">定制ASIC</a>
+<a href="ch5-edge-npu.html" data-i18n="nav.5">端侧NPU</a>
+<a href="ch6-data-format.html" data-i18n="nav.6">数据格式</a>
+<a href="ch7-lithography.html" data-i18n="nav.7">光刻与封装</a>
+<a href="ch8-china-vendors.html" data-i18n="nav.8">国产芯片与算力突围</a>
+<a href="ch9-amd-instinct.html" data-i18n="nav.9">AMD</a>
+<a href="ch10-intel-emerging.html" data-i18n="nav.10">Intel+新兴</a>
+<a href="ch11-software-ecosystem.html" data-i18n="nav.11">软件生态</a>
+<a href="ch12-distributed-training.html" data-i18n="nav.12">分布式训练</a>
+<a href="ch13-conclusion.html" data-i18n="nav.13">结论</a>
+</div>
+<div class="nav-toggles"></div>
+</nav>
+
+<div class="content">
+<h1 data-i18n="ch4.title">第四章：定制化云端ASIC的崛起</h1>
+
+<p data-i18n="html_leaves.ch4_p1">面对NVIDIA极高的利润率（"Nvidia Tax"），各大超级云服务商迫切需要夺回供应链控制权，加速构建属于自己的算力底座。无论是Google、Microsoft还是Meta，均在2026年展示了极为成熟的定制化硅芯片迭代路线。</p>
+
+<h2 data-i18n="ch4.s1">4.1 Google TPU家族：从Trillium到Ironwood的深刻分化</h2>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch4_div1" class="chart-title">Google 第八代 TPU (Ironwood) 硬分化架构</div>
+<canvas id="ironwoodChart" height="400"></canvas>
+</div>
+
+<p data-i18n="html_leaves.ch4_p2">Google在其自用与Google Cloud的双生态中，展示了ASIC快速迭代与架构精细化运营的最高水准。在2024年末全面商用的第六代TPU Trillium（v6e）中，单芯片BF16峰值算力达到918 TFLOPS，比上一代v5e提升了4.7倍。同时，v6e通过将ICI带宽翻倍至800 GBps，并引入创新的SparseCore专门用于卸载张量核心中的细粒度、高随机性内存访问，实现了兼顾训练与推理的双重使命 <span class="tag tag-green">[3][8]</span>。</p>
+
+<p data-i18n="html_leaves.ch4_p3">2026年正式发布的第八代TPU（Ironwood，v8系列）才真正昭示了Google对AI未来的宏大预判。历史上TPU均采用统一物理架构，但随着AI迈入"智能体时代"，训练与推理的矛盾无法调和。Google首次在半导体层面对TPU架构进行了硬分化：</p>
+
+<ul class="featured">
+<li data-i18n="html_leaves.ch4_li1"><strong>TPU 8t（前沿训练巨兽）</strong>：专为大规模预训练设计。FP4精度12.6 PFLOPS，216 GB HBM + 128 MB SRAM。3D Torus拓扑，单Superpod可扩展至9600芯片，共享2 PB高带宽内存</li>
+<li data-i18n="html_leaves.ch4_li2"><strong>TPU 8i（低延迟推理引擎）</strong>：专为智能体多轮对话设计。FP4精度10.1 PFLOPS，288 GB HBM + <span class="highlight-val">384 MB SRAM</span>（8t的三倍），HBM带宽8601 GB/s。Boardfly网络 + CAE集合通信加速引擎</li>
+</ul>
+
+<table>
+<thead><tr><th data-i18n="html_leaves.ch4_th1">规格</th><th data-i18n="html_leaves.ch4_th2">TPU 8t (训练)</th><th data-i18n="html_leaves.ch4_th3">TPU 8i (推理)</th></tr></thead>
+<tbody>
+<tr><td data-i18n="html_leaves.ch4_td1"><b>网络拓扑</b></td><td>3D Torus</td><td>Boardfly</td></tr>
+<tr><td data-i18n="html_leaves.ch4_td2"><b>专用加速单元</b></td><td data-i18n="html_leaves.ch4_td3">SparseCore + LLM解码引擎</td><td data-i18n="html_leaves.ch4_td4">CAE集合通信加速引擎</td></tr>
+<tr><td data-i18n="html_leaves.ch4_td5"><b>片上SRAM</b></td><td>128 MB</td><td class="highlight-val">384 MB</td></tr>
+<tr><td data-i18n="html_leaves.ch4_td6"><b>HBM容量</b></td><td>216 GB</td><td>288 GB</td></tr>
+<tr><td data-i18n="html_leaves.ch4_td7"><b>HBM带宽</b></td><td>6,528 GB/s</td><td class="highlight-val">8,601 GB/s</td></tr>
+<tr><td><b>FP4 PFLOPS</b></td><td class="highlight-val">12.6</td><td>10.1</td></tr>
+</tbody>
+</table>
+
+<h2 data-i18n="ch4.s2">4.2 微软Azure Maia 200</h2>
+
+<p data-i18n="html_leaves.ch4_p4">作为支撑OpenAI模型运转的关键云平台，微软的造芯计划突飞猛进。Maia 200采用TSMC 3nm工艺，拥有1400亿晶体管。它是一头纯粹的推理巨兽：集成了272 MB片上SRAM + 216 GB HBM3e（7 TB/s带宽）。FP4精度算力突破10 PFLOPS <span class="tag tag-cyan">[19][20]</span>。</p>
+
+<p data-i18n="html_leaves.ch4_p5">与NVIDIA Blackwell B300 Ultra相比，Maia 200的TDP仅为750W（B300 Ultra为1400W），赋予微软在受限数据中心电源包络中部署近两倍规模机架的独特优势。</p>
+
+<h2 data-i18n="ch4.s3">4.3 Meta MTIA 500</h2>
+
+<p data-i18n="html_leaves.ch4_p6">Meta的MTIA从立项之初就肩负着优化社交网络中复杂排名与推荐算法的任务。MTIA 500采用精妙的2x2小芯粒（Chiplet）封装配置，四颗计算芯粒周围环绕分布式HBM内存栈。搭载384-512 GB HBM，总带宽达27.6 TB/s（4.5x代际飞跃）。原生支持MX4/MX8格式，MX4精度算力高达30 PFLOPS <span class="tag tag-purple">[7][8]</span>。</p>
+
+<h2 data-i18n="ch4.s4">4.4 AWS Trainium 2</h2>
+
+<p data-i18n="html_leaves.ch4_p7">AWS Trainium2（Trn2）计算实例配置16颗专用加速芯片。单颗HBM 96 GiB（3x增加），带宽2.9 TB/s（3.6x提升），FP8算力1.299 PFLOPS（6.7x增幅）。通过NeuronLink-v3互连，64颗芯片可编织成Trn2 UltraServers计算池 <span class="tag tag-orange">[5][11]</span>。</p>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch4_div2" class="chart-title">四大云厂商自研ASIC关键参数对比</div>
+<canvas id="asicCompareChart" height="380"></canvas>
+</div>
+
+<div class="prev-next">
+<a href="ch3-nvidia.html"><span data-i18n="common.prev">← 上一章</span>：<span data-i18n="nav.3">NVIDIA</span></a>
+<a href="ch5-edge-npu.html"><span data-i18n="common.next">下一章 →</span>：<span data-i18n="nav.5">端侧NPU</span></a>
+</div>
+</div>
+
+<script src="charts.js"></script>
+<script>
+window.__renderCharts = () => {
+drawIronwood('ironwoodChart')
+drawASICCompare('asicCompareChart')
+};
+window.addEventListener('DOMContentLoaded', window.__renderCharts)
+</script>
+
+<script src="i18n.js"></script>
+<script src="common.js"></script>
+</body>
+</html>

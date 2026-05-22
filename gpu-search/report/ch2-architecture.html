@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page="ch2" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='3' width='18' height='18' rx='4' stroke='url(%23g)' stroke-width='2' fill='none'/%3E%3Crect x='7' y='7' width='10' height='10' rx='2' fill='url(%23g)' opacity='0.8'/%3E%3Cpath d='M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22' stroke='url(%23g)' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="common.css">
+<title>AI Chips 2026 Report</title>
+<style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.tag-cyan{background:rgba(6,182,212,.15);color:#22d3ee}
+.pro-con{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+@media(max-width:600px){.pro-con{grid-template-columns:1fr}}
+.pro-box,.con-box{padding:16px;border-radius:8px;font-size:14px}
+.pro-box{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2)}
+.pro-box b{color:#34d399}
+.con-box{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2)}
+.con-box b{color:#f87171}
+.pro-box li,.con-box li{margin:6px 0;color:var(--text2)}
+
+
+.prev-next a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<nav class="nav-bar">
+<a class="logo" href="index.html"><svg class="logo-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient></defs><rect x="3" y="3" width="18" height="18" rx="4" stroke="url(#logo-grad)" stroke-width="2" fill="none" /><rect x="7" y="7" width="10" height="10" rx="2" fill="url(#logo-grad)" opacity="0.8" /><path d="M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round" /></svg><span class="logo-text">AI Chips 2026</span></a>
+<div class="nav-links">
+<a href="index.html" data-i18n="nav.0">首页</a>
+<a href="ch1-landscape.html" data-i18n="nav.1">行业全景</a>
+<a href="ch2-architecture.html" class="active" data-i18n="nav.2">架构原理</a>
+<a href="ch3-nvidia.html" data-i18n="nav.3">NVIDIA</a>
+<a href="ch4-asic.html" data-i18n="nav.4">定制ASIC</a>
+<a href="ch5-edge-npu.html" data-i18n="nav.5">端侧NPU</a>
+<a href="ch6-data-format.html" data-i18n="nav.6">数据格式</a>
+<a href="ch7-lithography.html" data-i18n="nav.7">光刻与封装</a>
+<a href="ch8-china-vendors.html" data-i18n="nav.8">国产芯片与算力突围</a>
+<a href="ch9-amd-instinct.html" data-i18n="nav.9">AMD</a>
+<a href="ch10-intel-emerging.html" data-i18n="nav.10">Intel+新兴</a>
+<a href="ch11-software-ecosystem.html" data-i18n="nav.11">软件生态</a>
+<a href="ch12-distributed-training.html" data-i18n="nav.12">分布式训练</a>
+<a href="ch13-conclusion.html" data-i18n="nav.13">结论</a>
+</div>
+<div class="nav-toggles"></div>
+</nav>
+
+<div class="content">
+<h1 data-i18n="ch2.title">第二章：底层架构原理深度剖析</h1>
+
+<p data-i18n="html_leaves.ch2_p1">在深入探究各家科技巨头的具体硅片产品线之前，必须厘清支撑当代AI计算的三大核心底层架构范式。计算单元底层数据流的差异，从根本上决定了芯片在处理大规模矩阵乘法（GEMM）、非线性激活函数以及海量数据搬运时的效率上限与应用场景。</p>
+
+<h2 data-i18n="ch2.s1">2.1 SIMT与GPU架构：极度并行的吞吐量之王</h2>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch2_div1" class="chart-title">SIMT架构数据流示意图</div>
+<canvas id="simtChart" height="380"></canvas>
+</div>
+
+<p data-i18n="html_leaves.ch2_p2">图形处理器（GPU）原本为图形渲染中海量的像素处理而设计，但其单指令多线程（SIMT）架构极其契合深度学习中的大规模并行张量运算。GPU内部署了数千个算术逻辑单元（ALU），通过庞大复杂的线程块管理并行任务流。当代AI GPU更是引入了高度专用的张量核心（Tensor Cores），针对矩阵乘法进行了极限优化 <span class="tag tag-blue">[2][6][7]</span>。</p>
+
+<div class="pro-con">
+<div class="pro-box">
+<b data-i18n="html_leaves.ch2_b3">核心优势</b>
+<ul>
+<li data-i18n="html_leaves.ch2_li1">极高的浮点吞吐量（FP16/BF16/FP32）</li>
+<li data-i18n="html_leaves.ch2_li2">深不可测的生态壁垒（CUDA体系）</li>
+<li data-i18n="html_leaves.ch2_li3">对非规则并行逻辑与前沿训练架构具有无与伦比的通用性</li>
+<li data-i18n="html_leaves.ch2_li4">动态调度适应各种计算模式</li>
+</ul>
+</div>
+<div class="con-box">
+<b data-i18n="html_leaves.ch2_b4">核心局限</b>
+<ul>
+<li data-i18n="html_leaves.ch2_li5">控制逻辑与线程调度消耗大量硅面积与功耗</li>
+<li data-i18n="html_leaves.ch2_li6">在纯规则矩阵运算时，每瓦性能不及定制芯片</li>
+<li data-i18n="html_leaves.ch2_li7">内存带宽需求极高，功耗居高不下</li>
+<li data-i18n="html_leaves.ch2_li8">大规模集群扩展受互连拓扑限制</li>
+</ul>
+</div>
+</div>
+
+<h2 data-i18n="ch2.s2">2.2 脉动阵列（Systolic Array）与TPU架构</h2>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch2_div2" class="chart-title">脉动阵列(Systolic Array)数据流示意图</div>
+<canvas id="systolicChart" height="380"></canvas>
+</div>
+
+<p data-i18n="html_leaves.ch2_p3">张量处理单元（TPU）代表了另一种截然不同的计算哲学：尽可能抛弃冯·诺依曼架构中需要频繁访问外部存储器的低效模式，转而采用脉动阵列（Systolic Array）设计 <span class="tag tag-green">[2][3]</span>。成千上万的计算节点（PE）被规则地组织成巨大的二维网格阵列。数据如同血液一般在节点间有节奏地流动、完成乘加运算（MAC），并直接传递给下一个相邻节点，而无需回写主内存。</p>
+
+<div class="pro-con">
+<div class="pro-box">
+<b data-i18n="html_leaves.ch2_b3">核心优势</b>
+<ul>
+<li data-i18n="html_leaves.ch2_li9">数据在阵列内部高度复用，绕过昂贵内存读取</li>
+<li data-i18n="html_leaves.ch2_li10">能耗和内存带宽需求大幅压缩</li>
+<li data-i18n="html_leaves.ch2_li11">极其适合大规模矩阵相乘密集型任务</li>
+<li data-i18n="html_leaves.ch2_li12">为云服务商提供极稳定的超大规模训练/推理算力</li>
+</ul>
+</div>
+<div class="con-box">
+<b data-i18n="html_leaves.ch2_b4">核心局限</b>
+<ul>
+<li data-i18n="html_leaves.ch2_li13">对非规则计算模式支持笨拙（稀疏GNN等）</li>
+<li data-i18n="html_leaves.ch2_li14">灵活性有限，主要依赖宿主CPU协同调度</li>
+<li data-i18n="html_leaves.ch2_li15">无法适应颠覆性算子变化的模型架构</li>
+<li data-i18n="html_leaves.ch2_li16">缺乏通用编程生态（对比CUDA）</li>
+</ul>
+</div>
+</div>
+
+<h2 data-i18n="ch2.s3">2.3 NPU与空间计算架构：高能效比的端侧推理霸主</h2>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch2_div3" class="chart-title">NPU空间计算逻辑 vs GPU/TPU架构对比</div>
+<canvas id="npuChart" height="380"></canvas>
+</div>
+
+<p data-i18n="html_leaves.ch2_p4">神经网络处理单元（NPU）专为在功耗极其受限的边缘和端侧环境（如智能手机、AI PC、人形机器人）中加速AI推理而生 <span class="tag tag-orange">[7][9]</span>。NPU摒弃了通用处理器的繁冗指令集，通常采用高度优化的专用神经执行流水线，原生广泛支持超低精度量化计算（如INT8甚至INT4格式）。通过直接映射神经网络拓扑结构至硬件计算单元，NPU实现了高效的空间计算（Spatial Compute）。</p>
+
+<p data-i18n="html_leaves.ch2_p5">NPU的最核心指标并非绝对算力，而是极高的每瓦性能。在执行预训练模型的推理任务时，其能耗比远远优于全功能的CPU和GPU。这使得NPU成为当前AI PC与智能移动设备实现"全天候端侧AI"不可或缺的物理引擎。但其局限性在于高度的专用化，一旦底层网络模型的算子发生颠覆性变化，硬件的固化逻辑便可能无法适应，且NPU几乎不具备模型训练能力。</p>
+
+<h2 data-i18n="ch2.s4">2.4 三大架构核心差异总览</h2>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch2_div4" class="chart-title">三大架构范式关键维度雷达图</div>
+<canvas id="radarChart" height="400"></canvas>
+</div>
+
+<h2 data-i18n="ch2.s5">2.5 Transformer注意力机制对硬件设计的反向约束</h2>
+
+<p data-i18n="html_leaves.ch2_p6">当前所有AI芯片架构的设计，本质上都在回答一个共同的问题：<strong>如何最高效地执行Transformer模型的注意力（Attention）和多层感知机（MLP）操作？</strong>理解Transformer的计算特征，是理解为什么不同架构在某些场景中表现悬殊的关键。</p>
+
+<div class="pro-con">
+<div class="pro-box">
+<b data-i18n="html_leaves.ch2_b5">✓ Transformer的计算特征</b>
+<ul>
+<li data-i18n="html_leaves.ch2_li17"><b>矩阵乘（MatMul）占 >95% 计算量</b>：Q×K^T、Attention×V、MLP的全连接层——全部是大规模矩阵乘法 → GPU/Tensor Core天然适配</li>
+<li data-i18n="html_leaves.ch2_li18"><b>注意力分数计算（Softmax）</b>：逐元素操作，内存带宽密集 → 需要高带宽HBM</li>
+<li data-i18n="html_leaves.ch2_li19"><b>KV-Cache驻留</b>：推理时需在内存中保留所有历史token的Key/Value矩阵 → 大容量HBM是关键（MI300X 192GB优势所在）</li>
+</ul>
+</div>
+<div class="con-box">
+<b data-i18n="html_leaves.ch2_b6">✗ Transformer对硬件的挑战</b>
+<ul>
+<li data-i18n="html_leaves.ch2_li20"><b>注意力计算是O(n²)内存密集</b>：序列长度n=128K时，注意力矩阵=128K×128K×2bytes=32GB → 超出任何单卡SRAM → 必须频繁读写HBM → 受内存带宽制约</li>
+<li data-i18n="html_leaves.ch2_li21"><b>MoE（混合专家模型）的路由稀疏性</b>：每个token仅激活2/8个专家 → GPU的SIMT模型在大规模并行时利用率骤降至30%以下 → 这正是Graphcore IPU的MIMD优势场景</li>
+<li data-i18n="html_leaves.ch2_li22"><b>长序列推理的KV-Cache膨胀</b>：1M context窗口的KV-Cache可达数十GB → 传统80GB H100必须分片到多卡 → MI300X的192GB在推理TCO上反超</li>
+</ul>
+</div>
+</div>
+
+<p data-i18n="html_leaves.ch2_p7">这些计算特征直接解释了为什么：① NVIDIA持续倍增HBM容量和带宽（B200: 192GB→R100: 288GB HBM4）；② Google TPU 8i专为推理设计了384MB超大片上SRAM（击破KV-Cache内存墙）；③ Groq LPU完全放弃HBM、全用片上SRAM（避免内存带宽瓶颈但限制了模型规模上限）。<strong>Transformer不是普通的神经网络——它是一种以内存带宽,而非FLOPS为第一瓶颈的异常计算范式</strong>，这从根本上重塑了AI芯片的架构设计空间。</p>
+
+<h2 data-i18n="html_leaves.ch2_h21">2.6 GPU微架构核心机制 <span class="tag tag-deep">深度</span></h2>
+
+<div class="deep-section">
+<h3 data-i18n="ch2.s6h1">Warp调度与延迟隐藏</h3>
+<p data-i18n="html_leaves.ch2_p8">NVIDIA GPU的最基本执行单元是<strong>Warp</strong>——由32个线程组成的最小调度单位。一个SM（Streaming Multiprocessor）内可同时驻留最多64个Warp（2048线程）。GPU的核心调度策略是<strong>零开销线程切换</strong>：当某个Warp因等待HBM数据而stall时，Warp Scheduler在<strong>单周期内</strong>切换到另一个就绪Warp，硬件上下文已在寄存器文件中预分配。这种"以线程级并行掩盖内存延迟"的机制是GPU吞吐量优势的底层根源。</p>
+
+<table>
+<thead><tr><th data-i18n="html_leaves.ch2_th1">参数</th><th>H100</th><th>A100</th><th>MI300X</th></tr></thead>
+<tbody>
+<tr><td data-i18n="html_leaves.ch2_td1">每SM最大Warp数</td><td>64</td><td>64</td><td>—</td></tr>
+<tr><td data-i18n="html_leaves.ch2_td2">每SM寄存器文件</td><td>65,536 × 32-bit</td><td>65,536 × 32-bit</td><td>—</td></tr>
+<tr><td data-i18n="html_leaves.ch2_td3">每SM共享内存/LDS</td><td data-i18n="html_leaves.ch2_td4">228 KB (可配置)</td><td>164 KB</td><td>64 KB LDS/CU</td></tr>
+<tr><td data-i18n="html_leaves.ch2_td5">每SM L1 Cache</td><td data-i18n="html_leaves.ch2_td6">256 KB (与共享内存共享)</td><td>192 KB</td><td>—</td></tr>
+<tr><td data-i18n="html_leaves.ch2_td7">L2 Cache (全芯片)</td><td>50 MB</td><td>40 MB</td><td>256 MB (Infinity Cache)</td></tr>
+</tbody>
+</table>
+
+<p data-i18n="html_leaves.ch2_p9"><strong>关键洞察</strong>：共享内存/L1 Cache的大小直接决定了单个SM能同时驻留多少线程Block——从而决定了Warp调度器有多少"隐藏延迟的弹药"。H100将L1+共享内存提升至256KB，正是为了在HBM3延迟(~300 cycles)面前保持更多活跃Warp。</p>
+</div>
+
+<div class="deep-section">
+<h3 data-i18n="ch2.s6h2">内存合并与Bank Conflict</h3>
+<p data-i18n="html_leaves.ch2_p10">GPU的全局内存（HBM）访问效率高度依赖<strong>内存合并（Memory Coalescing）</strong>：一个Warp内32个线程访问的全局内存地址如果落在同一128-byte对齐的内存段内，则只需<strong>1次内存事务</strong>；如果分散在不同段，则需最多32次事务——有效带宽退化32倍。这是GPU编程中"结构体数组（AoS）vs 数组结构体（SoA）"数据布局选择的硬件根源。</p>
+
+<p data-i18n="html_leaves.ch2_p11"><strong>共享内存Bank Conflict</strong>：共享内存被划分为32个Bank（每Bank 4 bytes），同一Warp内若多个线程访问同一Bank的不同地址（且不是广播），则发生Bank Conflict——访问被串行化。n-way bank conflict使有效带宽降为1/n。H100扩展了Bank宽度以缓解此问题。</p>
+</div>
+
+<div class="deep-section">
+<h3 data-i18n="ch2.s6h3">Roofline模型：AI工作负载的性能边界</h3>
+<p data-i18n="html_leaves.ch2_p12">Roofline模型是评估AI芯片在实际工作负载中性能瓶颈的核心工具。它将芯片性能限制分为两个区域：</p>
+
+<ul>
+<li data-i18n="html_leaves.ch2_li23"><strong>Memory-Bound区域</strong>（低运算密度）：当操作的FLOP/Byte比率（运算密度）低于芯片的"转折点"时，性能受<strong>内存带宽</strong>限制。典型场景：逐元素操作（ReLU, LayerNorm, Softmax）、小批量推理。</li>
+<li data-i18n="html_leaves.ch2_li24"><strong>Compute-Bound区域</strong>（高运算密度）：当运算密度高于转折点时，性能受<strong>峰值算力</strong>限制。典型场景：大矩阵乘法（MatMul）、大批量训练。</li>
+</ul>
+
+<table>
+<thead><tr><th data-i18n="html_leaves.ch2_th2">芯片</th><th data-i18n="html_leaves.ch2_th3">FP16峰值 (TFLOPS)</th><th data-i18n="html_leaves.ch2_th4">HBM带宽 (TB/s)</th><th data-i18n="html_leaves.ch2_th5">Roofline转折点 (FLOP/Byte)</th><th data-i18n="html_leaves.ch2_th6">Transformer推理区域</th></tr></thead>
+<tbody>
+<tr><td>H100</td><td>990</td><td>3.35</td><td>296</td><td data-i18n="html_leaves.ch2_td9">Memory-Bound (小batch)</td></tr>
+<tr><td>MI300X</td><td>1300</td><td>5.3</td><td>245</td><td data-i18n="html_leaves.ch2_td9">Memory-Bound (小batch)</td></tr>
+<tr><td>Groq LPU</td><td data-i18n="html_leaves.ch2_td10">~500 (估算)</td><td data-i18n="html_leaves.ch2_td11">~80 (SRAM等效)</td><td>~6</td><td data-i18n="html_leaves.ch2_td12">Compute-Bound (大部分场景)</td></tr>
+</tbody>
+</table>
+
+<p data-i18n="html_leaves.ch2_p13"><strong>核心结论</strong>：对于单Batch大模型推理（GPT-4级别），绝大多数AI芯片处于<strong>Memory-Bound</strong>区域——增加TFLOPS几乎不提升推理吞吐，增加HBM带宽和容量才有效。这正是MI300X用192GB HBM3在推理场景中反超H100(80GB)的Roofline解释，也是Groq LPU全用SRAM的逻辑原点。</p>
+</div>
+
+<div class="prev-next">
+<a href="ch1-landscape.html"><span data-i18n="common.prev">← 上一章</span>：<span data-i18n="nav.1">行业全景</span></a>
+<a href="ch3-nvidia.html"><span data-i18n="common.next">下一章 →</span>：<span data-i18n="nav.3">NVIDIA</span></a>
+</div>
+</div>
+
+<script src="charts.js"></script>
+<script>
+window.__renderCharts = () => {
+drawSIMT('simtChart')
+drawSystolic('systolicChart')
+drawNPUCompare('npuChart')
+drawRadar('radarChart')
+};
+window.addEventListener('DOMContentLoaded', window.__renderCharts)
+</script>
+
+<script src="i18n.js"></script>
+<script src="common.js"></script>
+</body>
+</html>

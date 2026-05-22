@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page="ch9" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Chips 2026 Report</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='3' width='18' height='18' rx='4' stroke='url(%23g)' stroke-width='2' fill='none'/%3E%3Crect x='7' y='7' width='10' height='10' rx='2' fill='url(%23g)' opacity='0.8'/%3E%3Cpath d='M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22' stroke='url(%23g)' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="common.css">
+<style>
+.bench-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin:24px 0}
+</style>
+</head>
+<body>
+<nav class="nav-bar">
+<a class="logo" href="index.html"><svg class="logo-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient></defs><rect x="3" y="3" width="18" height="18" rx="4" stroke="url(#logo-grad)" stroke-width="2" fill="none" /><rect x="7" y="7" width="10" height="10" rx="2" fill="url(#logo-grad)" opacity="0.8" /><path d="M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round" /></svg><span class="logo-text">AI Chips 2026</span></a>
+<div class="nav-links">
+<a href="index.html" data-i18n="nav.0">首页</a>
+<a href="ch1-landscape.html" data-i18n="nav.1">行业全景</a>
+<a href="ch2-architecture.html" data-i18n="nav.2">架构原理</a>
+<a href="ch3-nvidia.html" data-i18n="nav.3">NVIDIA</a>
+<a href="ch4-asic.html" data-i18n="nav.4">定制ASIC</a>
+<a href="ch5-edge-npu.html" data-i18n="nav.5">端侧NPU</a>
+<a href="ch6-data-format.html" data-i18n="nav.6">数据格式</a>
+<a href="ch7-lithography.html" data-i18n="nav.7">光刻与封装</a>
+<a href="ch8-china-vendors.html" data-i18n="nav.8">国产芯片与算力突围</a>
+<a href="ch9-amd-instinct.html" class="active" data-i18n="nav.9">AMD</a>
+<a href="ch10-intel-emerging.html" data-i18n="nav.10">Intel+新兴</a>
+<a href="ch11-software-ecosystem.html" data-i18n="nav.11">软件生态</a>
+<a href="ch12-distributed-training.html" data-i18n="nav.12">分布式训练</a>
+<a href="ch13-conclusion.html" data-i18n="nav.13">结论</a>
+</div>
+<div class="nav-toggles"></div>
+</nav>
+
+<div class="content">
+<h1 data-i18n="ch9.title">第十章：AMD Instinct — NVIDIA之外的GPU巨头</h1>
+
+<p data-i18n="html_leaves.ch10_p1">在NVIDIA占据约80%数据中心GPU市场的阴影之下，AMD正以Instinct系列加速器展开一场持久的技术反击战。从CDNA架构的快速迭代到MI300X在部分推理场景中反超H100，再到牵头发起UALink联盟打破NVLink封闭生态——AMD正在构建一个从芯片架构到互联标准的全方位对抗体系。</p>
+
+<h2 data-i18n="ch9.s1">10.1 CDNA架构：从RDNA的分离到AI专用化</h2>
+
+<p data-i18n="html_leaves.ch10_p2">AMD在2020年做出了一个关键决策——将GPU架构分叉为游戏向的<strong>RDNA</strong>和计算向的<strong>CDNA</strong>（Compute DNA）。这一决策使AMD能够为AI工作负载独立优化计算单元和内存系统，而不受图形渲染管线的历史包袱约束。</p>
+
+<p data-i18n="html_leaves.ch10_p3">CDNA3（2023年发布，搭载于MI300X）是该架构的第三次重大迭代：</p>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch10_div1" class="chart-title">MI300X Chiplet架构示意图</div>
+<canvas id="amdArch" height="420"></canvas>
+</div>
+
+<table>
+<thead><tr><th data-i18n="html_leaves.ch10_th1">代际</th><th data-i18n="html_leaves.ch10_th2">产品</th><th data-i18n="html_leaves.ch10_th3">制程</th><th data-i18n="html_leaves.ch10_th4">FP16算力</th><th data-i18n="html_leaves.ch10_th5">内存</th><th data-i18n="html_leaves.ch10_th6">带宽</th><th>TDP</th></tr></thead>
+<tbody>
+<tr><td>CDNA1</td><td>MI100</td><td>7nm</td><td>184 TFLOPS</td><td>32GB HBM2</td><td>1.2 TB/s</td><td>300W</td></tr>
+<tr><td>CDNA2</td><td>MI250X</td><td>6nm</td><td>383 TFLOPS</td><td>128GB HBM2e</td><td>3.2 TB/s</td><td>560W</td></tr>
+<tr><td>CDNA3</td><td>MI300X</td><td>5nm+6nm</td><td>1.3 PFLOPS</td><td>192GB HBM3</td><td>5.3 TB/s</td><td>750W</td></tr>
+<tr><td>CDNA3</td><td>MI325X</td><td>5nm+6nm</td><td>1.3 PFLOPS</td><td>288GB HBM3e</td><td>6.0 TB/s</td><td>750W</td></tr>
+<tr><td>CDNA4</td><td>MI350</td><td>3nm</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+</tbody>
+</table>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch10_div2" class="chart-title">AMD Instinct 产品路线图 (2020-2026)</div>
+<canvas id="amdRoadmap" height="350"></canvas>
+</div>
+
+<h3 data-i18n="html_leaves.ch10_h31">MI300X 核心技术特征</h3>
+<ul>
+<li data-i18n="html_leaves.ch10_li1"><strong>8x CDNA3计算芯粒</strong> (5nm)：每芯粒38个Compute Unit，总计304 CU / 19,456个流处理器</li>
+<li data-i18n="html_leaves.ch10_li2"><strong>4x IOD</strong> (6nm)：Infinity Fabric互联 + 内存控制器</li>
+<li data-i18n="html_leaves.ch10_li3"><strong>1530亿晶体管</strong>：超过NVIDIA H100的800亿，体现Chiplet方案的面积优势</li>
+<li data-i18n="html_leaves.ch10_li4"><strong>192GB HBM3</strong>：8-Hi堆叠，5.3 TB/s带宽。大容量设计直接瞄准大模型推理的KV-Cache需求</li>
+<li data-i18n="html_leaves.ch10_li5"><strong>统一内存架构</strong>：CPU（EPYC）与GPU共享地址空间，消除显式的Host-to-Device数据搬运</li>
+</ul>
+
+<h3 data-i18n="html_leaves.ch10_h32">关键性能对比</h3>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch10_div3" class="chart-title">AMD Instinct vs NVIDIA H100/B200 关键参数</div>
+<canvas id="amdVsNvidia" height="380"></canvas>
+</div>
+
+<p data-i18n="html_leaves.ch10_p4">MI300X的<strong>192GB HBM3</strong>使其在Llama-2 70B等大模型推理任务中显著优于H100（80GB）。由于无需模型分片到多卡，单卡即可容纳全量权重的KV-Cache，延迟降低40-60%，系统总拥有成本（TCO）优势明显。然而在训练场景，NVIDIA B200凭借FP4 9 PFLOPS的算力密度仍然保持绝对优势。</p>
+
+<h2 data-i18n="ch9.s2">10.2 ROCm 6.0：AMD的软件突围</h2>
+
+<p data-i18n="html_leaves.ch10_p5">如果说硬件是肌肉，软件生态就是神经系统。AMD深知CUDA的护城河有多深——400万+开发者，300+加速库，20年的持续投资。ROCm（Radeon Open Compute）是AMD的回应：</p>
+
+<div class="bench-box">
+<h3 data-i18n="html_leaves.ch10_h33">ROCm 6.0 关键技术栈</h3>
+<ul>
+<li data-i18n="html_leaves.ch10_li6"><strong>HIP</strong>（Heterogeneous-compute Interface for Portability）：CUDA到ROCm的源代码翻译层。hipify-perl工具可自动将90%+的CUDA代码转换为HIP代码</li>
+<li data-i18n="html_leaves.ch10_li7"><strong>ROCm Libraries</strong>：rocBLAS、rocFFT、MIOpen（对标cuDNN）、RCCL（对标NCCL），覆盖核心算子</li>
+<li data-i18n="html_leaves.ch10_li8"><strong>PyTorch/TensorFlow原生支持</strong>：PyTorch 2.0+已内置ROCm后端，torch.cuda到torch.rocm切换成本极低</li>
+<li data-i18n="html_leaves.ch10_li9"><strong>OpenAI Triton</strong>：AMD已贡献ROCm后端，使Triton编译的算子可直接在MI300X上运行</li>
+</ul>
+</div>
+
+<p data-i18n="html_leaves.ch10_p6">ROCm的年度迭代速度令人瞩目——从2020年仅支持几款工作站GPU，到2024年实现对MI300X的全栈优化，AMD在软件上的投入正以前所未有的速度加码。但客观而言，ROCm的算子覆盖度约为CUDA的60%，社区活跃度约为CUDA的8%，追赶之路仍然漫长。</p>
+
+<h2 data-i18n="ch9.s3">10.3 UALink：打破NVLink的封闭生态</h2>
+
+<p data-i18n="html_leaves.ch10_p7">2024年5月，AMD联合Broadcom、Intel、Google、Microsoft、Meta、HPE和Cisco宣布成立<strong>Ultra Accelerator Link (UALink) 联盟</strong>。这是对NVIDIA封闭式NVLink生态的正面挑战：</p>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch10_div4" class="chart-title">UALink联盟成员生态</div>
+<canvas id="ualinkChart" height="360"></canvas>
+</div>
+
+<table>
+<thead><tr><th data-i18n="html_leaves.ch10_th7">对比维度</th><th>NVLink (NVIDIA)</th><th data-i18n="html_leaves.ch10_th8">UALink (AMD/联盟)</th></tr></thead>
+<tbody>
+<tr><td data-i18n="html_leaves.ch10_td1">开放程度</td><td data-i18n="html_leaves.ch10_td2">完全封闭，仅NVIDIA产品</td><td data-i18n="html_leaves.ch10_td3">开放标准，任何厂商可采纳</td></tr>
+<tr><td data-i18n="html_leaves.ch10_td4">目标带宽</td><td data-i18n="html_leaves.ch10_td5">NVLink 6: 3.6 TB/s (双向)</td><td data-i18n="html_leaves.ch10_td6">目标200 GB/s (单链路)，多链路聚合可达TB级</td></tr>
+<tr><td data-i18n="html_leaves.ch10_td7">物理层</td><td data-i18n="html_leaves.ch10_td8">专有SerDes</td><td data-i18n="html_leaves.ch10_td9">基于以太网物理层 (降低成本)</td></tr>
+<tr><td data-i18n="html_leaves.ch10_td10">协议栈</td><td>NVLink + NVSwitch</td><td data-i18n="html_leaves.ch10_td11">UALink + 标准交换机</td></tr>
+<tr><td data-i18n="html_leaves.ch10_td12">商用状态</td><td data-i18n="html_leaves.ch10_td13">2024年已商用 (B200)</td><td data-i18n="html_leaves.ch10_td14">2026年计划商用</td></tr>
+</tbody>
+</table>
+
+<h2 data-i18n="ch9.s4">10.4 市场地位与挑战</h2>
+
+<div class="bench-box">
+<h3 data-i18n="html_leaves.ch10_h34">AMD数据中心GPU SWOT分析</h3>
+<table>
+<thead><tr><th data-i18n="html_leaves.ch10_th9" style="background:rgba(16,185,129,.15);color:#34d399">优势 (Strengths)</th><th data-i18n="html_leaves.ch10_th10" style="background:rgba(239,68,68,.15);color:#f87171">劣势 (Weaknesses)</th></tr></thead>
+<tbody>
+<tr><td data-i18n="html_leaves.ch10_td15">MI300X推理TCO显著优于H100</td><td data-i18n="html_leaves.ch10_td16">软件生态仅为CUDA的60%覆盖度</td></tr>
+<tr><td data-i18n="html_leaves.ch10_td17">Chiplet架构可灵活配置HBM容量</td><td data-i18n="html_leaves.ch10_td18">开发者社区规模差距巨大 (0.8M vs 4.2M)</td></tr>
+<tr><td data-i18n="html_leaves.ch10_td19">统一内存架构降低编程复杂度</td><td data-i18n="html_leaves.ch10_td20">框架支持仍有缺口</td></tr>
+<tr><td data-i18n="html_leaves.ch10_td21">UALink联盟开放互联标准势能</td><td data-i18n="html_leaves.ch10_td22">训练场景ASIC厂商也在蚕食份额</td></tr>
+</tbody>
+</table>
+</div>
+
+<p data-i18n="html_leaves.ch10_p8">AMD数据中心GPU营收预计从2023年的约$4B增长至2024年的$5B+，市占率从5%提升至约8%。但考虑到全球AI芯片市场本身正以超过50% CAGR爆发式增长，AMD的绝对营收增长掩盖了其相对份额爬升缓慢的现实困境。</p>
+
+<div class="prev-next">
+<a href="ch8-china-vendors.html"><span data-i18n="common.prev">← 上一章</span>：<span data-i18n="nav.8">国产芯片与算力突围</span></a>
+<a href="ch10-intel-emerging.html"><span data-i18n="common.next">下一章 →</span>：<span data-i18n="nav.10">Intel+新兴</span></a>
+</div>
+</div>
+
+<script src="i18n.js"></script>
+<script src="charts.js"></script>
+<script src="common.js"></script>
+<script>
+window.__renderCharts = () => {
+drawAMDArch('amdArch')
+drawAMDRoadmap('amdRoadmap')
+drawAMDvsNvidia('amdVsNvidia')
+drawUALink('ualinkChart')
+};
+window.addEventListener('DOMContentLoaded', window.__renderCharts)
+</script>
+</body>
+</html>

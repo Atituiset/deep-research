@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page="ch8" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="html_leaves.ch8_title1">Ch8 - 中国国产AI芯片生态全景</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='3' width='18' height='18' rx='4' stroke='url(%23g)' stroke-width='2' fill='none'/%3E%3Crect x='7' y='7' width='10' height='10' rx='2' fill='url(%23g)' opacity='0.8'/%3E%3Cpath d='M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22' stroke='url(%23g)' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="common.css">
+<style>
+.vendor-section{border-left:3px solid var(--accent);padding-left:20px;margin:24px 0}
+.vendor-section.huawei{border-left-color:var(--red)}
+.vendor-section.kunlun{border-left-color:var(--orange)}
+.vendor-section.cambricon{border-left-color:var(--green)}
+.vendor-section.iluvatar{border-left-color:var(--accent2)}
+.vendor-section.biren{border-left-color:var(--cyan)}
+.vendor-section.moore{border-left-color:var(--accent)}
+.vendor-section.enflame{border-left-color:var(--orange)}
+.vendor-section.hygon{border-left-color:var(--red)}
+.vendor-section.muxi{border-left-color:var(--accent2)}
+</style>
+</head>
+<body>
+<nav class="nav-bar">
+<a class="logo" href="index.html"><svg class="logo-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient></defs><rect x="3" y="3" width="18" height="18" rx="4" stroke="url(#logo-grad)" stroke-width="2" fill="none" /><rect x="7" y="7" width="10" height="10" rx="2" fill="url(#logo-grad)" opacity="0.8" /><path d="M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round" /></svg><span class="logo-text">AI Chips 2026</span></a>
+<div class="nav-links">
+<a href="index.html" data-i18n="nav.0">首页</a>
+<a href="ch1-landscape.html" data-i18n="nav.1">行业全景</a>
+<a href="ch2-architecture.html" data-i18n="nav.2">架构原理</a>
+<a href="ch3-nvidia.html" data-i18n="nav.3">NVIDIA</a>
+<a href="ch4-asic.html" data-i18n="nav.4">定制ASIC</a>
+<a href="ch5-edge-npu.html" data-i18n="nav.5">端侧NPU</a>
+<a href="ch6-data-format.html" data-i18n="nav.6">数据格式</a>
+<a href="ch7-lithography.html" data-i18n="nav.7">光刻与封装</a>
+<a href="ch8-china-vendors.html" class="active" data-i18n="nav.8">国产芯片与算力突围</a>
+<a href="ch9-amd-instinct.html" data-i18n="nav.9">AMD</a>
+<a href="ch10-intel-emerging.html" data-i18n="nav.10">Intel+新兴</a>
+<a href="ch11-software-ecosystem.html" data-i18n="nav.11">软件生态</a>
+<a href="ch12-distributed-training.html" data-i18n="nav.12">分布式训练</a>
+<a href="ch13-conclusion.html" data-i18n="nav.13">结论</a>
+</div>
+<div class="nav-toggles"></div>
+</nav>
+
+<div class="content">
+<h1 data-i18n="ch8.title">第八章：中国国产AI芯片生态全景</h1>
+<p data-i18n="ch8.p1">在美国持续升级的AI芯片出口管制下，中国AI芯片产业被迫进入了一场史无前例的自主化突围战。从百度昆仑芯到华为昇腾，从寒武纪到壁仞科技，一条从底层架构到软件生态的全栈国产替代路径正在艰难而坚定地铺开。本章将深度剖析这一生态中最具代表性的九大厂商及其核心产品。</p>
+
+<h2 data-i18n="ch8.s1">8.1 产业全景：九大国产AI芯片厂商矩阵</h2>
+<div class="chart-box"><div class="chart-title" data-i18n="ch8.chartTitles.vendorMap">中国国产AI芯片厂商全景定位图</div><canvas id="vendorMap" height="600"></canvas></div>
+<p data-i18n="html_leaves.ch8_p1"><span data-i18n="ch8.s1p">当前国产AI芯片厂商可按技术路线分为三大阵营：</span><span class="tag tag-blue" data-i18n="ch8.s1p2">（昆仑芯XPU、华为Da Vinci、寒武纪MLU）、</span><span class="tag tag-green" data-i18n="ch8.s1p3">（壁仞、摩尔线程、天数智芯、沐曦）和</span><span class="tag tag-orange" data-i18n="ch8.s1p4">（海光DCU基于AMD授权、燧原专注推理）。每条路线各有取舍：自研架构掌控底层但生态弱，GPU兼容借用CUDA生态但受制于出口管制，特殊路线起量快但天花板低。</span></p>
+<div class="chart-box"><div class="chart-title" data-i18n="ch8.chartTitles.vendorMatrix">国产AI芯片关键参数对比矩阵</div><canvas id="chinaVendorMatrix" height="460"></canvas></div>
+
+<h2 data-i18n="ch8.s2Title">8.2 昆仑芯科技（Kunlunxin）—— 百度系XPU架构的产业深耕</h2>
+<div class="vendor-section kunlun">
+<h3 data-i18n="ch8.s2h1">起源与演进</h3>
+<p data-i18n="html_leaves.ch8_p2"><span data-i18n="ch8.s2p1">昆仑芯科技前身为百度智能芯片及架构部，自2011年启动FPGA AI加速器研发，经过超过14年的技术迭代，于2021年4月完成独立融资。公司拥有400余项发明专利申请（授权近百项），在ASPLOS 2014发表国际计算机系统顶级会议论文，4次登上Hot Chips舞台</span><span class="tag tag-orange">[Kunlunxin]</span>。</p>
+<div class="chart-box"><div class="chart-title" data-i18n="ch8.chartTitles.kunlunTimeline">昆仑芯三代产品演进时间线</div><canvas id="kunlunTimeline" height="380"></canvas></div>
+
+<h3 data-i18n="ch8.s2h2">核心架构：XPU-R</h3>
+<p data-i18n="html_leaves.ch8_p3"><span data-i18n="ch8.s2p2">昆仑芯2代AI芯片基于自研XPU-R架构，采用7nm制程，核心创新在于通用指令集与专用AI指令集融合——同一芯片既可执行通用计算任务（如数据预处理、逻辑控制），也可执行高强度张量运算，实现"训练+推理+虚拟化"三合一。这与NVIDIA的SIMT架构形成差异化：XPU-R没有CUDA那样庞大的通用软件生态，但在特定AI工作负载下具有更高的面积效率</span><span class="tag tag-orange">[Kunlunxin]</span>。</p>
+
+<h3 data-i18n="ch8.s2h3">产品矩阵</h3>
+<table>
+<thead><tr><th data-i18n="html_leaves.ch8_th1">产品</th><th data-i18n="html_leaves.ch8_th2">架构</th><th data-i18n="html_leaves.ch8_th3">INT8算力</th><th data-i18n="html_leaves.ch8_th4">FP16算力</th><th data-i18n="html_leaves.ch8_th5">内存</th><th data-i18n="html_leaves.ch8_th6">带宽</th><th data-i18n="html_leaves.ch8_th7">功耗</th><th data-i18n="html_leaves.ch8_th8">定位</th></tr></thead>
+<tbody>
+<tr><td data-i18n="html_leaves.ch8_td1"><b>昆仑芯2代AI芯片</b></td><td>XPU-R</td><td>256 TOPS</td><td>128 TFLOPS</td><td>16/32GB GDDR6</td><td>512 GB/s</td><td>150-160W</td><td data-i18n="html_leaves.ch8_td2">通用训推一体</td></tr>
+<tr><td data-i18n="html_leaves.ch8_td3"><b>R200 加速卡</b></td><td>XPU-R</td><td>256 TOPS</td><td>128 TFLOPS</td><td>16/32GB GDDR6</td><td>512 GB/s</td><td>150-160W</td><td data-i18n="html_leaves.ch8_td4">高性能推理</td></tr>
+<tr><td data-i18n="html_leaves.ch8_td5"><b>RG800 加速卡</b></td><td>XPU-R</td><td>256 TOPS</td><td>128 TFLOPS</td><td>32GB GDDR6</td><td>512 GB/s</td><td>130W</td><td data-i18n="html_leaves.ch8_td6">单槽训推一体</td></tr>
+<tr><td data-i18n="html_leaves.ch8_td7"><b>R480-X8 加速器组</b></td><td>XPU-R ×8</td><td>2,048 TOPS</td><td>1,024 TFLOPS</td><td>32GB×8 GDDR6</td><td>512GB/s×8</td><td>—</td><td data-i18n="html_leaves.ch8_td8">OAM集群 (200GB/s片间互联)</td></tr>
+<tr><td data-i18n="html_leaves.ch8_td9"><b>K100 加速卡</b></td><td data-i18n="html_leaves.ch8_td13">XPU-K (1代)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td data-i18n="html_leaves.ch8_td11">1代推理卡</td></tr>
+<tr><td data-i18n="html_leaves.ch8_td12"><b>K200 加速卡</b></td><td data-i18n="html_leaves.ch8_td13">XPU-K (1代)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td data-i18n="html_leaves.ch8_td14">1代训推卡</td></tr>
+</tbody>
+</table>
+
+<h3 data-i18n="ch8.s2h4">昆仑芯3代：大模型时代的进化</h3>
+<p data-i18n="ch8.s2p4">2024年，昆仑芯3代实现量产，满足大模型时代AI系统更高要求。2025年落地32/64卡超节点产品，并发布256/512卡超节点技术，标志着昆仑芯从单卡芯片厂商向大规模集群方案提供商的战略跃迁。R480-X8加速器组严格遵循OCP-OAI设计标准，UBB基板搭载8个OAM模组，片间互联带宽200GB/s，可构建大规模并行计算集群。这种标准化设计使昆仑芯产品能够直接融入现有智算中心基础设施，降低客户切换成本。</p>
+
+<h3 data-i18n="ch8.s2h5">部署规模与客户生态</h3>
+<p data-i18n="ch8.s2p5">昆仑芯已深度参与中国电信智算测试与适配优化中心、中国移动供应链生态合作大会等国家级算力项目，参与发布超节点智算应用"北京方案"。百度内部大规模自用（搜索、文心大模型推理），外部客户覆盖互联网、智慧金融、智慧园区、智慧交通等场景。</p>
+</div>
+
+<h2 data-i18n="ch8.s3Title">8.3 华为昇腾（Huawei Ascend）—— 制裁之下的国产算力旗舰</h2>
+<div class="vendor-section huawei"><p data-i18n="ch8.s3p">华为昇腾系列是当前中国国产AI芯片中算力最强、部署规模最大的产品线。Ascend 910C采用双硅模片拼图封装架构（详见第九章地缘政治专题），由SMIC N+2（约7nm等效）制造，FP16峰值算力670-800 TFLOPS，约为NVIDIA H100的80%水平。2025-2026年规划年交付60万颗，是中国AI算力自主化战略的核心底座。昇腾生态（CANN软件栈+MindSpore框架）是国产AI芯片中软件生态最成熟的方案，但在CUDA兼容性和开发者社区规模上仍与NVIDIA存在数量级差距。</p></div>
+
+<h2 data-i18n="ch8.s4Title">8.4 寒武纪（Cambricon）—— 从学术创业到科创板上市</h2>
+<div class="vendor-section cambricon"><p data-i18n="ch8.s4p">寒武纪由中科院计算所陈天石团队创立，2016年推出全球首款商用终端AI处理器寒武纪1A（搭载于华为麒麟970），后因华为自研Da Vinci架构而被迫转型云端。2020年科创板上市，当前主力产品为MLU370系列。寒武纪的挑战在于：从终端NPU转型云端加速器后，面临华为昇腾和百度昆仑芯的双重挤压，市场空间持续收窄。其独有的终端AI处理器基因在边缘侧仍有价值，但云端训练市场已被昇腾主导。</p></div>
+
+<h2 data-i18n="ch8.s5Title">8.5 天数智芯（Iluvatar CoreX）—— GPU兼容路线的先驱</h2>
+<div class="vendor-section iluvatar"><p data-i18n="ch8.s5p">天数智芯选择了一条"GPU架构兼容+国产制造"的路线，试图在保持CUDA生态兼容性的同时实现芯片国产化。其产品线分为天垓（训练）、彤央（推理）和智铠（边缘）三大系列。天数智芯的核心优势在于其软件栈对CUDA的兼容层，可大幅降低从NVIDIA平台迁移的工程成本。但"兼容"本身就是双刃剑——既限制了架构层面的激进创新，也意味着在NVIDIA原生生态面前永远只能是"跟随者"。</p></div>
+
+<h2 data-i18n="ch8.s6Title">8.6 壁仞科技（Biren Technology）—— Chiplet先驱的突围之路</h2>
+<div class="vendor-section biren"><p data-i18n="ch8.s6p">壁仞科技2019年成立于上海，是国内首个采用Chiplet架构设计大算力GPU芯片的厂商。其核心产品壁砺™系列采用OAM标准模组设计，兼容现有GPU服务器基础设施。壁仞科技的差异化亮点在于：光互连技术——国内首次实现GPU与OCS（光交换机）通信连接，并率先完成光互连技术商用落地。其BIRENSUPA™软件平台构建了自主原创的软件开发体系。然而，壁仞科技早期旗舰产品BR100曾因台积电代工受限而遭遇重大挫折，被迫转向国内代工和降规格方案。</p></div>
+
+<h2 data-i18n="ch8.s7Title">8.7 摩尔线程（Moore Threads）—— 全功能GPU的本土化尝试</h2>
+<div class="vendor-section moore"><p data-i18n="ch8.s7p">摩尔线程由前NVIDIA全球副总裁张建中创立，定位为"全功能GPU"厂商——既做AI计算，也做图形渲染和视频处理。其MTT S4000面向数据中心AI推理，MTT S3000面向图形与AI混合负载。摩尔线程的优势在于创始人深厚的GPU产业背景，劣势在于作为创业公司同时铺开AI+图形双线作战，资源分散风险极高。</p></div>
+
+<h2 data-i18n="ch8.s8Title">8.8 燧原科技（Enflame Technology）—— 推理赛道的专注者</h2>
+<div class="vendor-section enflame"><p data-i18n="ch8.s8p">燧原科技选择了一条差异化路线——专注AI推理市场，避开与NVIDIA和华为昇腾在训练领域的正面硬刚。其CloudBlade系列推理卡在互联网内容审核、推荐系统推理等场景中具有一定的性价比优势。但在大模型训练需求爆发的大背景下，"纯推理"定位的市场天花板受到质疑。</p></div>
+
+<h2 data-i18n="ch8.s9Title">8.9 海光信息（Hygon）—— x86授权路线的特殊存在</h2>
+<div class="vendor-section hygon"><p data-i18n="ch8.s9p">海光信息依托与AMD的技术授权协议，在x86 CPU（海光CPU）和DCU（协处理器，类似AMD Instinct MI系列）领域拥有独特的生态位。海光DCU可运行ROCm生态，在CUDA兼容性上天然优于其他国产方案。但这一路线的天花板也很明显：授权技术的迭代节奏完全受制于中美关系的风向，且无法获取AMD最新代际技术。</p></div>
+
+<h2 data-i18n="ch8.s10Title">8.10 沐曦科技（Muxi）—— GPU新势力的突围</h2>
+<div class="vendor-section muxi"><p data-i18n="ch8.s10p">沐曦科技成立于2020年，专注于高性能GPU芯片研发。公司核心团队拥有深厚的GPU架构设计背景，产品瞄准云端训练与推理市场。作为较晚入局的玩家，沐曦需要同时面对技术追赶和市场份额已被先发者占据的双重挑战，但其自研架构路线如果成功，将具有更高的长期竞争力天花板。</p></div>
+
+<h2 data-i18n="ch8.s11Title">8.11 国产芯片生态的核心困境与破局</h2>
+<div class="chart-box"><div class="chart-title" data-i18n="ch8.chartTitles.chinaDilemma">国产AI芯片四大核心困境</div><canvas id="chinaDilemma" height="380"></canvas></div>
+
+<ul>
+<li data-i18n="html_leaves.ch8_li1"><strong style="color:var(--red)" data-i18n="ch8.s11ul1">制造代差困境</strong>：<span data-i18n="ch8.s11ul1d">SMIC N+2（7nm等效）vs TSMC N3（3nm）——两代制程差距直接决定了晶体管密度、功耗和频率的天花板</span></li>
+<li data-i18n="html_leaves.ch8_li2"><strong style="color:var(--orange)" data-i18n="ch8.s11ul2">封装落后困境</strong>：<span data-i18n="ch8.s11ul2d">无法获取TSMC CoWoS先进封装，Die-to-Die带宽差距10-20倍，HBM集成受限</span></li>
+<li data-i18n="html_leaves.ch8_li3"><strong style="color:var(--accent2)" data-i18n="ch8.s11ul3">软件生态困境</strong>：<span data-i18n="ch8.s11ul3d">CUDA拥有超400万开发者，国产方案（CANN/BIRENSUPA/天垓SDK）在框架兼容性、算子覆盖度和社区活跃度上差距巨大</span></li>
+<li data-i18n="html_leaves.ch8_li4"><strong style="color:var(--cyan)" data-i18n="ch8.s11ul4">标准碎片困境</strong>：<span data-i18n="ch8.s11ul4d">九大厂商九套架构，互不兼容——算力无法在异构集群中自由调度，与OCP/UEC国际标准化趋势背道而驰</span></li>
+</ul>
+
+<div class="chart-box"><div class="chart-title" data-i18n="ch8.chartTitles.chinaVsNvidia">国产AI芯片 vs NVIDIA 旗舰性能代差概览</div><canvas id="chinaVsNvidia" height="400"></canvas></div>
+
+<p data-i18n="ch8.s11p">然而，在出口管制的倒逼效应下，中国AI芯片产业正在经历一场从"可用"到"好用"的质变：华为昇腾910C以60万颗年交付规模撑起了国产训练算力的底线，昆仑芯凭借百度体系内的大规模实战打磨出了成熟的训推一体方案，壁仞的光互连技术则在大规模集群场景中开辟了差异化突破口。尽管与国际领先水平仍有显著差距，但这些厂商正在用"系统级工程补救"的方式，在物理极限的约束下逐步缩小差距。</p>
+
+<h2 data-i18n="ch8.s12Title">8.12 技术差距深度解构：国产旗舰 vs NVIDIA Blackwell (系统级/架构级硬核拆解)</h2>
+<p data-i18n="ch8.s12p1">虽然国产 AI 芯片通过 Chiplet 拼接、系统级工程冗余设计在特定算力指标上实现了单卡可用性，但在系统级互连、高带宽显存封装以及底层微架构等硬核维度上，仍面临显著的物理代差与生态壁垒。以下为四个最关键的底层瓶颈剖析：</p>
+
+<h3 data-i18n="ch8.s12h1">1. 片间互连与集群网络瓶颈（The Interconnect Wall）</h3>
+<p data-i18n="ch8.s12p2">英伟达 Blackwell 架构（如 B200）单卡通过第五代 NVLink 提供了高达 1.8 TB/s 的双向片间互连带宽，配合专有的 NVSwitch 芯片，可以构建 576 张卡在单一二层网络下的超大无损物理超节点。相比制造端，国产最先进的片间互连协议（如华为 HCCS）或壁仞的互连技术，单卡双向带宽普遍局限在 160 GB/s - 240 GB/s（存在 7.5倍至11倍 的物理性能代差）。这导致在训练千亿或万亿参数大模型时，随着集群规模扩展至 256 卡或 512 卡以上，通信开销呈指数级上升，在大大规模参数同步（如 All-Reduce）阶段会遇到严重的网络瓶颈，使得大规模并行训练效率急剧下滑。</p>
+<div class="chart-box">
+  <div class="chart-title" data-i18n="ch8.chartTitles.interconnectWall">片间互连与集群通信扩展性对比 (Interconnect Wall)</div>
+  <canvas id="interconnectWallChart" height="360"></canvas>
+</div>
+
+<h3 data-i18n="ch8.s12h2">2. HBM 显存与 CoWoS 先进封装限制（The Memory Wall & Packaging Gap）</h3>
+<p data-i18n="ch8.s12p3">NVIDIA H100 与 B200 芯片利用台积电最先进的 CoWoS 封装，高度集成了 HBM3/HBM3e 显存颗粒，单卡显存带宽达 3.35 TB/s 至 8.0 TB/s。由于出口管制，国产厂商无法直接获取台积电的 CoWoS 封装代工，导致国产芯片在封装密度、基板走线频率和物理良率上存在显著代差。国产旗舰级 AI 芯片（如昇腾 910B/910C）不得不使用国内代工的封装替代方案，其单卡 HBM 显存带宽普遍受限于 1.2 TB/s - 2.0 TB/s。这在应对超大规模大模型推理（尤其是对显存带宽极度敏感的 Autoregressive 解码生成阶段）时，会面临极强且难以通过软件补偿的“存储墙”瓶颈。</p>
+<div class="chart-box">
+  <div class="chart-title" data-i18n="ch8.chartTitles.memoryPackagingGap">HBM 显存与 CoWoS/2.5D 封装互连微间距对比 (Packaging Gap)</div>
+  <canvas id="memoryPackagingGapChart" height="380"></canvas>
+</div>
+
+<h3 data-i18n="ch8.s12h3">3. 物理制程与晶体管代差（The Process & Power Wall）</h3>
+<p data-i18n="ch8.s12p4">半导体物理工艺的代差直接决定了芯片的晶体管密度和能效天花板。NVIDIA Blackwell 采用定制化台积电 4NP（4纳米等效工艺），单 Die 晶体管数达 1040亿，而其下一代 Rubin 架构将全面进军 3nm 制程。目前国产最先进的工艺主要基于 SMIC N+2（约 7nm 等效），其晶体管密度仅为台积电 3nm 的 30% 左右。这意味着，要实现接近英伟达单卡的算力水平，国产芯片必须通过 Chiplet 拼接多颗 Die 或增加芯片面积，这会导致功耗急剧攀升，良率急剧下降。大功耗带来了严重的“能效墙”和散热物理瓶颈，使得数据中心在电力配给和制冷成本上面临巨大挑战。</p>
+
+<div class="chart-box">
+  <div class="chart-title" data-i18n="ch8.chartTitles.processPowerWall">物理制程、单Die面积与能效热损失对比 (Process & Energy Wall)</div>
+  <canvas id="processPowerWallChart" height="360"></canvas>
+</div>
+
+<h3 data-i18n="ch8.s12h4">4. 软件生态与原生算子护城河（The Software Moat & Compiler Gap）</h3>
+<p data-i18n="ch8.s12p5">NVIDIA CUDA 生态已经历十余年的高强度迭代，拥有全球超 400万 开发者，其在 PyTorch、JAX 等底层主流大模型框架上的原生算子支持率达 100%。国产厂商目前采用了两种主要突围路径：海光、天数等采用的 “兼容 CUDA” 路线，虽然能够借用生态，但由于指令集并非原生，其在运行时往往存在编译器性能损耗，且面临随时可能到来的地缘法律风险；而华为、壁仞等采用的 “自研独立软件栈（如 CANN / BIRENSUPA）” 路线，虽然掌控度高，但由于生态独立，目前算子库覆盖率仅为 80%-85%，面对快速演进的最新 AI 模型（如 Mamba、MoE 的特有混合架构），国产开发者不得不手动编写大量复杂的 C++ 或 Triton 算子，大大拉长了大模型的部署与开发周期。</p>
+
+<!-- Premium Responsive Comparison Table -->
+<table>
+  <thead>
+    <tr>
+      <th data-i18n="html_leaves.ch8_comp_th1">对比维度</th>
+      <th data-i18n="html_leaves.ch8_comp_th2">NVIDIA Blackwell (B200)</th>
+      <th data-i18n="html_leaves.ch8_comp_th3">国产旗舰级 AI 芯片 (自研架构代表)</th>
+      <th data-i18n="html_leaves.ch8_comp_th4">国产旗舰级 AI 芯片 (GPU 兼容代表)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td data-i18n="html_leaves.ch8_comp_r1d"><b>物理制程与工艺</b></td>
+      <td data-i18n="html_leaves.ch8_comp_r1v1">TSMC 4NP (4nm 定制工艺)</td>
+      <td data-i18n="html_leaves.ch8_comp_r1v2">SMIC N+2 (~7nm等效)</td>
+      <td data-i18n="html_leaves.ch8_comp_r1v3">SMIC N+2 / 降规格工艺</td>
+    </tr>
+    <tr>
+      <td data-i18n="html_leaves.ch8_comp_r2d"><b>单卡片间双向带宽</b></td>
+      <td data-i18n="html_leaves.ch8_comp_r2v1">1.8 TB/s (NVLink 5)</td>
+      <td data-i18n="html_leaves.ch8_comp_r2v2">160 GB/s - 240 GB/s (自研协议)</td>
+      <td data-i18n="html_leaves.ch8_comp_r2v3">120 GB/s - 160 GB/s (PCIe/低速互连)</td>
+    </tr>
+    <tr>
+      <td data-i18n="html_leaves.ch8_comp_r3d"><b>显存技术与单卡带宽</b></td>
+      <td data-i18n="html_leaves.ch8_comp_r3v1">HBM3e (高达 8.0 TB/s)</td>
+      <td data-i18n="html_leaves.ch8_comp_r3v2">HBM2e / 降规 HBM3 (1.2 - 2.0 TB/s)</td>
+      <td data-i18n="html_leaves.ch8_comp_r3v3">GDDR6 / HBM2e (512 GB/s - 1.2 TB/s)</td>
+    </tr>
+    <tr>
+      <td data-i18n="html_leaves.ch8_comp_r4d"><b>软件生态与算子支持</b></td>
+      <td data-i18n="html_leaves.ch8_comp_r4v1">100% 原生支持 (CUDA 生态完备)</td>
+      <td data-i18n="html_leaves.ch8_comp_r4v2">80% - 85% (CANN等自研栈，需手动重写算子)</td>
+      <td data-i18n="html_leaves.ch8_comp_r4v3">通过兼容层借用 (存在编译器转换性能损耗)</td>
+    </tr>
+    <tr>
+      <td data-i18n="html_leaves.ch8_comp_r5d"><b>单超节点集群扩展上限</b></td>
+      <td data-i18n="html_leaves.ch8_comp_r5v1">576 GPU 无损互连 (NVSwitch 5)</td>
+      <td data-i18n="html_leaves.ch8_comp_r5v2">32/64卡超节点 (大规模集群通信开销明显)</td>
+      <td data-i18n="html_leaves.ch8_comp_r5v3">8/16卡为主 (大规模并行效率随瓶颈下滑)</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<h2 data-i18n="ch8.s13Title">8.13 美国 AI 芯片出口管制的技术边界与架构重塑</h2>
+<p data-i18n="ch8.s13p1">出口管制法规并不是孤立的政策指令，而是直接通过量化的物理性能指标对高端加速卡的制造和设计施加了硬性约束。这导致全球半导体供应链与算力网络架构发生深刻重塑。</p>
+
+<!-- Premium Responsive Technical Control Table -->
+<table>
+  <thead>
+    <tr>
+      <th data-i18n="html_leaves.ch8_ctrl_th1">管制指标</th>
+      <th data-i18n="html_leaves.ch8_ctrl_th2">限制阈值</th>
+      <th data-i18n="html_leaves.ch8_ctrl_th3">架构设计级影响</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td data-i18n="html_leaves.ch8_ctrl_r1d"><b>总处理性能 (TPP)</b></td>
+      <td data-i18n="html_leaves.ch8_ctrl_r1v1">&lt; 4800 TPP</td>
+      <td data-i18n="html_leaves.ch8_ctrl_r1v2">限制单卡浮点算力上限，迫使厂商削减单 Die 的物理核心数，开发专用“降规版”加速卡（如 H20）以符合出口合规。</td>
+    </tr>
+    <tr>
+      <td data-i18n="html_leaves.ch8_ctrl_r2d"><b>片间双向互连带宽</b></td>
+      <td data-i18n="html_leaves.ch8_ctrl_r2v1">&lt; 150 - 200 GB/s</td>
+      <td data-i18n="html_leaves.ch8_ctrl_r2v2">限制高速互连接口（如 NVLink）的物理链路数量与传输速率，防止多卡在大规模集群中实现低延迟无损参数同步。</td>
+    </tr>
+    <tr>
+      <td data-i18n="html_leaves.ch8_ctrl_r3d"><b>先进封装准入限制</b></td>
+      <td data-i18n="html_leaves.ch8_ctrl_r3v1">禁止准入 TSMC CoWoS 等先进封装</td>
+      <td data-i18n="html_leaves.ch8_ctrl_r3v2">限制超大硅片面积（Monolithic Die）与高带宽显存（HBM）的物理高密度集成，迫使国内设计转向多 Die 拼接（Chiplet）及有机/硅基板替代方案。</td>
+    </tr>
+    <tr>
+      <td data-i18n="html_leaves.ch8_ctrl_r4d"><b>显存带宽上限</b></td>
+      <td data-i18n="html_leaves.ch8_ctrl_r4v1">限制高端 HBM3/HBM3e 通道集成</td>
+      <td data-i18n="html_leaves.ch8_ctrl_r4v2">阻止芯片获取高密度宽显存带宽（如 &gt;3 TB/s），限制自回归（Autoregressive）解码计算能效，加剧 LLM 推理的“存储墙”瓶颈。</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 data-i18n="ch8.s14Title">8.14 华为昇腾 910C：双芯片（Dual-die）妥协封装架构与系统级工程补救</h2>
+<p data-i18n="ch8.s14p1">在先进半导体制造与先进封装双重受限的背景下，华为 Ascend 910C 代表了中国芯片厂商在物理逆境下进行系统级压榨和工程折中的典型路径。</p>
+
+<div class="chart-box">
+  <div class="chart-title" data-i18n="html_leaves.ch9_div1">华为 Ascend 910C 双硅模片妥协封装架构</div>
+  <canvas id="ascendChart" height="380"></canvas>
+</div>
+
+<p data-i18n="ch8.s14p2">由于无法获取台积电高集成度的 CoWoS 2.5D 封装，该方案采用双硅模片拼图封装架构（Dual-die Packaging）。它将两块基于中芯国际（SMIC）N+2 等效制程（晶体管数约 530亿）的计算硅片并排安放在大型有机基板上，核心间使用铜线硬连接。这种架构虽然在 FP16 等特定计算指标上实现了单卡可用性（峰值约 670-800 TFLOPS），但在 Die-to-Die 的互连带宽上与 NVIDIA 旗舰级的硅中介层（Silicon Interposer）微间距走线相比，存在 10-20 倍的巨大差距。此外，功耗较同等算力卡上升约 60%，显示出物理制程与能效墙的严峻挑战。</p>
+
+<div class="chart-box">
+  <div class="chart-title" data-i18n="html_leaves.ch9_div2">Ascend 910C vs NVIDIA H100 关键参数对比</div>
+  <canvas id="ascendVsH100" height="380"></canvas>
+</div>
+
+<h2 data-i18n="ch8.s15Title">8.15 “双轨并行”生存法则：大规模大模型训练与推理的异构混合拓扑</h2>
+<p data-i18n="ch8.s15p1">在单一国产卡集群面临巨大通信开销与算子不完备的现实面前，中国领先的 AI 产业和研发机构被迫探索出了一套独特的“双轨并行”异构计算法则，在软硬件联合优化的框架下实现了大规模大模型的敏捷演进。</p>
+
+<div class="chart-box">
+  <div class="chart-title" data-i18n="html_leaves.ch9_div3">中国AI算力双轨并行生存法则</div>
+  <canvas id="dualTrackChart" height="320"></canvas>
+</div>
+
+<p data-i18n="ch8.s15p2">这一模型的核心思想是：将大模型的全生命周期解耦。在前沿预训练阶段（Pre-training Track），由于存在海量参数 of 无损同步与全量通信需求，集群对通信带宽和算子完备性极度敏感。因此，企业千方百计调动稀缺的高带宽 NVIDIA GPU 集群，以保证训练过程不被片间互连或算子缺失拖垮；而在下游模型微调和大规模分布式推理阶段（Inference Track），因为权重已固化且算子集合相对收敛，集群对多卡全互连通信的需求显著下降。此时，企业将训练好的模型权重转换为通用格式，全量迁移部署到以昇腾、昆仑或壁仞等国产芯片为主的计算节点上。通过在底层进行框架级适配与编译优化，极大地摊薄了算力服务成本，同时达成了核心算力自主可控的底层战略防御目标。</p>
+
+<div class="prev-next">
+<a href="ch7-lithography.html"><span data-i18n="common.prev">← 上一章</span>：<span data-i18n="nav.7">光刻与封装</span></a>
+<a href="ch9-amd-instinct.html"><span data-i18n="common.next">下一章 →</span>：<span data-i18n="nav.9">AMD</span></a>
+</div>
+</div>
+
+<script src="i18n.js"></script>
+<script src="charts.js"></script>
+<script src="common.js"></script>
+<script>
+window.__renderCharts = () => {
+
+drawVendorMap('vendorMap')
+drawChinaVendorMatrix('chinaVendorMatrix')
+drawKunlunTimeline('kunlunTimeline')
+drawChinaDilemma('chinaDilemma')
+drawChinaVsNvidia('chinaVsNvidia')
+drawInterconnectWall('interconnectWallChart')
+drawMemoryPackagingGap('memoryPackagingGapChart')
+drawProcessPowerWall('processPowerWallChart')
+drawAscend('ascendChart')
+drawAscendVsH100('ascendVsH100')
+drawDualTrack('dualTrackChart')
+
+};
+window.addEventListener('DOMContentLoaded', window.__renderCharts)
+</script>
+</body>
+</html>

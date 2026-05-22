@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page="ch10" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Chips 2026 Report</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='3' width='18' height='18' rx='4' stroke='url(%23g)' stroke-width='2' fill='none'/%3E%3Crect x='7' y='7' width='10' height='10' rx='2' fill='url(%23g)' opacity='0.8'/%3E%3Cpath d='M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22' stroke='url(%23g)' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="common.css">
+<style>
+.arch-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin:20px 0;border-left:4px solid var(--accent)}
+.arch-card.groq{border-left-color:#f59e0b}
+.arch-card.cerebras{border-left-color:#ef4444}
+.arch-card.tenstorrent{border-left-color:#8b5cf6}
+.arch-card.graphcore{border-left-color:#10b981}
+.arch-card.sambanova{border-left-color:#06b6d4}
+</style>
+</head>
+<body>
+<nav class="nav-bar">
+<a class="logo" href="index.html"><svg class="logo-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient></defs><rect x="3" y="3" width="18" height="18" rx="4" stroke="url(#logo-grad)" stroke-width="2" fill="none" /><rect x="7" y="7" width="10" height="10" rx="2" fill="url(#logo-grad)" opacity="0.8" /><path d="M12 2V3M12 21V22M2 12H3M21 12H22M8 2V3M16 2V3M8 21V22M16 21V22M2 8H3M2 16H3M21 8H22M21 16H22" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round" /></svg><span class="logo-text">AI Chips 2026</span></a>
+<div class="nav-links">
+<a href="index.html" data-i18n="nav.0">首页</a>
+<a href="ch1-landscape.html" data-i18n="nav.1">行业全景</a>
+<a href="ch2-architecture.html" data-i18n="nav.2">架构原理</a>
+<a href="ch3-nvidia.html" data-i18n="nav.3">NVIDIA</a>
+<a href="ch4-asic.html" data-i18n="nav.4">定制ASIC</a>
+<a href="ch5-edge-npu.html" data-i18n="nav.5">端侧NPU</a>
+<a href="ch6-data-format.html" data-i18n="nav.6">数据格式</a>
+<a href="ch7-lithography.html" data-i18n="nav.7">光刻与封装</a>
+<a href="ch8-china-vendors.html" data-i18n="nav.8">国产芯片与算力突围</a>
+<a href="ch9-amd-instinct.html" data-i18n="nav.9">AMD</a>
+<a href="ch10-intel-emerging.html" class="active" data-i18n="nav.10">Intel+新兴</a>
+<a href="ch11-software-ecosystem.html" data-i18n="nav.11">软件生态</a>
+<a href="ch12-distributed-training.html" data-i18n="nav.12">分布式训练</a>
+<a href="ch13-conclusion.html" data-i18n="nav.13">结论</a>
+</div>
+<div class="nav-toggles"></div>
+</nav>
+
+<div class="content">
+<h1 data-i18n="ch10.title">第十一章：Intel Gaudi与新兴AI芯片架构</h1>
+
+<p data-i18n="ch10.p1">在NVIDIA与AMD的GPU双雄对决之外，一批采用全新架构哲学的AI芯片正在挑战传统范式。Intel Gaudi以标准以太网替代专有互联，Groq LPU以确定性张量流架构重新定义推理延迟，Cerebras WSE-3以整片晶圆为芯片突破光罩极限，Tenstorrent则以RISC-V核心构建可扩展AI计算网格。这些"非主流"方案虽市场份额微小，但其架构创新正在为AI计算的未来开辟全新赛道。</p>
+
+<h2 data-i18n="ch10.s1">12.1 Intel Gaudi：以太网原生的AI加速器</h2>
+
+<p data-i18n="html_leaves.ch11_p1">2019年，Intel以20亿美元收购以色列AI芯片初创公司Habana Labs，获得了Gaudi架构。Gaudi最激进的设计理念是：<strong>用标准以太网（RoCEv2）替代所有专有互联协议</strong>，在芯片内部直接集成24个200GbE网络端口。</p>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch11_div1" class="chart-title">Gaudi 3 架构概览</div>
+<canvas id="gaudiArch" height="380"></canvas>
+</div>
+
+<h3 data-i18n="html_leaves.ch11_h31">Gaudi 3 核心规格</h3>
+<table>
+<thead><tr><th data-i18n="html_leaves.ch11_th1">参数</th><th>Gaudi 2</th><th>Gaudi 3</th></tr></thead>
+<tbody>
+<tr><td data-i18n="html_leaves.ch11_td1">制程</td><td>7nm (TSMC)</td><td>5nm (TSMC)</td></tr>
+<tr><td>HBM</td><td>96GB HBM2e</td><td>128GB HBM2e</td></tr>
+<tr><td data-i18n="html_leaves.ch11_td2">带宽</td><td>2.45 TB/s</td><td>3.7 TB/s</td></tr>
+<tr><td data-i18n="html_leaves.ch11_td3">BF16算力</td><td>~0.9 PFLOPS</td><td>1.8 PFLOPS</td></tr>
+<tr><td data-i18n="html_leaves.ch11_td4">网络端口</td><td>24× 100GbE</td><td>24× 200GbE</td></tr>
+<tr><td data-i18n="html_leaves.ch11_td5">总网络带宽</td><td>2.4 Tb/s</td><td>4.8 Tb/s</td></tr>
+<tr><td>TDP</td><td>600W</td><td>900W</td></tr>
+</tbody>
+</table>
+
+<h3 data-i18n="html_leaves.ch11_h32">以太网互联的战略逻辑</h3>
+<p data-i18n="html_leaves.ch11_p2">Gaudi最核心的架构选择——<strong>片上24端口RoCEv2引擎</strong>——意图从根本上瓦解NVIDIA NVLink+InfiniBand的专有互联优势。其逻辑是：以太网是全球最成熟、成本最低的网络技术，每代带宽翻倍（100G→200G→400G→800G），不需要专用交换机（NVSwitch 售价 $20K+）。Gaudi 3的24×200GbE端口理论上可构建全互联拓扑（每卡至少4.8 Tb/s聚合带宽），足以支撑中等规模的训练集群。</p>
+
+<p data-i18n="html_leaves.ch11_p3">然而，现实挑战同样严峻：RoCEv2在处理大规模All-Reduce集合通信时，延迟（~3-5μs）仍高于NVLink+Sharp协议（~1μs），且以太网的拥塞控制和丢包恢复机制在大规模GPU集群中可能导致训练吞吐不稳定。Intel的应对策略是<strong>硬件加速集合通信引擎</strong>（在Gaudi芯片内直接卸载All-Reduce操作），将软件协议栈开销降至最低。</p>
+
+<p data-i18n="html_leaves.ch11_p4"><strong>Intel Falcon Shores</strong>：原计划2025年发布的Falcon Shores被寄予厚望——将Intel Xe GPU架构与Gaudi AI引擎融合为一款"XPU"。但该项目在2024年经历了重大调整：GPU部分被取消，改为纯Gaudi路线的延续。这深刻反映了Intel在AI芯片方向上的战略纠结。</p>
+
+<h2 data-i18n="ch10.s2">12.2 Groq LPU：确定性张量流架构</h2>
+
+<div class="arch-card groq">
+<h3>Groq Language Processing Unit (LPU)</h3>
+<p data-i18n="html_leaves.ch11_p5">Groq（不是Elon Musk的Grok）由前Google TPU团队核心成员Jonathan Ross创立，其LPU架构的最根本特征是<strong>完全放弃HBM</strong>，全部计算数据驻留在片上230MB SRAM中，以软件调度的确定性数据流替代传统GPU的缓存-预取-猜测执行范式。</p>
+
+<ul>
+<li data-i18n="html_leaves.ch11_li1"><strong>架构哲学</strong>：编译器在编译时确定每个张量操作的精确时序（Cycle-accurate），所有数据的流入流出都在编译器生成的控制流中确定化——不依赖运行时分支预测或动态调度→实现极低且确定的延迟</li>
+<li data-i18n="html_leaves.ch11_li2"><strong>性能特征</strong>：Llama-2 70B推理速度>300 tokens/s（单LPU），延迟<10ms，远超GPU的50-100 tokens/s</li>
+<li><strong>内存策略</strong>：230MB片上SRAM → 模型必须通过"软件定义内存"进行细粒度分片和流水化→独创的模型分片方式与GPU截然不同</li>
+<li><strong>潜在短板</strong>：完全放弃HBM使得超大模型（>400B参数）训练极不现实；230MB SRAM容量上限决定了LPU在训练市场的天花板</li>
+</ul>
+</div>
+
+<h2 data-i18n="ch10.s3">12.3 Cerebras WSE-3：晶圆级计算的极致形态</h2>
+
+<div class="arch-card cerebras">
+<h3>Cerebras Wafer-Scale Engine 3 (WSE-3)</h3>
+<p data-i18n="html_leaves.ch11_p6">如果芯片设计的最终极限是"尽可能大"，Cerebras将这一理念推到了极致：<strong>WSE-3是一整片晶圆，面积46,225mm²——约为NVIDIA H100显卡核心面积的57倍</strong>。它包含4万亿晶体管、900,000个AI优化核心和44GB片上SRAM。</p>
+
+<ul>
+<li data-i18n="html_leaves.ch11_li3"><strong>物理极限突破</strong>：传统芯片受光罩（Reticle）面积限制（~858mm²），Cerebras通过冗余路由和缺陷容错技术，在整片300mm晶圆上直接蚀刻一个完整的计算系统</li>
+<li data-i18n="html_leaves.ch11_li4"><strong>内存架构</strong>：44GB全片上SRAM，带宽高达21 PB/s——不需要HBM，不需要外部DRAM</li>
+<li data-i18n="html_leaves.ch11_li5"><strong>独特优势</strong>：单晶圆即可完成GPT-3级别模型的完整训练（无需集群），延迟极低</li>
+<li data-i18n="html_leaves.ch11_li6"><strong>关键局限</strong>：单台WSE-3系统售价百万美元级，专为超大客户定制；功耗20kW+，需要专用液冷系统</li>
+<li data-i18n="html_leaves.ch11_li7"><strong>客户生态</strong>：G42（阿联酋）、美国阿贡国家实验室等超大规模客户</li>
+</ul>
+</div>
+
+<h2 data-i18n="ch10.s4">12.4 Tenstorrent：RISC-V驱动的可扩展网格</h2>
+
+<div class="arch-card tenstorrent">
+<h3>Tenstorrent Blackhole &amp; Grendel</h3>
+<p data-i18n="html_leaves.ch11_p7">由传奇CPU架构师Jim Keller（曾领导AMD Zen、Apple A4/A5、Tesla Autopilot芯片设计）创立的Tenstorrent，选择了一条完全不同的技术路径：<strong>以RISC-V处理器核心为基本单元，通过2D Mesh网络构建可无限扩展的AI计算网格</strong>。</p>
+
+<ul>
+<li data-i18n="html_leaves.ch11_li8"><strong>Blackhole</strong> (2024)：140个Tensix核心（每个含5个RISC-V小核+矩阵引擎），128MB SRAM，PCIe Gen5</li>
+<li data-i18n="html_leaves.ch11_li9"><strong>Tensix核心</strong>：每个核心包含计算引擎+网络路由器，形成自路由的2D网格→核心数量可线性扩展（无共享总线瓶颈）</li>
+<li data-i18n="html_leaves.ch11_li10"><strong>RISC-V策略</strong>：全部控制逻辑使用开源RISC-V ISA，完全规避ARM/x86授权费和出口管制风险→在制裁环境下具有独特合规优势</li>
+<li data-i18n="html_leaves.ch11_li11"><strong>软件栈</strong>：TT-Metalium（底层） + TT-BUDA（编译器）+ PyTorch前端→编译流程偏复杂</li>
+</ul>
+</div>
+
+<h2 data-i18n="ch10.s5">12.5 Graphcore IPU与SambaNova</h2>
+
+<div class="arch-card graphcore">
+<h3>Graphcore IPU (Intelligence Processing Unit)</h3>
+<p data-i18n="html_leaves.ch11_p8">英国Graphcore的IPU采用MIMD（多指令多数据）架构，每个IPU包含1,472个独立处理核心，各自拥有本地SRAM和独立程序计数器。这种设计允许每个核心执行不同的指令序列，相对于GPU的SIMT模型，在稀疏计算和动态控制流场景中具有天然效率优势。C600 IPU在特定图神经网络推理场景中可达到H100的3-5倍吞吐。但Graphcore在2024年面临严重财务困境，已被软银收购。</p>
+</div>
+
+<div class="arch-card sambanova">
+<h3 data-i18n="html_leaves.ch11_h33">SambaNova SN40L：可重配置数据流架构</h3>
+<p data-i18n="html_leaves.ch11_p9">SambaNova的核心理念是<strong>"软件定义硬件"</strong>：其RDU（Reconfigurable Dataflow Unit）允许编译器根据模型拓扑动态重配置计算单元间的数据通路——类似于FPGA的逻辑重配置，但粒度更粗、频率更高。SN40L拥有1,040个可重配置计算单元和520MB SRAM，在Transformer类模型中可实现极高的计算单元利用率（>80% vs GPU的30-50%）。</p>
+</div>
+
+<h2 data-i18n="ch10.s6">12.6 新兴架构全景对比</h2>
+
+<div class="chart-box">
+<div data-i18n="html_leaves.ch11_div2" class="chart-title">新兴AI芯片架构片上资源对比</div>
+<canvas id="emergingCompare" height="420"></canvas>
+</div>
+
+<p data-i18n="html_leaves.ch11_p10">这些新兴架构的共同特征揭示了AI芯片设计正在经历的范式转移：<strong>从"通用计算+专用Tensor Core"的GPU混合路线，走向"以数据流为中心"的极致存算协同。</strong></p>
+
+<div class="prev-next">
+<a href="ch9-amd-instinct.html"><span data-i18n="common.prev">← 上一章</span>：<span data-i18n="nav.9">AMD</span></a>
+<a href="ch11-software-ecosystem.html"><span data-i18n="common.next">下一章 →</span>：<span data-i18n="nav.11">软件生态</span></a>
+</div>
+</div>
+
+<script src="i18n.js"></script>
+<script src="charts.js"></script>
+<script src="common.js"></script>
+<script>
+window.__renderCharts = () => {
+drawGaudiArch('gaudiArch')
+drawEmergingCompare('emergingCompare')
+};
+window.addEventListener('DOMContentLoaded', window.__renderCharts)
+</script>
+</body>
+</html>
