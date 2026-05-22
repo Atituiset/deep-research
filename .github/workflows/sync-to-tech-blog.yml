@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - '**/*.html'
+      - '**/*.js'
+      - '**/*.css'
 
 jobs:
   sync:
@@ -22,24 +24,12 @@ jobs:
           token: ${{ secrets.SYNC_PAT }}
           path: tech-blog
 
-      - name: Sync HTML reports
+      - name: Sync HTML, JS and CSS reports
         run: |
           mkdir -p tech-blog/public/research
-          find . -name '*.html' -not -path './tech-blog/*' -not -path './.git/*' | while read file; do
-            target="tech-blog/public/research/$file"
-            mkdir -p "$(dirname "$target")"
-            cp "$file" "$target"
-          done
-
-      - name: Commit and push changes
-        working-directory: tech-blog
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add public/research/
-          if git diff --cached --quiet; then
-            echo 'No changes to sync'
-          else
-            git commit -m 'sync: update research reports from deep-research'
+          # 寻找 html、js、css 文件并保持相对路径拷贝
+          find . \( -name '*.html' -o -name '*.js' -o -name '*.css' \) -not -path './tech-blog/*' -not -path './.
+git/*' | while read file; do
+            git commit -m 'sync: update research reports and assets from deep-research'
             git push
           fi
