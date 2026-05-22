@@ -28,8 +28,7 @@ jobs:
         run: |
           mkdir -p tech-blog/public/research
           # 寻找 html、js、css 文件并保持相对路径拷贝
-          find . \( -name '*.html' -o -name '*.js' -o -name '*.css' \) -not -path './tech-blog/*' -not -path './.
-git/*' | while read file; do
+          find . \( -name '*.html' -o -name '*.js' -o -name '*.css' \) -not -path './tech-blog/*' -not -path './.git/*' | while read file; do
             git commit -m 'sync: update research reports and assets from deep-research'
             git push
           fi
