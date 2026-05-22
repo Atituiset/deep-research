@@ -29,6 +29,14 @@ jobs:
           mkdir -p tech-blog/public/research
           # 寻找 html、js、css 文件并保持相对路径拷贝
           find . \( -name '*.html' -o -name '*.js' -o -name '*.css' \) -not -path './tech-blog/*' -not -path './.git/*' | while read file; do
-            git commit -m 'sync: update research reports and assets from deep-research'
-            git push
-          fi
+            dir=$(dirname "$file")
+            mkdir -p "tech-blog/public/research/$dir"
+            cp "$file" "tech-blog/public/research/$file"
+          done
+          
+          cd tech-blog
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          git add -A
+          git commit -m 'sync: update research reports and assets from deep-research' || true
+          git push
