@@ -1,0 +1,89 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "AI Chips 2026" [ref=e3] [cursor=pointer]:
+      - /url: index.html
+    - generic [ref=e4]:
+      - link "首页" [ref=e5] [cursor=pointer]:
+        - /url: index.html
+      - link "行业全景" [ref=e6] [cursor=pointer]:
+        - /url: ch1-landscape.html
+      - link "架构原理" [ref=e7] [cursor=pointer]:
+        - /url: ch2-architecture.html
+      - link "NVIDIA" [ref=e8] [cursor=pointer]:
+        - /url: ch3-nvidia.html
+      - link "定制ASIC" [ref=e9] [cursor=pointer]:
+        - /url: ch4-asic.html
+      - link "端侧NPU" [ref=e10] [cursor=pointer]:
+        - /url: ch5-edge-npu.html
+      - link "数据格式" [ref=e11] [cursor=pointer]:
+        - /url: ch6-data-format.html
+      - link "光刻与封装" [ref=e12] [cursor=pointer]:
+        - /url: ch7-lithography.html
+      - link "国产芯片" [ref=e13] [cursor=pointer]:
+        - /url: ch8-china-vendors.html
+      - link "地缘政治" [ref=e14] [cursor=pointer]:
+        - /url: ch9-geopolitics.html
+      - link "结论" [ref=e15] [cursor=pointer]:
+        - /url: ch10-conclusion.html
+    - generic [ref=e16]:
+      - button "中" [ref=e17] [cursor=pointer]
+      - button "EN" [ref=e18] [cursor=pointer]
+      - button "暗" [ref=e20] [cursor=pointer]
+      - button "亮" [ref=e21] [cursor=pointer]
+  - generic [ref=e22]:
+    - heading "全球AI加速计算芯片 现状·架构·技术路径 深度研究报告" [level=1] [ref=e23]:
+      - text: 全球AI加速计算芯片
+      - text: 现状·架构·技术路径 深度研究报告
+    - paragraph [ref=e24]: GPU · TPU · NPU — 涵盖国内外主要厂商的芯片架构演进、制造工艺突破、地缘政治博弈与未来技术方向全景分析
+    - generic [ref=e25]:
+      - link "Chapter 01 行业宏观图景与范式转移 AI计算进入多模态与智能体双轮驱动的异构时代，从冯·诺依曼架构到系统级协同设计的全面演进" [ref=e26] [cursor=pointer]:
+        - /url: ch1-landscape.html
+        - generic [ref=e27]: Chapter 01
+        - generic [ref=e28]: 行业宏观图景与范式转移
+        - generic [ref=e29]: AI计算进入多模态与智能体双轮驱动的异构时代，从冯·诺依曼架构到系统级协同设计的全面演进
+      - link "Chapter 02 底层架构原理深度剖析 SIMT、脉动阵列与空间计算三大核心架构范式的数据流差异与效率极限分析" [ref=e30] [cursor=pointer]:
+        - /url: ch2-architecture.html
+        - generic [ref=e31]: Chapter 02
+        - generic [ref=e32]: 底层架构原理深度剖析
+        - generic [ref=e33]: SIMT、脉动阵列与空间计算三大核心架构范式的数据流差异与效率极限分析
+      - link "Chapter 03 NVIDIA的系统级统治 Vera Rubin架构、HGX平台演进、NVLink 6互连与CUDA生态壁垒的全面解析" [ref=e34] [cursor=pointer]:
+        - /url: ch3-nvidia.html
+        - generic [ref=e35]: Chapter 03
+        - generic [ref=e36]: NVIDIA的系统级统治
+        - generic [ref=e37]: Vera Rubin架构、HGX平台演进、NVLink 6互连与CUDA生态壁垒的全面解析
+      - link "Chapter 04 定制化云端ASIC崛起 Google TPU Ironwood、微软Maia 200、Meta MTIA 500、AWS Trainium的硬件自主化路线" [ref=e38] [cursor=pointer]:
+        - /url: ch4-asic.html
+        - generic [ref=e39]: Chapter 04
+        - generic [ref=e40]: 定制化云端ASIC崛起
+        - generic [ref=e41]: Google TPU Ironwood、微软Maia 200、Meta MTIA 500、AWS Trainium的硬件自主化路线
+      - link "Chapter 05 端侧NPU与具身智能 Apple M5统一内存、高通Hexagon NPU、特斯拉Optimus与FSD芯片的端侧革命" [ref=e42] [cursor=pointer]:
+        - /url: ch5-edge-npu.html
+        - generic [ref=e43]: Chapter 05
+        - generic [ref=e44]: 端侧NPU与具身智能
+        - generic [ref=e45]: Apple M5统一内存、高通Hexagon NPU、特斯拉Optimus与FSD芯片的端侧革命
+      - link "Chapter 06 微缩放标准与超低精度量化 OCP MX格式体系、NVIDIA NVFP4混合格式、块共享指数的数学重构与存储墙突破" [ref=e46] [cursor=pointer]:
+        - /url: ch6-data-format.html
+        - generic [ref=e47]: Chapter 06
+        - generic [ref=e48]: 微缩放标准与超低精度量化
+        - generic [ref=e49]: OCP MX格式体系、NVIDIA NVFP4混合格式、块共享指数的数学重构与存储墙突破
+      - link "Chapter 07 光刻与先进封装 ASML High-NA EUV光刻、TSMC CoPoS封装、硅光子互连与物理极限的宏大突围" [ref=e50] [cursor=pointer]:
+        - /url: ch7-lithography.html
+        - generic [ref=e51]: Chapter 07
+        - generic [ref=e52]: 光刻与先进封装
+        - generic [ref=e53]: ASML High-NA EUV光刻、TSMC CoPoS封装、硅光子互连与物理极限的宏大突围
+      - link "Chapter 08 中国国产AI芯片生态全景 昆仑芯XPU架构深度解析、华为昇腾、寒武纪、壁仞、天数智芯等九大国产厂商的技术路线与突围困境" [ref=e54] [cursor=pointer]:
+        - /url: ch8-china-vendors.html
+        - generic [ref=e55]: Chapter 08
+        - generic [ref=e56]: 中国国产AI芯片生态全景
+        - generic [ref=e57]: 昆仑芯XPU架构深度解析、华为昇腾、寒武纪、壁仞、天数智芯等九大国产厂商的技术路线与突围困境
+      - link "Chapter 09 地缘政治与中国算力突围 美国AI芯片出口管制重构、华为Ascend 910C艰难突围与双轨并行生存法则" [ref=e58] [cursor=pointer]:
+        - /url: ch9-geopolitics.html
+        - generic [ref=e59]: Chapter 09
+        - generic [ref=e60]: 地缘政治与中国算力突围
+        - generic [ref=e61]: 美国AI芯片出口管制重构、华为Ascend 910C艰难突围与双轨并行生存法则
+      - link "Chapter 10 结论：计算形态终极演化 冯·诺依曼架构解体、训练推理硬分化、数据格式重构与大国博弈的终极物理堡垒" [ref=e62] [cursor=pointer]:
+        - /url: ch10-conclusion.html
+        - generic [ref=e63]: Chapter 10
+        - generic [ref=e64]: 结论：计算形态终极演化
+        - generic [ref=e65]: 冯·诺依曼架构解体、训练推理硬分化、数据格式重构与大国博弈的终极物理堡垒
+  - generic [ref=e66]: AI Accelerator Chips Deep Research Report 2026

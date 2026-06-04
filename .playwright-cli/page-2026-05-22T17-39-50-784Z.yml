@@ -1,0 +1,119 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "AI Chips 2026" [ref=e3] [cursor=pointer]:
+      - /url: index.html
+    - generic [ref=e4]:
+      - link "首页" [ref=e5] [cursor=pointer]:
+        - /url: index.html
+      - link "行业全景" [ref=e6] [cursor=pointer]:
+        - /url: ch1-landscape.html
+      - link "架构原理" [ref=e7] [cursor=pointer]:
+        - /url: ch2-architecture.html
+      - link "NVIDIA" [ref=e8] [cursor=pointer]:
+        - /url: ch3-nvidia.html
+      - link "定制ASIC" [ref=e9] [cursor=pointer]:
+        - /url: ch4-asic.html
+      - link "端侧NPU" [ref=e10] [cursor=pointer]:
+        - /url: ch5-edge-npu.html
+      - link "数据格式" [ref=e11] [cursor=pointer]:
+        - /url: ch6-data-format.html
+      - link "光刻与封装" [ref=e12] [cursor=pointer]:
+        - /url: ch7-lithography.html
+      - link "国产芯片" [ref=e13] [cursor=pointer]:
+        - /url: ch8-china-vendors.html
+      - link "地缘政治" [ref=e14] [cursor=pointer]:
+        - /url: ch9-geopolitics.html
+      - link "结论" [ref=e15] [cursor=pointer]:
+        - /url: ch10-conclusion.html
+      - link "AMD" [ref=e16] [cursor=pointer]:
+        - /url: ch11-amd-instinct.html
+      - link "Intel+新兴" [ref=e17] [cursor=pointer]:
+        - /url: ch12-intel-emerging.html
+      - link "软件生态" [ref=e18] [cursor=pointer]:
+        - /url: ch13-software-ecosystem.html
+      - link "分布式训练" [ref=e19] [cursor=pointer]:
+        - /url: ch14-distributed-training.html
+    - generic [ref=e20]:
+      - button "中" [ref=e21] [cursor=pointer]
+      - button "EN" [ref=e22] [cursor=pointer]
+      - button "暗" [ref=e24] [cursor=pointer]
+      - button "亮" [ref=e25] [cursor=pointer]
+  - generic [ref=e26]:
+    - heading "全球AI加速计算芯片 现状·架构·技术路径 深度研究报告" [level=1] [ref=e27]:
+      - text: 全球AI加速计算芯片
+      - text: 现状·架构·技术路径 深度研究报告
+    - paragraph [ref=e28]: GPU · TPU · NPU — 涵盖国内外主要厂商的芯片架构演进、制造工艺突破、地缘政治博弈与未来技术方向全景分析
+    - generic [ref=e29]:
+      - link "Chapter 01 行业宏观图景与范式转移 AI计算进入多模态与智能体双轮驱动的异构时代，从冯·诺依曼架构到系统级协同设计的全面演进" [ref=e30] [cursor=pointer]:
+        - /url: ch1-landscape.html
+        - generic [ref=e31]: Chapter 01
+        - generic [ref=e32]: 行业宏观图景与范式转移
+        - generic [ref=e33]: AI计算进入多模态与智能体双轮驱动的异构时代，从冯·诺依曼架构到系统级协同设计的全面演进
+      - link "Chapter 02 底层架构原理深度剖析 SIMT、脉动阵列与空间计算三大核心架构范式的数据流差异与效率极限分析" [ref=e34] [cursor=pointer]:
+        - /url: ch2-architecture.html
+        - generic [ref=e35]: Chapter 02
+        - generic [ref=e36]: 底层架构原理深度剖析
+        - generic [ref=e37]: SIMT、脉动阵列与空间计算三大核心架构范式的数据流差异与效率极限分析
+      - link "Chapter 03 NVIDIA的系统级统治 Vera Rubin架构、HGX平台演进、NVLink 6互连与CUDA生态壁垒的全面解析" [ref=e38] [cursor=pointer]:
+        - /url: ch3-nvidia.html
+        - generic [ref=e39]: Chapter 03
+        - generic [ref=e40]: NVIDIA的系统级统治
+        - generic [ref=e41]: Vera Rubin架构、HGX平台演进、NVLink 6互连与CUDA生态壁垒的全面解析
+      - link "Chapter 04 定制化云端ASIC崛起 Google TPU Ironwood、微软Maia 200、Meta MTIA 500、AWS Trainium的硬件自主化路线" [ref=e42] [cursor=pointer]:
+        - /url: ch4-asic.html
+        - generic [ref=e43]: Chapter 04
+        - generic [ref=e44]: 定制化云端ASIC崛起
+        - generic [ref=e45]: Google TPU Ironwood、微软Maia 200、Meta MTIA 500、AWS Trainium的硬件自主化路线
+      - link "Chapter 05 端侧NPU与具身智能 Apple M5统一内存、高通Hexagon NPU、特斯拉Optimus与FSD芯片的端侧革命" [ref=e46] [cursor=pointer]:
+        - /url: ch5-edge-npu.html
+        - generic [ref=e47]: Chapter 05
+        - generic [ref=e48]: 端侧NPU与具身智能
+        - generic [ref=e49]: Apple M5统一内存、高通Hexagon NPU、特斯拉Optimus与FSD芯片的端侧革命
+      - link "Chapter 06 微缩放标准与超低精度量化 OCP MX格式体系、NVIDIA NVFP4混合格式、块共享指数的数学重构与存储墙突破" [ref=e50] [cursor=pointer]:
+        - /url: ch6-data-format.html
+        - generic [ref=e51]: Chapter 06
+        - generic [ref=e52]: 微缩放标准与超低精度量化
+        - generic [ref=e53]: OCP MX格式体系、NVIDIA NVFP4混合格式、块共享指数的数学重构与存储墙突破
+      - link "Chapter 07 光刻与先进封装 ASML High-NA EUV光刻、TSMC CoPoS封装、硅光子互连与物理极限的宏大突围" [ref=e54] [cursor=pointer]:
+        - /url: ch7-lithography.html
+        - generic [ref=e55]: Chapter 07
+        - generic [ref=e56]: 光刻与先进封装
+        - generic [ref=e57]: ASML High-NA EUV光刻、TSMC CoPoS封装、硅光子互连与物理极限的宏大突围
+      - link "Chapter 08 中国国产AI芯片生态全景 昆仑芯XPU架构深度解析、华为昇腾、寒武纪、壁仞、天数智芯等九大国产厂商的技术路线与突围困境" [ref=e58] [cursor=pointer]:
+        - /url: ch8-china-vendors.html
+        - generic [ref=e59]: Chapter 08
+        - generic [ref=e60]: 中国国产AI芯片生态全景
+        - generic [ref=e61]: 昆仑芯XPU架构深度解析、华为昇腾、寒武纪、壁仞、天数智芯等九大国产厂商的技术路线与突围困境
+      - link "Chapter 09 地缘政治与中国算力突围 美国AI芯片出口管制重构、华为Ascend 910C艰难突围与双轨并行生存法则" [ref=e62] [cursor=pointer]:
+        - /url: ch9-geopolitics.html
+        - generic [ref=e63]: Chapter 09
+        - generic [ref=e64]: 地缘政治与中国算力突围
+        - generic [ref=e65]: 美国AI芯片出口管制重构、华为Ascend 910C艰难突围与双轨并行生存法则
+      - link "Chapter 10 结论：计算形态终极演化 冯·诺依曼架构解体、训练推理硬分化、数据格式重构与大国博弈的终极物理堡垒" [ref=e66] [cursor=pointer]:
+        - /url: ch10-conclusion.html
+        - generic [ref=e67]: Chapter 10
+        - generic [ref=e68]: 结论：计算形态终极演化
+        - generic [ref=e69]: 冯·诺依曼架构解体、训练推理硬分化、数据格式重构与大国博弈的终极物理堡垒
+      - link "Chapter 11 AMD Instinct — NVIDIA之外的GPU巨头 CDNA3/4架构、MI300X/325X、ROCm 6.0与UALink开放互联联盟的全面对抗体系" [ref=e70] [cursor=pointer]:
+        - /url: ch11-amd-instinct.html
+        - generic [ref=e71]: Chapter 11
+        - generic [ref=e72]: AMD Instinct — NVIDIA之外的GPU巨头
+        - generic [ref=e73]: CDNA3/4架构、MI300X/325X、ROCm 6.0与UALink开放互联联盟的全面对抗体系
+      - link "Chapter 12 Intel Gaudi与新兴AI芯片架构 Gaudi 3以太网AI加速器、Groq LPU确定性张量流、Cerebras晶圆级引擎、Tenstorrent RISC-V网格" [ref=e74] [cursor=pointer]:
+        - /url: ch12-intel-emerging.html
+        - generic [ref=e75]: Chapter 12
+        - generic [ref=e76]: Intel Gaudi与新兴AI芯片架构
+        - generic [ref=e77]: Gaudi 3以太网AI加速器、Groq LPU确定性张量流、Cerebras晶圆级引擎、Tenstorrent RISC-V网格
+      - link "Chapter 13 软件生态系统 — AI芯片的真正护城河 CUDA 400万开发者帝国、ROCm/HIP追赶、SYCL/oneAPI、CANN全栈替代、MLPerf基准对决" [ref=e78] [cursor=pointer]:
+        - /url: ch13-software-ecosystem.html
+        - generic [ref=e79]: Chapter 13
+        - generic [ref=e80]: 软件生态系统 — AI芯片的真正护城河
+        - generic [ref=e81]: CUDA 400万开发者帝国、ROCm/HIP追赶、SYCL/oneAPI、CANN全栈替代、MLPerf基准对决
+      - link "Chapter 14 分布式训练通信拓扑 深度 Ring/Tree/Recursive Halving-Doubling All-Reduce详解、NVSwitch+SHARP硬件卸载、万卡集群真实利用率" [ref=e82] [cursor=pointer]:
+        - /url: ch14-distributed-training.html
+        - generic [ref=e83]: Chapter 14
+        - generic [ref=e84]:
+          - text: 分布式训练通信拓扑
+          - generic [ref=e85]: 深度
+        - generic [ref=e86]: Ring/Tree/Recursive Halving-Doubling All-Reduce详解、NVSwitch+SHARP硬件卸载、万卡集群真实利用率
+  - generic [ref=e87]: AI Accelerator Chips Deep Research Report 2026

@@ -1,0 +1,108 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "AI Chips 2026" [ref=e3] [cursor=pointer]:
+      - /url: index.html
+    - generic [ref=e4]:
+      - link "首页" [ref=e5] [cursor=pointer]:
+        - /url: index.html
+      - link "行业全景" [ref=e6] [cursor=pointer]:
+        - /url: ch1-landscape.html
+      - link "架构原理" [ref=e7] [cursor=pointer]:
+        - /url: ch2-architecture.html
+      - link "NVIDIA" [ref=e8] [cursor=pointer]:
+        - /url: ch3-nvidia.html
+      - link "定制ASIC" [ref=e9] [cursor=pointer]:
+        - /url: ch4-asic.html
+      - link "端侧NPU" [ref=e10] [cursor=pointer]:
+        - /url: ch5-edge-npu.html
+      - link "数据格式" [ref=e11] [cursor=pointer]:
+        - /url: ch6-data-format.html
+      - link "光刻与封装" [ref=e12] [cursor=pointer]:
+        - /url: ch7-lithography.html
+      - link "国产芯片" [ref=e13] [cursor=pointer]:
+        - /url: ch8-china-vendors.html
+      - link "地缘政治" [ref=e14] [cursor=pointer]:
+        - /url: ch9-geopolitics.html
+      - link "结论" [ref=e15] [cursor=pointer]:
+        - /url: ch10-conclusion.html
+      - link "AMD" [ref=e16] [cursor=pointer]:
+        - /url: ch11-amd-instinct.html
+      - link "Intel+新兴" [ref=e17] [cursor=pointer]:
+        - /url: ch12-intel-emerging.html
+      - link "软件生态" [ref=e18] [cursor=pointer]:
+        - /url: ch13-software-ecosystem.html
+    - generic [ref=e19]:
+      - button "中" [ref=e20] [cursor=pointer]
+      - button "EN" [ref=e21] [cursor=pointer]
+      - button "暗" [ref=e23] [cursor=pointer]
+      - button "亮" [ref=e24] [cursor=pointer]
+  - generic [ref=e25]:
+    - heading "第一章：行业宏观图景与范式转移" [level=1] [ref=e26]
+    - heading "1.1 AI计算进入异构时代" [level=2] [ref=e27]
+    - paragraph [ref=e28]:
+      - text: 截至2026年，全球人工智能计算硬件产业已正式迈入"多模态（Multimodal）"与"智能体（Agentic AI）"双轮驱动的异构计算时代。随着万亿参数规模大语言模型的常态化以及具身智能在物理世界的广泛部署，传统的冯·诺依曼架构在"存储墙"与"功耗墙"面前已遭遇难以逾越的物理瓶颈。单纯依靠晶体管物理尺寸的微缩（如向1.4nm节点的极限推进）已无法满足以指数级增长的系统级算力需求
+      - generic [ref=e29]: "[1][2][3]"
+      - text: 。
+    - paragraph [ref=e30]: 当前的行业核心趋势表明，计算芯片的竞争已从单一的逻辑计算单元的频率与密度比拼，全面升级为系统级协同设计的综合博弈。云端数据中心正在演变为一台具有高度凝聚力的"超级计算机"，而在这个宏大的进程中，底层计算单元的形态发生了前所未有的显著分化。
+    - generic [ref=e32]: 2026 AI 计算生态版图
+    - heading "1.2 三大计算阵营的分化" [level=2] [ref=e34]
+    - paragraph [ref=e35]:
+      - text: 以
+      - generic [ref=e36]: NVIDIA
+      - text: 为代表的通用GPU阵营继续深化极度并行的SIMT架构，试图以无与伦比的互连带宽维持统治地位
+      - generic [ref=e37]: "[5][6][7]"
+      - text: ；以
+      - generic [ref=e38]: Google
+      - text: 为代表的云厂商自研TPU在脉动阵列道路上实现了训练与推理的架构硬分化
+      - generic [ref=e39]: "[3][8]"
+      - text: ；而专用神经处理单元（NPU）则在
+      - generic [ref=e40]: Apple
+      - text: 、
+      - generic [ref=e41]: 高通
+      - text: 与
+      - generic [ref=e42]: 特斯拉
+      - text: 等巨头的推动下，凭借空间计算架构确立了端侧高能效比的霸主地位
+      - generic [ref=e43]: "[7][9][10]"
+      - text: 。
+    - generic [ref=e45]: 三大架构阵营核心指标对比
+    - heading "1.3 制造工艺的范式转移" [level=2] [ref=e47]
+    - paragraph [ref=e48]:
+      - text: 芯片制造与封装工艺正在经历一场深刻的范式转移。先进封装技术取代了传统的单芯片光刻，构建起超越物理光罩极限的"封装堡垒"
+      - generic [ref=e49]: "[11][12]"
+      - text: ；微缩放格式（MX）与超低精度（如FP4）数据类型的标准化，正在从数据结构的数学底层重构AI模型的软硬件生态
+      - generic [ref=e50]: "[13][14]"
+      - text: 。而在复杂的全球地缘政治博弈与出口管制的深刻影响下，全球AI算力供应链正在形成以技术制裁、关税壁垒与国产化突围为特征的平行体系
+      - generic [ref=e51]: "[15][16]"
+      - text: 。
+    - heading "1.4 关键里程碑时间线" [level=2] [ref=e52]
+    - generic [ref=e53]:
+      - generic [ref=e54]:
+        - generic [ref=e55]: 2022 Q3
+        - generic [ref=e56]: NVIDIA H100 (Hopper) 发布，80GB HBM3，确立AI训练算力基线
+      - generic [ref=e57]:
+        - generic [ref=e58]: 2024 Q1
+        - generic [ref=e59]: NVIDIA B200 (Blackwell) 发布，2080亿晶体管，FP4推理9 PFLOPS
+      - generic [ref=e60]:
+        - generic [ref=e61]: 2024 Q4
+        - generic [ref=e62]: Google TPU Trillium (v6e) 全面商用，BF16算力918 TFLOPS，4.7x代际跃升
+      - generic [ref=e63]:
+        - generic [ref=e64]: 2025 H2
+        - generic [ref=e65]: Apple M4/M5 发布，统一内存架构 + GPU内嵌Neural Accelerator
+      - generic [ref=e66]:
+        - generic [ref=e67]: 2026 Q1
+        - generic [ref=e68]: NVIDIA Vera Rubin (R100) 推向市场，3360亿晶体管，FP4 50 PFLOPS
+      - generic [ref=e69]:
+        - generic [ref=e70]: 2026 Q1
+        - generic [ref=e71]: Google TPU Ironwood (v8) 发布，首次训练/推理硬分化 (8t/8i)
+      - generic [ref=e72]:
+        - generic [ref=e73]: 2026 Q1
+        - generic [ref=e74]: ASML High-NA EUV EXE:5200 跨越实验阶段，50万片晶圆商用级量产
+      - generic [ref=e75]:
+        - generic [ref=e76]: 2026 Q2
+        - generic [ref=e77]: 华为Ascend 910C大规模铺货，规划年交付60万颗
+    - generic [ref=e79]: AI加速器单卡FP4算力代际演进 (PFLOPS)
+    - generic [ref=e81]:
+      - strong [ref=e82]: 参考资料：
+      - text: "[1] How NVIDIA GPUs Are Made – THE MAKING | [2] How do Graphics Cards Work? – Branch Education | [3] 京东全工程自动化仓库 | [5] Introducing Amazon EC2 P6e-GB200 – AWS | [6] NVIDIA GTC Keynote with Jensen Huang | [7] Biggest Problems Humanoid Robots Face – CNET | [8] Why Nvidia Tesla Amazon Bet On Humanoid Robots – CNBC | [9] How Cars Are Made – Engineering World | [10] Tesla Optimus Robot – The Independent | [11] Inside a Google Data Center | [12] Computational Lithography – ASML | [13] Transformers Tech Behind LLMs – 3Blue1Brown | [14] Deutsche Telekom NVIDIA Industrial AI Cloud | [15] Nvidia Jensen Huang Unveils Vera Rubin – WSJ | [16] TSMC Fab Tour"
+    - link "架构原理" [ref=e84] [cursor=pointer]:
+      - /url: ch2-architecture.html

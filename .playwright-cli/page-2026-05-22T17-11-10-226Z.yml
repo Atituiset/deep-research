@@ -1,0 +1,103 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "AI Chips 2026" [ref=e3] [cursor=pointer]:
+      - /url: index.html
+    - generic [ref=e4]:
+      - link "Home" [ref=e5] [cursor=pointer]:
+        - /url: index.html
+      - link "Landscape" [ref=e6] [cursor=pointer]:
+        - /url: ch1-landscape.html
+      - link "Architecture" [ref=e7] [cursor=pointer]:
+        - /url: ch2-architecture.html
+      - link "NVIDIA" [ref=e8] [cursor=pointer]:
+        - /url: ch3-nvidia.html
+      - link "Custom ASIC" [ref=e9] [cursor=pointer]:
+        - /url: ch4-asic.html
+      - link "Edge NPU" [ref=e10] [cursor=pointer]:
+        - /url: ch5-edge-npu.html
+      - link "Data Format" [ref=e11] [cursor=pointer]:
+        - /url: ch6-data-format.html
+      - link "Lithography" [ref=e12] [cursor=pointer]:
+        - /url: ch7-lithography.html
+      - link "China Chips" [ref=e13] [cursor=pointer]:
+        - /url: ch8-china-vendors.html
+      - link "Geopolitics" [ref=e14] [cursor=pointer]:
+        - /url: ch9-geopolitics.html
+      - link "Conclusion" [ref=e15] [cursor=pointer]:
+        - /url: ch10-conclusion.html
+    - generic [ref=e16]:
+      - button "中" [ref=e17] [cursor=pointer]
+      - button "EN" [ref=e18] [cursor=pointer]
+      - button "暗" [ref=e20] [cursor=pointer]
+      - button "亮" [ref=e21] [cursor=pointer]
+  - generic [ref=e22]:
+    - 'heading "Chapter 9: Geopolitics & China Compute Breakthrough" [level=1] [ref=e23]'
+    - paragraph [ref=e24]: 在全球化自由供应链格局因零和竞争出现不可逆转撕裂的大宏观背景下，最顶尖AI算力芯片的制造流向与架构演进节奏，已经彻底无法脱离超级大国间的国家安全焦虑、科技霸权争夺以及错综复杂的关税贸易管制的强烈政治考量。
+    - heading "8.1 美国AI芯片出口管制政策的重构" [level=2] [ref=e25]
+    - paragraph [ref=e26]:
+      - text: 2026年1月，美国商务部正式发布了全新修订的管制法规，大幅放宽了此前极为严苛的算力禁运红线，正式允许美国芯片公司恢复向中国市场出口部分高端AI加速芯片（如NVIDIA H200、AMD MI308等）
+      - generic [ref=e27]: "[17]"
+      - text: 。
+    - paragraph [ref=e28]:
+      - text: 新版法规将TPP豁免门槛放宽至低于21,000区间，内存带宽上限松绑至低于6,500 GB/s——这使得允许出口芯片的处理性能跃升至此前"合规特供版降级芯片"的约13倍。然而，这绝非单纯的制裁放松，而是一场基于国家级"收益抽水分享（Revenue-sharing）"的强硬交易
+      - generic [ref=e29]: "[17]"
+      - text: ：
+    - table [ref=e30]:
+      - rowgroup [ref=e31]:
+        - row "管制条款 具体内容" [ref=e32]:
+          - columnheader "管制条款" [ref=e33]
+          - columnheader "具体内容" [ref=e34]
+      - rowgroup [ref=e35]:
+        - row "营收抽成 出口商须将在华销售所得的15%上缴美国商务部专有管控账户" [ref=e36]:
+          - cell "营收抽成" [ref=e37]
+          - cell "出口商须将在华销售所得的15%上缴美国商务部专有管控账户" [ref=e38]
+        - row "出货配额 向中国出口特定型号总量不得超过同期美国本土销量的50%" [ref=e39]:
+          - cell "出货配额" [ref=e40]
+          - cell "向中国出口特定型号总量不得超过同期美国本土销量的50%" [ref=e41]
+        - row "KYC审查 中国买家必须组建严格的\"了解你的客户\"安检审核机制" [ref=e42]:
+          - cell "KYC审查" [ref=e43]
+          - cell "中国买家必须组建严格的\"了解你的客户\"安检审核机制" [ref=e44]
+        - row "用途背书 须提供可追溯的最终用途书面背书与地理定位物理安保预案" [ref=e45]:
+          - cell "用途背书" [ref=e46]
+          - cell "须提供可追溯的最终用途书面背书与地理定位物理安保预案" [ref=e47]
+        - row "禁止项 严禁流入军事项目、禁止逆向转移模型权重、禁止向黑名单实体提供远程算力接口" [ref=e48]:
+          - cell "禁止项" [ref=e49]
+          - cell "严禁流入军事项目、禁止逆向转移模型权重、禁止向黑名单实体提供远程算力接口" [ref=e50]
+    - heading "8.2 华为Ascend 910C：在制裁中寻找规模化的中国路径" [level=2] [ref=e51]
+    - generic [ref=e53]: 华为 Ascend 910C 双硅模片妥协封装架构
+    - paragraph [ref=e55]:
+      - text: 一直被视为中国半导体全村最有力国产平替武器的华为Ascend 910C，在2025-2026年期间全力开启大规模铺货部署，规划年交付60万颗。这款芯片淋漓尽致地展现了华为在底层核心物理供应链完全受限的极限高压环境下，通过系统级顶层架构妥协与软件工程极致补救所能达到的硬件压榨极限
+      - generic [ref=e56]: "[16][18]"
+      - text: 。
+    - heading "制造端妥协" [level=3] [ref=e57]
+    - paragraph [ref=e58]:
+      - text: 受限于无法获取TSMC先进制程，910C大部分由中芯国际（SMIC）采用其N+2（约等于7nm）国产去美化产线制造，单颗芯片约530亿晶体管
+      - generic [ref=e59]: "[16][18]"
+      - text: 。
+    - heading "封装端妥协" [level=3] [ref=e60]
+    - paragraph [ref=e61]:
+      - text: 由于无法攻克TSMC级别的先进封装工艺，910C采用了双硅模片拼图封装架构（Dual-die Packaging）：将两块各自独立封装的大型计算硅片并排安放在巨大有机材料基底上，利用普通铜箔线缆硬连接。这导致两颗核心计算引擎间Die-to-Die带宽断崖式落后，与NVIDIA单卡设计差距达10-20倍
+      - generic [ref=e62]: "[16]"
+      - text: 。
+    - heading "性能表现" [level=3] [ref=e63]
+    - generic [ref=e65]: Ascend 910C vs NVIDIA H100 关键参数对比
+    - paragraph [ref=e67]:
+      - text: 910C单卡FP16峰值算力约670-800 TFLOPS，有效显存带宽约900 GB/s。这意味着这款国产旗舰的实际性能峰值约贴近NVIDIA H100（2022年发布）的80%水平。同时消耗比对手多60%以上的硅板面积，且能效比差距严重
+      - generic [ref=e68]: "[16]"
+      - text: 。
+    - heading "8.3 双轨并行：中国科技产业的生存法则" [level=2] [ref=e69]
+    - paragraph [ref=e70]: 全中国境内诸多头部互联网大厂和顶尖科研机构，已坚决执行一套极端双轨并行逻辑：
+    - generic [ref=e72]: 中国AI算力双轨并行生存法则
+    - list [ref=e74]:
+      - listitem [ref=e75]:
+        - strong [ref=e76]: 训练轨道
+        - text: ：千方百计抢购稀缺海外满血版NVIDIA计算卡，集中用于下一代前沿多模态大模型的预训练攻坚
+      - listitem [ref=e77]:
+        - strong [ref=e78]: 推理轨道
+        - text: ：模型完成预训练后，将推理负载全量搬迁至国产华为Ascend计算节点体系运行
+    - paragraph [ref=e79]: 这种充满妥协智慧的生存法则深刻宣告：在面对半导体基础工业物理制程精度巨大代差劣势面前，凭借最顶尖的宏观系统级架构重构与极致软件生态补救压榨，是真的能够在物理逆境深渊中极大程度弥补底端物理制程的短板与天坑。
+    - generic [ref=e80]:
+      - link "China Chips" [ref=e81] [cursor=pointer]:
+        - /url: ch8-china-vendors.html
+      - link "Conclusion" [ref=e82] [cursor=pointer]:
+        - /url: ch10-conclusion.html

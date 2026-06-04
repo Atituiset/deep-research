@@ -1,0 +1,276 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "AI Chips 2026" [ref=e3] [cursor=pointer]:
+      - /url: index.html
+    - generic [ref=e4]:
+      - link "首页" [ref=e5] [cursor=pointer]:
+        - /url: index.html
+      - link "行业全景" [ref=e6] [cursor=pointer]:
+        - /url: ch1-landscape.html
+      - link "架构原理" [ref=e7] [cursor=pointer]:
+        - /url: ch2-architecture.html
+      - link "NVIDIA" [ref=e8] [cursor=pointer]:
+        - /url: ch3-nvidia.html
+      - link "定制ASIC" [ref=e9] [cursor=pointer]:
+        - /url: ch4-asic.html
+      - link "端侧NPU" [ref=e10] [cursor=pointer]:
+        - /url: ch5-edge-npu.html
+      - link "数据格式" [ref=e11] [cursor=pointer]:
+        - /url: ch6-data-format.html
+      - link "光刻与封装" [ref=e12] [cursor=pointer]:
+        - /url: ch7-lithography.html
+      - link "国产芯片" [ref=e13] [cursor=pointer]:
+        - /url: ch8-china-vendors.html
+      - link "地缘政治" [ref=e14] [cursor=pointer]:
+        - /url: ch9-geopolitics.html
+      - link "结论" [ref=e15] [cursor=pointer]:
+        - /url: ch10-conclusion.html
+      - link "AMD" [ref=e16] [cursor=pointer]:
+        - /url: ch11-amd-instinct.html
+      - link "Intel+新兴" [ref=e17] [cursor=pointer]:
+        - /url: ch12-intel-emerging.html
+      - link "软件生态" [ref=e18] [cursor=pointer]:
+        - /url: ch13-software-ecosystem.html
+      - link "分布式训练" [ref=e19] [cursor=pointer]:
+        - /url: ch14-distributed-training.html
+    - generic [ref=e20]:
+      - button "中" [ref=e21] [cursor=pointer]
+      - button "EN" [ref=e22] [cursor=pointer]
+      - button "暗" [ref=e24] [cursor=pointer]
+      - button "亮" [ref=e25] [cursor=pointer]
+  - generic [ref=e26]:
+    - heading "第十四章：分布式训练通信拓扑 深度" [level=1] [ref=e27]:
+      - text: 第十四章：分布式训练通信拓扑
+      - generic [ref=e28]: 深度
+    - paragraph [ref=e29]:
+      - text: 当模型参数突破万亿规模，单卡显存不可能容纳完整模型——分布式训练从"可选优化"变为
+      - strong [ref=e30]: 唯一可行路径
+      - text: 。而分布式训练的性能瓶颈不在计算，而在
+      - strong [ref=e31]: 通信
+      - text: ：梯度同步、参数广播、激活值传输——这些操作决定了万卡集群的实际利用率。本章深入剖析三种核心All-Reduce拓扑及其在AI训练中的工程取舍。
+    - heading "14.1 All-Reduce：分布式训练的通信心脏" [level=2] [ref=e32]
+    - paragraph [ref=e33]:
+      - text: 在数据并行训练中，每个GPU持有完整模型副本但处理不同数据Batch。每次迭代后，所有GPU需要交换梯度并计算全局平均——这正是
+      - strong [ref=e34]: All-Reduce
+      - text: 操作。一个N-GPU集群需完成一次N对N的数据规约，通信复杂度直接决定强扩展性（Strong Scaling）上限。
+    - generic [ref=e36]: All-Reduce算法通信复杂度对比
+    - generic [ref=e38]:
+      - heading "Ring All-Reduce 业界主流" [level=3] [ref=e39]:
+        - text: Ring All-Reduce
+        - generic [ref=e40]: 业界主流
+      - paragraph [ref=e41]: GPU按逻辑排列成环，每个GPU向右侧邻居发送数据、从左侧邻居接收数据。梯度张量被切分为N个chunk，经过N-1次Send/Recv（每次传递一个chunk）完成规约。算法由百度SVAIL实验室提出（2017），后被NVIDIA NCCL采纳为默认算法。
+      - list [ref=e42]:
+        - listitem [ref=e43]:
+          - strong [ref=e44]: 通信量
+          - text: ：每GPU发送/接收 2(N-1)/N × 数据量 ≈ 2×数据量
+        - listitem [ref=e45]:
+          - strong [ref=e46]: 带宽效率
+          - text: ：单方向全双工利用，接近100%
+        - listitem [ref=e47]:
+          - strong [ref=e48]: 延迟
+          - text: ：与GPU数量N成正比（N-1步）→ 千卡集群延迟显著
+        - listitem [ref=e49]:
+          - strong [ref=e50]: 适用
+          - text: ：大消息（梯度GB级），中大型集群（<512卡）
+    - generic [ref=e51]:
+      - heading "Tree All-Reduce（含双二叉树）" [level=3] [ref=e52]
+      - paragraph [ref=e53]:
+        - text: GPU按二叉树组织：叶子GPU发送数据给父节点，父节点本地Reduce后向上传递，根节点完成全局Reduce后沿树向下Broadcast。为利用双向带宽，通常使用
+        - strong [ref=e54]: 双二叉树（Double Binary Tree）
+        - text: ——每GPU在两棵独立的树上同时扮演不同角色。
+      - list [ref=e55]:
+        - listitem [ref=e56]:
+          - strong [ref=e57]: 通信量
+          - text: ：每GPU发送/接收 2×数据量（与Ring同）
+        - listitem [ref=e58]:
+          - strong [ref=e59]: 延迟
+          - text: ：log₂(N)步 → 千卡集群仅需~10步（vs Ring的1000步）
+        - listitem [ref=e60]:
+          - strong [ref=e61]: 带宽效率
+          - text: ：树上层节点带宽容易成为瓶颈（子树根拥塞）
+        - listitem [ref=e62]:
+          - strong [ref=e63]: 适用
+          - text: ：小消息（梯度<10MB），超大规模集群（>1000卡）
+    - generic [ref=e64]:
+      - heading "Recursive Halving-Doubling 高维拓扑" [level=3] [ref=e65]:
+        - text: Recursive Halving-Doubling
+        - generic [ref=e66]: 高维拓扑
+      - paragraph [ref=e67]: 将N个GPU两两配对，经过log₂(N)轮通信：前轮递归减半交换数据，后轮倍增广播结果。本质上是一种二分网络拓扑在时间上的展开。
+      - list [ref=e68]:
+        - listitem [ref=e69]:
+          - strong [ref=e70]: 通信量
+          - text: ：每GPU发送/接收 2×数据量
+        - listitem [ref=e71]:
+          - strong [ref=e72]: 延迟
+          - text: ：2×log₂(N)步
+        - listitem [ref=e73]:
+          - strong [ref=e74]: 带宽效率
+          - text: ：每一步带宽利用率逐轮变化 → 小消息开销凸显
+        - listitem [ref=e75]:
+          - strong [ref=e76]: 适用
+          - text: ：GPU数量为2的幂时效率最优（NCCL自动fallback至Ring当N非2的幂）
+    - heading "14.2 NVSwitch与SHARP：NVIDIA的硬件护城河" [level=2] [ref=e77]
+    - generic [ref=e78]:
+      - heading "NVSwitch：将网络搬进计算节点的物理极限" [level=3] [ref=e79]
+      - paragraph [ref=e80]: 传统GPU服务器中，8颗GPU通过PCIe Switch或NVLink Bridge互联——跨节点的梯度同步必须经过CPU/NIC→网络→对端CPU/NIC的长路径。NVSwitch将这一瓶颈彻底打破：
+      - list [ref=e81]:
+        - listitem [ref=e82]:
+          - strong [ref=e83]: NVSwitch 3 (H100)
+          - text: ：每个Switch提供64个NVLink 4端口（每端口50 GB/s），8颗H100经4台NVSwitch实现全互联（All-to-All带宽 3.6 TB/s per GPU）
+        - listitem [ref=e84]:
+          - strong [ref=e85]: NVSwitch 6 (R100)
+          - text: ：目标双向总带宽28.8 TB/s，支持72颗GPU在单个NVLink域内全互联
+      - paragraph [ref=e86]:
+        - strong [ref=e87]: SHARP协议
+        - text: （Scalable Hierarchical Aggregation and Reduction Protocol）：NVSwitch不仅做数据路由，更在
+        - strong [ref=e88]: 网络内部直接执行Reduce操作
+        - text: 。传统All-Reduce需要数据到达GPU内存后再由CUDA Kernel计算，而SHARP在NVSwitch的交换芯片内硬件完成加法——将All-Reduce延迟从100μs级压缩至<10μs。
+      - paragraph [ref=e89]:
+        - text: SHARP + NVSwitch的组合是NVIDIA在大规模训练领域最难以被复制的
+        - strong [ref=e90]: 系统级壁垒
+        - text: ——Intel Gaudi的以太网方案在协议层面无法实现等价的In-Network Computing，Google TPU的ICI（Inter-Chip Interconnect）虽然速度接近NVLink但仅在Google内部可用。
+    - heading "14.3 通信-计算重叠（Overlap）：不做等待的艺术" [level=2] [ref=e91]
+    - generic [ref=e92]:
+      - paragraph [ref=e93]:
+        - text: 即使是最优的All-Reduce算法，如果GPU在梯度同步时空等，仍然造成大量算力浪费。核心优化策略是
+        - strong [ref=e94]: 将通信隐藏在计算之后
+        - text: ：
+      - list [ref=e95]:
+        - listitem [ref=e96]:
+          - strong [ref=e97]: 梯度分桶（Gradient Bucketing）
+          - text: ：PyTorch DDP将梯度按层分组（Bucket），当某一层的反向传播完成后，
+          - strong [ref=e98]: 立即
+          - text: 启动该Bucket的All-Reduce——不等整个反向传播结束
+        - listitem [ref=e99]:
+          - strong [ref=e100]: CUDA Stream并发
+          - text: ：NCCL通信Kernel与CUDA计算Kernel在独立Stream中异步执行——理想情况下，反向计算完成时刻也是梯度同步完成时刻
+        - listitem [ref=e101]:
+          - strong [ref=e102]: Fully Sharded Data Parallel (FSDP)
+          - text: ：更进一步——不仅梯度同步与反向计算重叠，
+          - strong [ref=e103]: 参数All-Gather也与前向计算重叠
+      - table [ref=e104]:
+        - rowgroup [ref=e105]:
+          - row "并行策略 通信操作 通信量/GPU 可重叠部分" [ref=e106]:
+            - columnheader "并行策略" [ref=e107]
+            - columnheader "通信操作" [ref=e108]
+            - columnheader "通信量/GPU" [ref=e109]
+            - columnheader "可重叠部分" [ref=e110]
+        - rowgroup [ref=e111]:
+          - row "Data Parallel (DDP) All-Reduce (梯度) 2×模型大小 梯度同步与反向计算" [ref=e112]:
+            - cell "Data Parallel (DDP)" [ref=e113]
+            - cell "All-Reduce (梯度)" [ref=e114]
+            - cell "2×模型大小" [ref=e115]
+            - cell "梯度同步与反向计算" [ref=e116]
+          - row "FSDP (ZeRO-3) All-Gather (参数) + Reduce-Scatter (梯度) 3×模型大小 参数收集与前向、梯度规约与反向" [ref=e117]:
+            - cell "FSDP (ZeRO-3)" [ref=e118]
+            - cell "All-Gather (参数) + Reduce-Scatter (梯度)" [ref=e119]
+            - cell "3×模型大小" [ref=e120]
+            - cell "参数收集与前向、梯度规约与反向" [ref=e121]
+          - row "Tensor Parallel All-Reduce (激活) 取决于层架构 与后续层计算有依赖，重叠有限" [ref=e122]:
+            - cell "Tensor Parallel" [ref=e123]
+            - cell "All-Reduce (激活)" [ref=e124]
+            - cell "取决于层架构" [ref=e125]
+            - cell "与后续层计算有依赖，重叠有限" [ref=e126]
+          - row "Pipeline Parallel P2P Send/Recv (激活+梯度) 取决于Micro-Batch数 1F1B调度天然重叠通信与计算" [ref=e127]:
+            - cell "Pipeline Parallel" [ref=e128]
+            - cell "P2P Send/Recv (激活+梯度)" [ref=e129]
+            - cell "取决于Micro-Batch数" [ref=e130]
+            - cell "1F1B调度天然重叠通信与计算" [ref=e131]
+      - paragraph [ref=e132]:
+        - strong [ref=e133]: 核心权衡
+        - text: ：FSDP降低每卡显存需求（参数分片）但增加通信量（3× vs DDP的2×）——当通信带宽充足时（如NVSwitch域内），FSDP是理论最优方案；当跨节点通信带宽受限时，DDP+更大Batch Size可能更优。
+    - heading "14.4 万卡集群的真实利用效率" [level=2] [ref=e134]
+    - generic [ref=e135]:
+      - paragraph [ref=e136]:
+        - text: 在大规模集群中，
+        - strong [ref=e137]: 理论峰值TFLOPS与实际有效TFLOPS之间的鸿沟主要由通信开销决定
+        - text: 。以下为基于公开数据的估算（2024-2025）：
+      - table [ref=e138]:
+        - rowgroup [ref=e139]:
+          - row "GPU集群 规模 互联技术 MFU (Model FLOPS Utilization) 主要瓶颈" [ref=e140]:
+            - columnheader "GPU集群" [ref=e141]
+            - columnheader "规模" [ref=e142]
+            - columnheader "互联技术" [ref=e143]
+            - columnheader "MFU (Model FLOPS Utilization)" [ref=e144]
+            - columnheader "主要瓶颈" [ref=e145]
+        - rowgroup [ref=e146]:
+          - row "H100 (单节点8卡) 8 NVSwitch 3 50-55% 计算绑定" [ref=e147]:
+            - cell "H100 (单节点8卡)" [ref=e148]
+            - cell "8" [ref=e149]
+            - cell "NVSwitch 3" [ref=e150]
+            - cell "50-55%" [ref=e151]
+            - cell "计算绑定" [ref=e152]
+          - row "H100 (千卡集群) 4,096 NVSwitch + InfiniBand NDR 38-45% 跨节点All-Reduce延迟" [ref=e153]:
+            - cell "H100 (千卡集群)" [ref=e154]
+            - cell "4,096" [ref=e155]
+            - cell "NVSwitch + InfiniBand NDR" [ref=e156]
+            - cell "38-45%" [ref=e157]
+            - cell "跨节点All-Reduce延迟" [ref=e158]
+          - row "B200 (万卡集群) 16,384 NVSwitch 4 + InfiniBand XDR 35-42% 网络拥塞尾部延迟" [ref=e159]:
+            - cell "B200 (万卡集群)" [ref=e160]
+            - cell "16,384" [ref=e161]
+            - cell "NVSwitch 4 + InfiniBand XDR" [ref=e162]
+            - cell "35-42%" [ref=e163]
+            - cell "网络拥塞尾部延迟" [ref=e164]
+          - row "Google TPU v5p 6,144 ICI (3D Torus) 45-52% ICI拓扑约束（非全互联）" [ref=e165]:
+            - cell "Google TPU v5p" [ref=e166]
+            - cell "6,144" [ref=e167]
+            - cell "ICI (3D Torus)" [ref=e168]
+            - cell "45-52%" [ref=e169]
+            - cell "ICI拓扑约束（非全互联）" [ref=e170]
+          - row "Gaudi 3 (千卡) 1,024 24×200GbE RoCE 28-35% 以太网拥塞控制不足" [ref=e171]:
+            - cell "Gaudi 3 (千卡)" [ref=e172]
+            - cell "1,024" [ref=e173]
+            - cell "24×200GbE RoCE" [ref=e174]
+            - cell "28-35%" [ref=e175]
+            - cell "以太网拥塞控制不足" [ref=e176]
+      - paragraph [ref=e177]:
+        - strong [ref=e178]: 关键趋势
+        - text: ：MFU从单节点8卡的50%+衰减到万卡集群的~40%，
+        - strong [ref=e179]: 每增加一倍的GPU数量，约损失3-5%的MFU
+        - text: 。这意味着16,384卡的B200集群中，约60%的TFLOPS在"等待通信"而非"执行计算"——通信效率是万卡集群经济可行性的决定性变量。
+    - heading "14.5 未来通信架构：UALink与Ultra Ethernet" [level=2] [ref=e180]
+    - generic [ref=e181]:
+      - paragraph [ref=e182]: 面对NVIDIA NVLink+InfiniBand的封闭生态，产业界正在构建两条开放替代路径：
+      - table [ref=e183]:
+        - rowgroup [ref=e184]:
+          - row "维度 NVLink + InfiniBand UALink (AMD联盟) Ultra Ethernet Consortium" [ref=e185]:
+            - columnheader "维度" [ref=e186]
+            - columnheader "NVLink + InfiniBand" [ref=e187]
+            - columnheader "UALink (AMD联盟)" [ref=e188]
+            - columnheader "Ultra Ethernet Consortium" [ref=e189]
+        - rowgroup [ref=e190]:
+          - row "定位 Scale-up (节点内) + Scale-out (跨节点) Scale-up (加速器间互联) Scale-out (跨节点网络)" [ref=e191]:
+            - cell "定位" [ref=e192]
+            - cell "Scale-up (节点内) + Scale-out (跨节点)" [ref=e193]
+            - cell "Scale-up (加速器间互联)" [ref=e194]
+            - cell "Scale-out (跨节点网络)" [ref=e195]
+          - row "开放程度 完全封闭 (NVIDIA独有) 开放标准 (Any Vendor) 开放标准 (以太网生态)" [ref=e196]:
+            - cell "开放程度" [ref=e197]
+            - cell "完全封闭 (NVIDIA独有)" [ref=e198]
+            - cell "开放标准 (Any Vendor)" [ref=e199]
+            - cell "开放标准 (以太网生态)" [ref=e200]
+          - row "目标延迟 <1μs (NVLink) <2μs (目标) <5μs (RoCEv2基础上优化)" [ref=e201]:
+            - cell "目标延迟" [ref=e202]
+            - cell "<1μs (NVLink)" [ref=e203]
+            - cell "<2μs (目标)" [ref=e204]
+            - cell "<5μs (RoCEv2基础上优化)" [ref=e205]
+          - row "代表厂商 NVIDIA AMD/Intel/Broadcom/Google/Microsoft/Meta Arista/Broadcom/Cisco/Intel/Microsoft" [ref=e206]:
+            - cell "代表厂商" [ref=e207]
+            - cell "NVIDIA" [ref=e208]
+            - cell "AMD/Intel/Broadcom/Google/Microsoft/Meta" [ref=e209]
+            - cell "Arista/Broadcom/Cisco/Intel/Microsoft" [ref=e210]
+          - row "商用时间 已在H100/B200商用 2026年计划 2025年首批产品" [ref=e211]:
+            - cell "商用时间" [ref=e212]
+            - cell "已在H100/B200商用" [ref=e213]
+            - cell "2026年计划" [ref=e214]
+            - cell "2025年首批产品" [ref=e215]
+      - paragraph [ref=e216]:
+        - text: 这两条路线如果成功，将从根本上瓦解NVIDIA在集群级AI训练中的
+        - strong [ref=e217]: 全栈锁定
+        - text: ——Scale-up用UALink替代NVLink，Scale-out用Ultra Ethernet替代InfiniBand，GPU本体则可以是AMD、Intel或任何其他厂商的产品。但历史经验（如InfiniBand在过去20年中始终未能被以太网完全替代）表明，在AI训练这种对尾部延迟极度敏感的场景中，封闭优化的系统往往比开放标准有显著的性能优势。
+    - generic [ref=e218]:
+      - link "← 上一章：软件生态" [ref=e219] [cursor=pointer]:
+        - /url: ch13-software-ecosystem.html
+      - link "返回首页 →" [ref=e220] [cursor=pointer]:
+        - /url: index.html

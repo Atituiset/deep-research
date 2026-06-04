@@ -1,0 +1,165 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - link "AI Chips 2026" [ref=e3] [cursor=pointer]:
+      - /url: index.html
+    - generic [ref=e4]:
+      - link "Home" [ref=e5] [cursor=pointer]:
+        - /url: index.html
+      - link "Landscape" [ref=e6] [cursor=pointer]:
+        - /url: ch1-landscape.html
+      - link "Architecture" [ref=e7] [cursor=pointer]:
+        - /url: ch2-architecture.html
+      - link "NVIDIA" [ref=e8] [cursor=pointer]:
+        - /url: ch3-nvidia.html
+      - link "Custom ASIC" [ref=e9] [cursor=pointer]:
+        - /url: ch4-asic.html
+      - link "Edge NPU" [ref=e10] [cursor=pointer]:
+        - /url: ch5-edge-npu.html
+      - link "Data Format" [ref=e11] [cursor=pointer]:
+        - /url: ch6-data-format.html
+      - link "Lithography" [ref=e12] [cursor=pointer]:
+        - /url: ch7-lithography.html
+      - link "China Chips" [ref=e13] [cursor=pointer]:
+        - /url: ch8-china-vendors.html
+      - link "Geopolitics" [ref=e14] [cursor=pointer]:
+        - /url: ch9-geopolitics.html
+      - link "Conclusion" [ref=e15] [cursor=pointer]:
+        - /url: ch10-conclusion.html
+    - generic [ref=e16]:
+      - button "中" [ref=e17] [cursor=pointer]
+      - button "EN" [ref=e18] [cursor=pointer]
+      - button "暗" [ref=e20] [cursor=pointer]
+      - button "亮" [active] [ref=e21] [cursor=pointer]
+  - generic [ref=e22]:
+    - 'heading "Chapter 8: China Domestic AI Chip Ecosystem" [level=1] [ref=e23]'
+    - paragraph [ref=e24]: Under escalating US AI chip export controls, China's AI chip industry has been forced into an unprecedented autonomous breakthrough battle. From Baidu Kunlunxin to Huawei Ascend, from Cambricon to Biren Technology, a full-stack domestic substitution path from architecture to software ecosystem is being paved with difficulty and determination. This chapter deeply analyzes the nine most representative vendors and their core products.
+    - 'heading "8.1 Industry Panorama: Nine Domestic AI Chip Vendors" [level=2] [ref=e25]'
+    - generic [ref=e27]: China Domestic AI Chip Vendor Panorama
+    - paragraph [ref=e29]:
+      - text: "Domestic AI chip vendors can be divided into three camps by technical approach:"
+      - generic [ref=e30]: (Kunlunxin XPU, Huawei Da Vinci, Cambricon MLU),
+      - generic [ref=e31]: (Biren, Moore Threads, Iluvatar, Muxi) and
+      - generic [ref=e32]: "(Hygon DCU based on AMD license, Enflame focused on inference). Each path has tradeoffs: proprietary architectures control the stack but lack ecosystem, GPU compatibles leverage CUDA but face export controls, special routes scale fast but hit ceilings."
+    - generic [ref=e34]: Domestic AI Chip Key Parameter Comparison Matrix
+    - heading "8.2 Kunlunxin — Baidu XPU Architecture Industrial Deep-Dive" [level=2] [ref=e36]
+    - generic [ref=e37]:
+      - heading "Origins & Evolution" [level=3] [ref=e38]
+      - paragraph [ref=e39]:
+        - text: Kunlunxin originated from Baidu's Intelligent Chip & Architecture Division, starting FPGA AI accelerator R&D in 2011. After 14+ years of iteration, it completed independent financing in April 2021. The company holds 400+ invention patent applications (nearly 100 granted), published at ASPLOS 2014, and presented at Hot Chips 4 times
+        - generic [ref=e40]: "[Kunlunxin]"
+        - text: 。
+      - generic [ref=e42]: Kunlunxin Three-Generation Product Timeline
+      - 'heading "Core Architecture: XPU-R" [level=3] [ref=e44]'
+      - paragraph [ref=e45]:
+        - text: "Kunlunxin 2nd-gen AI chip is based on the proprietary XPU-R architecture at 7nm. Its core innovation is the fusion of general-purpose and AI-specific instruction sets — the same chip handles both general computation (data preprocessing, logic control) and high-intensity tensor operations, achieving \"training + inference + virtualization\" in one. This differentiates from NVIDIA SIMT: XPU-R lacks CUDA's massive software ecosystem but offers higher area efficiency for specific AI workloads"
+        - generic [ref=e46]: "[Kunlunxin]"
+        - text: 。
+      - heading "Product Matrix" [level=3] [ref=e47]
+      - table [ref=e48]:
+        - rowgroup [ref=e49]:
+          - row "产品 架构 INT8算力 FP16算力 内存 带宽 功耗 定位" [ref=e50]:
+            - columnheader "产品" [ref=e51]
+            - columnheader "架构" [ref=e52]
+            - columnheader "INT8算力" [ref=e53]
+            - columnheader "FP16算力" [ref=e54]
+            - columnheader "内存" [ref=e55]
+            - columnheader "带宽" [ref=e56]
+            - columnheader "功耗" [ref=e57]
+            - columnheader "定位" [ref=e58]
+        - rowgroup [ref=e59]:
+          - row "昆仑芯2代AI芯片 XPU-R 256 TOPS 128 TFLOPS 16/32GB GDDR6 512 GB/s 150-160W 通用训推一体" [ref=e60]:
+            - cell "昆仑芯2代AI芯片" [ref=e61]
+            - cell "XPU-R" [ref=e62]
+            - cell "256 TOPS" [ref=e63]
+            - cell "128 TFLOPS" [ref=e64]
+            - cell "16/32GB GDDR6" [ref=e65]
+            - cell "512 GB/s" [ref=e66]
+            - cell "150-160W" [ref=e67]
+            - cell "通用训推一体" [ref=e68]
+          - row "R200 加速卡 XPU-R 256 TOPS 128 TFLOPS 16/32GB GDDR6 512 GB/s 150-160W 高性能推理" [ref=e69]:
+            - cell "R200 加速卡" [ref=e70]
+            - cell "XPU-R" [ref=e71]
+            - cell "256 TOPS" [ref=e72]
+            - cell "128 TFLOPS" [ref=e73]
+            - cell "16/32GB GDDR6" [ref=e74]
+            - cell "512 GB/s" [ref=e75]
+            - cell "150-160W" [ref=e76]
+            - cell "高性能推理" [ref=e77]
+          - row "RG800 加速卡 XPU-R 256 TOPS 128 TFLOPS 32GB GDDR6 512 GB/s 130W 单槽训推一体" [ref=e78]:
+            - cell "RG800 加速卡" [ref=e79]
+            - cell "XPU-R" [ref=e80]
+            - cell "256 TOPS" [ref=e81]
+            - cell "128 TFLOPS" [ref=e82]
+            - cell "32GB GDDR6" [ref=e83]
+            - cell "512 GB/s" [ref=e84]
+            - cell "130W" [ref=e85]
+            - cell "单槽训推一体" [ref=e86]
+          - row "R480-X8 加速器组 XPU-R ×8 2,048 TOPS 1,024 TFLOPS 32GB×8 GDDR6 512GB/s×8 — OAM集群 (200GB/s片间互联)" [ref=e87]:
+            - cell "R480-X8 加速器组" [ref=e88]
+            - cell "XPU-R ×8" [ref=e89]
+            - cell "2,048 TOPS" [ref=e90]
+            - cell "1,024 TFLOPS" [ref=e91]
+            - cell "32GB×8 GDDR6" [ref=e92]
+            - cell "512GB/s×8" [ref=e93]
+            - cell "—" [ref=e94]
+            - cell "OAM集群 (200GB/s片间互联)" [ref=e95]
+          - row "K100 加速卡 XPU-K (1代) — — — — — 1代推理卡" [ref=e96]:
+            - cell "K100 加速卡" [ref=e97]
+            - cell "XPU-K (1代)" [ref=e98]
+            - cell "—" [ref=e99]
+            - cell "—" [ref=e100]
+            - cell "—" [ref=e101]
+            - cell "—" [ref=e102]
+            - cell "—" [ref=e103]
+            - cell "1代推理卡" [ref=e104]
+          - row "K200 加速卡 XPU-K (1代) — — — — — 1代训推卡" [ref=e105]:
+            - cell "K200 加速卡" [ref=e106]
+            - cell "XPU-K (1代)" [ref=e107]
+            - cell "—" [ref=e108]
+            - cell "—" [ref=e109]
+            - cell "—" [ref=e110]
+            - cell "—" [ref=e111]
+            - cell "—" [ref=e112]
+            - cell "1代训推卡" [ref=e113]
+      - 'heading "Kunlunxin 3rd Gen: Evolution for the LLM Era" [level=3] [ref=e114]'
+      - paragraph [ref=e115]: In 2024, Kunlunxin 3rd Gen achieved mass production to meet higher LLM-era demands. In 2025, 32/64-card super-node products landed, with 256/512-card super-node technology announced, marking a strategic leap from single-card vendor to large-scale cluster solution provider. The R480-X8 accelerator group strictly follows OCP-OAI standards, with UBB baseboard carrying 8 OAM modules and 200GB/s inter-chip bandwidth for large-scale parallel clusters. This standardized design enables direct integration into existing intelligent computing center infrastructure, lowering customer switching costs.
+      - heading "Deployment Scale & Customer Ecosystem" [level=3] [ref=e116]
+      - paragraph [ref=e117]: Kunlunxin has deeply engaged in national-level computing projects including China Telecom's intelligent computing test and optimization center, China Mobile's supply chain ecosystem conference, and co-published the "Beijing Solution" for super-node AI applications. Baidu uses it at scale internally (search, ERNIE Bot inference), while external customers span internet, smart finance, smart parks, and smart transportation.
+    - heading "8.3 Huawei Ascend — Domestic Compute Flagship Under Sanctions" [level=2] [ref=e118]
+    - paragraph [ref=e120]: Huawei Ascend is China's most powerful and widely deployed domestic AI chip product line. Ascend 910C uses dual-die puzzle packaging (detailed in Chapter 9 geopolitics), manufactured by SMIC N+2 (~7nm equivalent), with FP16 peak of 670-800 TFLOPS — approximately 80% of NVIDIA H100. Planned annual delivery of 600,000 units (2025-2026), it forms the core foundation of China's AI compute autonomy strategy. The Ascend ecosystem (CANN software stack + MindSpore framework) is the most mature software among domestic chips, but still lags NVIDIA by orders of magnitude in CUDA compatibility and developer community scale.
+    - heading "8.4 Cambricon — From Academic Startup to STAR Board IPO" [level=2] [ref=e121]
+    - paragraph [ref=e123]: "Cambricon was founded by the Chen Tianshi team from CAS Institute of Computing Technology. It launched the world's first commercial edge AI processor Cambricon 1A in 2016 (deployed in Huawei Kirin 970), but was forced to pivot to cloud after Huawei developed its own Da Vinci architecture. Listed on the STAR board in 2020, its current main product is the MLU370 series. Cambricon's challenge: after transitioning from edge NPU to cloud accelerator, it faces dual pressure from Huawei Ascend and Baidu Kunlunxin, with shrinking market space. Its unique edge AI processor DNA still has value on the edge, but the cloud training market has been dominated by Ascend."
+    - heading "8.5 Iluvatar CoreX — GPU Compatibility Pioneer" [level=2] [ref=e124]
+    - paragraph [ref=e126]: Iluvatar chose a "GPU-architecture-compatible + domestic manufacturing" path, attempting to maintain CUDA ecosystem compatibility while achieving chip localization. Its product line spans Tianguai (training), Tongyang (inference), and Zhikai (edge) series. Iluvatar's core advantage is its software stack's CUDA compatibility layer, dramatically reducing migration costs from NVIDIA platforms. But "compatibility" is a double-edged sword — it limits radical architectural innovation and means remaining a perpetual "follower" against NVIDIA's native ecosystem.
+    - heading "8.6 Biren Technology — Chiplet Pioneer's Breakthrough" [level=2] [ref=e127]
+    - paragraph [ref=e129]: "Biren Technology, founded in Shanghai in 2019, is China's first vendor to design high-compute GPU chips using Chiplet architecture. Its core Bili™ product line uses OAM standard module design compatible with existing GPU server infrastructure. Biren's key differentiator: optical interconnect technology — first in China to achieve GPU-OCS (optical circuit switch) communication, with first commercial deployment. Its BIRENSUPA™ software platform builds an original software development system. However, Biren's early flagship BR100 suffered major setbacks due to TSMC foundry restrictions, forcing a pivot to domestic foundry and downgraded specifications."
+    - heading "8.7 Moore Threads — Full-Feature GPU Localization" [level=2] [ref=e130]
+    - paragraph [ref=e132]: "Moore Threads, founded by former NVIDIA VP Zhang Jianzhong, positions as a \"full-feature GPU\" vendor — handling AI compute, graphics rendering, and video processing. MTT S4000 targets data center AI inference, MTT S3000 targets mixed graphics/AI workloads. Moore Threads' advantage: founder's deep GPU industry background. Disadvantage: as a startup fighting on both AI and graphics fronts simultaneously, risks are high from resource dispersion."
+    - heading "8.8 Enflame Technology — Inference Track Specialist" [level=2] [ref=e133]
+    - paragraph [ref=e135]: Enflame chose a differentiated path — focusing on AI inference markets, avoiding direct confrontation with NVIDIA and Huawei Ascend in training. Its CloudBlade series inference cards offer cost advantages in internet content moderation and recommendation system inference. But with LLM training demand exploding, a "pure inference" positioning faces market ceiling skepticism.
+    - heading "8.9 Hygon — x86 License Route Special Case" [level=2] [ref=e136]
+    - paragraph [ref=e138]: "Hygon, through a technology license agreement with AMD, occupies a unique niche in x86 CPUs and DCUs (coprocessors similar to AMD Instinct MI series). Hygon DCU runs the ROCm ecosystem, giving it natural CUDA compatibility advantages over other domestic solutions. But the ceiling is obvious: licensed technology iteration depends entirely on US-China relations, and they cannot access AMD's latest generation technology."
+    - heading "8.10 Muxi — GPU New Force Breakthrough" [level=2] [ref=e139]
+    - paragraph [ref=e141]: Muxi was founded in 2020, focusing on high-performance GPU chip R&D. The core team has deep GPU architecture design backgrounds, with products targeting cloud training and inference markets. As a late entrant, Muxi faces dual challenges of technology catch-up and pre-occupied market share, but its proprietary architecture path, if successful, offers a higher long-term competitiveness ceiling.
+    - heading "8.11 Core Dilemmas & Solutions for Domestic Chips" [level=2] [ref=e142]
+    - generic [ref=e144]: Four Core Dilemmas of Domestic AI Chips
+    - list [ref=e146]:
+      - listitem [ref=e147]:
+        - strong [ref=e148]: Manufacturing Gap
+        - text: ：SMIC N+2 (~7nm) vs TSMC N3 (3nm) — a two-generation gap directly determines transistor density, power, and frequency ceilings
+      - listitem [ref=e149]:
+        - strong [ref=e150]: Packaging Lag
+        - text: ：No access to TSMC CoWoS advanced packaging — 10-20x die-to-die bandwidth gap, HBM integration constrained
+      - listitem [ref=e151]:
+        - strong [ref=e152]: Software Ecosystem Gap
+        - text: ：CUDA has 4M+ developers — domestic solutions (CANN/BIRENSUPA/Tianguai SDK) lag hugely in framework compatibility, operator coverage, and community vitality
+      - listitem [ref=e153]:
+        - strong [ref=e154]: Standard Fragmentation
+        - text: ：Nine vendors, nine architectures, mutually incompatible — compute cannot freely schedule across heterogeneous clusters, running counter to OCP/UEC international standardization trends
+    - generic [ref=e156]: "Domestic Chips vs NVIDIA Flagship: Performance Gap Overview"
+    - paragraph [ref=e158]: "However, under the pressure of export controls, China's AI chip industry is undergoing a qualitative transformation from \"usable\" to \"good\": Huawei Ascend 910C holds the domestic training compute baseline at 600K annual delivery. Kunlunxin has polished a mature train-inference solution through large-scale Baidu deployment. Biren's optical interconnect opens a differentiated breakthrough for large-scale clusters. Despite significant gaps with international leaders, these vendors are narrowing the distance through \"system-level engineering remedies\" within physical constraints."
+    - generic [ref=e159]:
+      - 'link "Prev: Lithography & Packaging" [ref=e160] [cursor=pointer]':
+        - /url: ch7-lithography.html
+      - 'link "Next: Geopolitics" [ref=e161] [cursor=pointer]':
+        - /url: ch9-geopolitics.html

@@ -1,0 +1,303 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "AI Chips 2026" [ref=e3] [cursor=pointer]:
+      - /url: index.html
+    - generic [ref=e4]:
+      - link "首页" [ref=e5] [cursor=pointer]:
+        - /url: index.html
+      - link "行业全景" [ref=e6] [cursor=pointer]:
+        - /url: ch1-landscape.html
+      - link "架构原理" [ref=e7] [cursor=pointer]:
+        - /url: ch2-architecture.html
+      - link "NVIDIA" [ref=e8] [cursor=pointer]:
+        - /url: ch3-nvidia.html
+      - link "定制ASIC" [ref=e9] [cursor=pointer]:
+        - /url: ch4-asic.html
+      - link "端侧NPU" [ref=e10] [cursor=pointer]:
+        - /url: ch5-edge-npu.html
+      - link "数据格式" [ref=e11] [cursor=pointer]:
+        - /url: ch6-data-format.html
+      - link "光刻与封装" [ref=e12] [cursor=pointer]:
+        - /url: ch7-lithography.html
+      - link "国产芯片" [ref=e13] [cursor=pointer]:
+        - /url: ch8-china-vendors.html
+      - link "地缘政治" [ref=e14] [cursor=pointer]:
+        - /url: ch9-geopolitics.html
+      - link "结论" [ref=e15] [cursor=pointer]:
+        - /url: ch10-conclusion.html
+  - generic [ref=e16]:
+    - heading "第八章：中国国产AI芯片生态全景" [level=1] [ref=e17]
+    - paragraph [ref=e18]: 在美国持续升级的AI芯片出口管制下，中国AI芯片产业被迫进入了一场史无前例的自主化突围战。从百度昆仑芯到华为昇腾，从寒武纪到壁仞科技，一条从底层架构到软件生态的全栈国产替代路径正在艰难而坚定地铺开。本章将深度剖析这一生态中最具代表性的九大厂商及其核心产品。
+    - heading "8.1 产业全景：九大国产AI芯片厂商矩阵" [level=2] [ref=e19]
+    - generic [ref=e21]: 中国国产AI芯片厂商全景定位图
+    - paragraph [ref=e23]:
+      - text: 当前国产AI芯片厂商可按技术路线分为三大阵营：
+      - generic [ref=e24]: 自研架构派
+      - text: （昆仑芯XPU、华为Da Vinci、寒武纪MLU）、
+      - generic [ref=e25]: GPU兼容派
+      - text: （壁仞、摩尔线程、天数智芯、沐曦）和
+      - generic [ref=e26]: 特殊路线派
+      - text: （海光DCU基于AMD授权、燧原专注推理）。每条路线各有取舍：自研架构掌控底层但生态弱，GPU兼容借用CUDA生态但受制于出口管制，特殊路线起量快但天花板低。
+    - generic [ref=e28]: 国产AI芯片关键参数对比矩阵
+    - heading "8.2 昆仑芯科技（Kunlunxin）—— 百度系XPU架构的产业深耕" [level=2] [ref=e30]
+    - generic [ref=e31]:
+      - heading "起源与演进" [level=3] [ref=e32]
+      - paragraph [ref=e33]:
+        - text: 昆仑芯科技前身为百度智能芯片及架构部，自2011年启动FPGA AI加速器研发，经过超过14年的技术迭代，于2021年4月完成独立融资。公司拥有400余项发明专利申请（授权近百项），在ASPLOS 2014发表国际计算机系统顶级会议论文，4次登上Hot Chips舞台
+        - generic [ref=e34]: "[昆仑芯官网]"
+        - text: 。
+      - generic [ref=e36]: 昆仑芯三代产品演进时间线
+      - heading "核心架构：XPU-R" [level=3] [ref=e38]
+      - paragraph [ref=e39]:
+        - text: 昆仑芯2代AI芯片基于自研XPU-R架构，采用7nm制程，核心创新在于
+        - strong [ref=e40]: 通用指令集与专用AI指令集融合
+        - text: ——同一芯片既可执行通用计算任务（如数据预处理、逻辑控制），也可执行高强度张量运算，实现"训练+推理+虚拟化"三合一。这与NVIDIA的SIMT架构形成差异化：XPU-R没有CUDA那样庞大的通用软件生态，但在特定AI工作负载下具有更高的面积效率
+        - generic [ref=e41]: "[昆仑芯官网]"
+        - text: 。
+      - heading "产品矩阵" [level=3] [ref=e42]
+      - table [ref=e43]:
+        - rowgroup [ref=e44]:
+          - row "产品 架构 INT8算力 FP16算力 内存 带宽 功耗 定位" [ref=e45]:
+            - columnheader "产品" [ref=e46]
+            - columnheader "架构" [ref=e47]
+            - columnheader "INT8算力" [ref=e48]
+            - columnheader "FP16算力" [ref=e49]
+            - columnheader "内存" [ref=e50]
+            - columnheader "带宽" [ref=e51]
+            - columnheader "功耗" [ref=e52]
+            - columnheader "定位" [ref=e53]
+        - rowgroup [ref=e54]:
+          - row "昆仑芯2代AI芯片 XPU-R 256 TOPS 128 TFLOPS 16/32GB GDDR6 512 GB/s 150-160W 通用训推一体" [ref=e55]:
+            - cell "昆仑芯2代AI芯片" [ref=e56]
+            - cell "XPU-R" [ref=e57]
+            - cell "256 TOPS" [ref=e58]
+            - cell "128 TFLOPS" [ref=e59]
+            - cell "16/32GB GDDR6" [ref=e60]
+            - cell "512 GB/s" [ref=e61]
+            - cell "150-160W" [ref=e62]
+            - cell "通用训推一体" [ref=e63]
+          - row "R200 加速卡 XPU-R 256 TOPS 128 TFLOPS 16/32GB GDDR6 512 GB/s 150-160W 高性能推理" [ref=e64]:
+            - cell "R200 加速卡" [ref=e65]
+            - cell "XPU-R" [ref=e66]
+            - cell "256 TOPS" [ref=e67]
+            - cell "128 TFLOPS" [ref=e68]
+            - cell "16/32GB GDDR6" [ref=e69]
+            - cell "512 GB/s" [ref=e70]
+            - cell "150-160W" [ref=e71]
+            - cell "高性能推理" [ref=e72]
+          - row "RG800 加速卡 XPU-R 256 TOPS 128 TFLOPS 32GB GDDR6 512 GB/s 130W 单槽训推一体" [ref=e73]:
+            - cell "RG800 加速卡" [ref=e74]
+            - cell "XPU-R" [ref=e75]
+            - cell "256 TOPS" [ref=e76]
+            - cell "128 TFLOPS" [ref=e77]
+            - cell "32GB GDDR6" [ref=e78]
+            - cell "512 GB/s" [ref=e79]
+            - cell "130W" [ref=e80]
+            - cell "单槽训推一体" [ref=e81]
+          - row "R480-X8 加速器组 XPU-R ×8 2,048 TOPS 1,024 TFLOPS 32GB×8 GDDR6 512GB/s×8 — OAM集群 (200GB/s片间互联)" [ref=e82]:
+            - cell "R480-X8 加速器组" [ref=e83]
+            - cell "XPU-R ×8" [ref=e84]
+            - cell "2,048 TOPS" [ref=e85]
+            - cell "1,024 TFLOPS" [ref=e86]
+            - cell "32GB×8 GDDR6" [ref=e87]
+            - cell "512GB/s×8" [ref=e88]
+            - cell "—" [ref=e89]
+            - cell "OAM集群 (200GB/s片间互联)" [ref=e90]
+          - row "K100 加速卡 XPU-K (1代) — — — — — 1代推理卡" [ref=e91]:
+            - cell "K100 加速卡" [ref=e92]
+            - cell "XPU-K (1代)" [ref=e93]
+            - cell "—" [ref=e94]
+            - cell "—" [ref=e95]
+            - cell "—" [ref=e96]
+            - cell "—" [ref=e97]
+            - cell "—" [ref=e98]
+            - cell "1代推理卡" [ref=e99]
+          - row "K200 加速卡 XPU-K (1代) — — — — — 1代训推卡" [ref=e100]:
+            - cell "K200 加速卡" [ref=e101]
+            - cell "XPU-K (1代)" [ref=e102]
+            - cell "—" [ref=e103]
+            - cell "—" [ref=e104]
+            - cell "—" [ref=e105]
+            - cell "—" [ref=e106]
+            - cell "—" [ref=e107]
+            - cell "1代训推卡" [ref=e108]
+      - heading "昆仑芯3代：大模型时代的进化" [level=3] [ref=e109]
+      - paragraph [ref=e110]:
+        - text: 2024年，昆仑芯3代实现量产，满足大模型时代AI系统更高要求。2025年落地32/64卡超节点产品，并发布256/512卡超节点技术，标志着昆仑芯从单卡芯片厂商向大规模集群方案提供商的战略跃迁
+        - generic [ref=e111]: "[昆仑芯官网]"
+        - text: 。
+      - paragraph [ref=e112]: R480-X8加速器组严格遵循OCP-OAI设计标准，UBB基板搭载8个OAM模组，片间互联带宽200GB/s，可构建大规模并行计算集群。这种标准化设计使昆仑芯产品能够直接融入现有智算中心基础设施，降低客户切换成本。
+      - heading "部署规模与客户生态" [level=3] [ref=e113]
+      - paragraph [ref=e114]: 昆仑芯已深度参与中国电信智算测试与适配优化中心、中国移动供应链生态合作大会等国家级算力项目，参与发布超节点智算应用"北京方案"。百度内部大规模自用（搜索、文心大模型推理），外部客户覆盖互联网、智慧金融、智慧园区、智慧交通等场景。
+    - heading "8.3 华为昇腾（Huawei Ascend）—— 制裁之下的国产算力旗舰" [level=2] [ref=e115]
+    - generic [ref=e116]:
+      - paragraph [ref=e117]: 华为昇腾系列是当前中国国产AI芯片中算力最强、部署规模最大的产品线。Ascend 910C采用双硅模片拼图封装架构（详见第九章地缘政治专题），由SMIC N+2（约7nm等效）制造，FP16峰值算力670-800 TFLOPS，约为NVIDIA H100的80%水平。2025-2026年规划年交付60万颗，是中国AI算力自主化战略的核心底座。
+      - paragraph [ref=e118]: 昇腾生态（CANN软件栈+MindSpore框架）是国产AI芯片中软件生态最成熟的方案，但在CUDA兼容性和开发者社区规模上仍与NVIDIA存在数量级差距。
+    - heading "8.4 寒武纪（Cambricon）—— 从学术创业到科创板上市" [level=2] [ref=e119]
+    - generic [ref=e120]:
+      - paragraph [ref=e121]:
+        - text: 寒武纪由中科院计算所陈天石团队创立，2016年推出全球首款商用终端AI处理器寒武纪1A（搭载于华为麒麟970），后因华为自研Da Vinci架构而被迫转型云端。2020年科创板上市，当前主力产品为MLU370系列
+        - generic [ref=e122]: "[寒武纪官网]"
+        - text: 。
+      - table [ref=e123]:
+        - rowgroup [ref=e124]:
+          - row "产品 INT8算力 FP16算力 内存 功耗 定位" [ref=e125]:
+            - columnheader "产品" [ref=e126]
+            - columnheader "INT8算力" [ref=e127]
+            - columnheader "FP16算力" [ref=e128]
+            - columnheader "内存" [ref=e129]
+            - columnheader "功耗" [ref=e130]
+            - columnheader "定位" [ref=e131]
+        - rowgroup [ref=e132]:
+          - row "MLU370-S4 128 TOPS — — — 推理（半高半长）" [ref=e133]:
+            - cell "MLU370-S4" [ref=e134]
+            - cell "128 TOPS" [ref=e135]
+            - cell "—" [ref=e136]
+            - cell "—" [ref=e137]
+            - cell "—" [ref=e138]
+            - cell "推理（半高半长）" [ref=e139]
+          - row "MLU370-S8 256 TOPS — — — 推理（全高全长）" [ref=e140]:
+            - cell "MLU370-S8" [ref=e141]
+            - cell "256 TOPS" [ref=e142]
+            - cell "—" [ref=e143]
+            - cell "—" [ref=e144]
+            - cell "—" [ref=e145]
+            - cell "推理（全高全长）" [ref=e146]
+          - row "MLU370-X4 — — — — 训推一体" [ref=e147]:
+            - cell "MLU370-X4" [ref=e148]
+            - cell "—" [ref=e149]
+            - cell "—" [ref=e150]
+            - cell "—" [ref=e151]
+            - cell "—" [ref=e152]
+            - cell "训推一体" [ref=e153]
+          - row "MLU370-X8 — — — — 训推一体（高配）" [ref=e154]:
+            - cell "MLU370-X8" [ref=e155]
+            - cell "—" [ref=e156]
+            - cell "—" [ref=e157]
+            - cell "—" [ref=e158]
+            - cell "—" [ref=e159]
+            - cell "训推一体（高配）" [ref=e160]
+          - row "MLU220-SOM — — — — 边缘端模组" [ref=e161]:
+            - cell "MLU220-SOM" [ref=e162]
+            - cell "—" [ref=e163]
+            - cell "—" [ref=e164]
+            - cell "—" [ref=e165]
+            - cell "—" [ref=e166]
+            - cell "边缘端模组" [ref=e167]
+      - paragraph [ref=e168]: 寒武纪的挑战在于：从终端NPU转型云端加速器后，面临华为昇腾和百度昆仑芯的双重挤压，市场空间持续收窄。其独有的终端AI处理器基因在边缘侧仍有价值，但云端训练市场已被昇腾主导。
+    - heading "8.5 天数智芯（Iluvatar CoreX）—— GPU兼容路线的先驱" [level=2] [ref=e169]
+    - generic [ref=e170]:
+      - paragraph [ref=e171]:
+        - text: 天数智芯选择了一条"GPU架构兼容+国产制造"的路线，试图在保持CUDA生态兼容性的同时实现芯片国产化。其产品线分为两大系列
+        - generic [ref=e172]: "[天数智芯官网]"
+        - text: ：
+      - table [ref=e173]:
+        - rowgroup [ref=e174]:
+          - row "产品 定位 架构 关键特性" [ref=e175]:
+            - columnheader "产品" [ref=e176]
+            - columnheader "定位" [ref=e177]
+            - columnheader "架构" [ref=e178]
+            - columnheader "关键特性" [ref=e179]
+        - rowgroup [ref=e180]:
+          - row "天垓100 云端训练 自研GPU兼容 7nm制程，支持主流AI框架" [ref=e181]:
+            - cell "天垓100" [ref=e182]
+            - cell "云端训练" [ref=e183]
+            - cell "自研GPU兼容" [ref=e184]
+            - cell "7nm制程，支持主流AI框架" [ref=e185]
+          - row "天垓150 云端训练（升级版） 自研GPU兼容 算力与能效双提升" [ref=e186]:
+            - cell "天垓150" [ref=e187]
+            - cell "云端训练（升级版）" [ref=e188]
+            - cell "自研GPU兼容" [ref=e189]
+            - cell "算力与能效双提升" [ref=e190]
+          - row "彤央TY1000-1200 云端推理 推理专用架构 高密度推理部署" [ref=e191]:
+            - cell "彤央TY1000-1200" [ref=e192]
+            - cell "云端推理" [ref=e193]
+            - cell "推理专用架构" [ref=e194]
+            - cell "高密度推理部署" [ref=e195]
+          - row "智铠100 边缘/端侧 轻量级AI 低功耗边缘推理" [ref=e196]:
+            - cell "智铠100" [ref=e197]
+            - cell "边缘/端侧" [ref=e198]
+            - cell "轻量级AI" [ref=e199]
+            - cell "低功耗边缘推理" [ref=e200]
+      - paragraph [ref=e201]: 天数智芯的核心优势在于其软件栈对CUDA的兼容层，可大幅降低从NVIDIA平台迁移的工程成本。但"兼容"本身就是双刃剑——既限制了架构层面的激进创新，也意味着在NVIDIA原生生态面前永远只能是"跟随者"。
+    - heading "8.6 壁仞科技（Biren Technology）—— Chiplet先驱的突围之路" [level=2] [ref=e202]
+    - generic [ref=e203]:
+      - paragraph [ref=e204]:
+        - text: 壁仞科技2019年成立于上海，是国内首个采用Chiplet架构设计大算力GPU芯片的厂商。其核心产品壁砺™系列采用OAM标准模组设计，兼容现有GPU服务器基础设施
+        - generic [ref=e205]: "[壁仞官网]"
+        - text: 。
+      - table [ref=e206]:
+        - rowgroup [ref=e207]:
+          - row "产品 形态 功耗 定位 关键特性" [ref=e208]:
+            - columnheader "产品" [ref=e209]
+            - columnheader "形态" [ref=e210]
+            - columnheader "功耗" [ref=e211]
+            - columnheader "定位" [ref=e212]
+            - columnheader "关键特性" [ref=e213]
+        - rowgroup [ref=e214]:
+          - row "壁砺™ 166M 4U OAM V1.1 风冷 550W 训推一体 高算效·高互联·高通用" [ref=e215]:
+            - cell "壁砺™ 166M" [ref=e216]
+            - cell "4U OAM V1.1 风冷" [ref=e217]
+            - cell "550W" [ref=e218]
+            - cell "训推一体" [ref=e219]
+            - cell "高算效·高互联·高通用" [ref=e220]
+          - row "壁砺™ 166L OAM 液冷 — 训推一体 液冷高密度部署" [ref=e221]:
+            - cell "壁砺™ 166L" [ref=e222]
+            - cell "OAM 液冷" [ref=e223]
+            - cell "—" [ref=e224]
+            - cell "训推一体" [ref=e225]
+            - cell "液冷高密度部署" [ref=e226]
+          - row "壁砺™ 166C PCIe加速卡 — 高性能推理 推理专用优化" [ref=e227]:
+            - cell "壁砺™ 166C" [ref=e228]
+            - cell "PCIe加速卡" [ref=e229]
+            - cell "—" [ref=e230]
+            - cell "高性能推理" [ref=e231]
+            - cell "推理专用优化" [ref=e232]
+          - row "壁砺™ 106M OAM 模组 — 训推一体 中端训推" [ref=e233]:
+            - cell "壁砺™ 106M" [ref=e234]
+            - cell "OAM 模组" [ref=e235]
+            - cell "—" [ref=e236]
+            - cell "训推一体" [ref=e237]
+            - cell "中端训推" [ref=e238]
+          - row "壁砺™ 106B — — — 入门级" [ref=e239]:
+            - cell "壁砺™ 106B" [ref=e240]
+            - cell "—" [ref=e241]
+            - cell "—" [ref=e242]
+            - cell "—" [ref=e243]
+            - cell "入门级" [ref=e244]
+      - paragraph [ref=e245]:
+        - text: 壁仞科技的差异化亮点在于：
+        - strong [ref=e246]: 光互连技术
+        - text: ——国内首次实现GPU与OCS（光交换机）通信连接，并率先完成光互连技术商用落地。这在大规模集群互联场景中可能成为关键优势。其BIRENSUPA™软件平台构建了自主原创的软件开发体系。
+      - paragraph [ref=e247]: 然而，壁仞科技早期旗舰产品BR100曾因台积电代工受限而遭遇重大挫折，被迫转向国内代工和降规格方案，这深刻体现了出口管制对国产GPU厂商的致命打击。
+    - heading "8.7 摩尔线程（Moore Threads）—— 全功能GPU的本土化尝试" [level=2] [ref=e248]
+    - paragraph [ref=e250]: 摩尔线程由前NVIDIA全球副总裁张建中创立，定位为"全功能GPU"厂商——既做AI计算，也做图形渲染和视频处理。其MTT S4000面向数据中心AI推理，MTT S3000面向图形与AI混合负载。摩尔线程的优势在于创始人深厚的GPU产业背景，劣势在于作为创业公司同时铺开AI+图形双线作战，资源分散风险极高。
+    - heading "8.8 燧原科技（Enflame Technology）—— 推理赛道的专注者" [level=2] [ref=e251]
+    - paragraph [ref=e253]: 燧原科技选择了一条差异化路线——专注AI推理市场，避开与NVIDIA和华为昇腾在训练领域的正面硬刚。其CloudBlade系列推理卡在互联网内容审核、推荐系统推理等场景中具有一定的性价比优势。但在大模型训练需求爆发的大背景下，"纯推理"定位的市场天花板受到质疑。
+    - heading "8.9 海光信息（Hygon）—— x86授权路线的特殊存在" [level=2] [ref=e254]
+    - paragraph [ref=e256]: 海光信息依托与AMD的技术授权协议，在x86 CPU（海光CPU）和DCU（协处理器，类似AMD Instinct MI系列）领域拥有独特的生态位。海光DCU可运行ROCm生态，在CUDA兼容性上天然优于其他国产方案。但这一路线的天花板也很明显：授权技术的迭代节奏完全受制于中美关系的风向，且无法获取AMD最新代际技术。
+    - heading "8.10 沐曦科技（Muxi）—— GPU新势力的突围" [level=2] [ref=e257]
+    - paragraph [ref=e259]: 沐曦科技成立于2020年，专注于高性能GPU芯片研发。公司核心团队拥有深厚的GPU架构设计背景，产品瞄准云端训练与推理市场。作为较晚入局的玩家，沐曦需要同时面对技术追赶和市场份额已被先发者占据的双重挑战，但其自研架构路线如果成功，将具有更高的长期竞争力天花板。
+    - heading "8.11 国产芯片生态的核心困境与破局" [level=2] [ref=e260]
+    - generic [ref=e262]: 国产AI芯片四大核心困境
+    - paragraph [ref=e264]: 纵观九大国产AI芯片厂商，其面临的挑战可归纳为四大核心困境：
+    - list [ref=e265]:
+      - listitem [ref=e266]:
+        - strong [ref=e267]: 制造代差困境
+        - text: ：SMIC N+2（7nm等效）vs TSMC N3（3nm）——两代制程差距直接决定了晶体管密度、功耗和频率的天花板
+      - listitem [ref=e268]:
+        - strong [ref=e269]: 封装落后困境
+        - text: ：无法获取TSMC CoWoS先进封装，Die-to-Die带宽差距10-20倍，HBM集成受限
+      - listitem [ref=e270]:
+        - strong [ref=e271]: 软件生态困境
+        - text: ：CUDA拥有超400万开发者，国产方案（CANN/BIRENSUPA/天垓SDK）在框架兼容性、算子覆盖度和社区活跃度上差距巨大
+      - listitem [ref=e272]:
+        - strong [ref=e273]: 标准碎片困境
+        - text: ：九大厂商九套架构，互不兼容——算力无法在异构集群中自由调度，与OCP/UEC国际标准化趋势背道而驰
+    - generic [ref=e275]: 国产AI芯片 vs NVIDIA 旗舰性能代差概览
+    - paragraph [ref=e277]: 然而，在出口管制的倒逼效应下，中国AI芯片产业正在经历一场从"可用"到"好用"的质变：华为昇腾910C以60万颗年交付规模撑起了国产训练算力的底线，昆仑芯凭借百度体系内的大规模实战打磨出了成熟的训推一体方案，壁仞的光互连技术则在大规模集群场景中开辟了差异化突破口。尽管与国际领先水平仍有显著差距，但这些厂商正在用"系统级工程补救"的方式，在物理极限的约束下逐步缩小差距。
+    - generic [ref=e278]:
+      - link "← 上一章：光刻与封装" [ref=e279] [cursor=pointer]:
+        - /url: ch7-lithography.html
+      - link "下一章：地缘政治 →" [ref=e280] [cursor=pointer]:
+        - /url: ch9-geopolitics.html

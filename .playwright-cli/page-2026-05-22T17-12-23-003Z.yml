@@ -1,0 +1,55 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "AI Chips 2026" [ref=e3] [cursor=pointer]:
+      - /url: index.html
+    - generic [ref=e4]:
+      - link "Home" [ref=e5] [cursor=pointer]:
+        - /url: index.html
+      - link "Landscape" [ref=e6] [cursor=pointer]:
+        - /url: ch1-landscape.html
+      - link "Architecture" [ref=e7] [cursor=pointer]:
+        - /url: ch2-architecture.html
+      - link "NVIDIA" [ref=e8] [cursor=pointer]:
+        - /url: ch3-nvidia.html
+      - link "Custom ASIC" [ref=e9] [cursor=pointer]:
+        - /url: ch4-asic.html
+      - link "Edge NPU" [ref=e10] [cursor=pointer]:
+        - /url: ch5-edge-npu.html
+      - link "Data Format" [ref=e11] [cursor=pointer]:
+        - /url: ch6-data-format.html
+      - link "Lithography" [ref=e12] [cursor=pointer]:
+        - /url: ch7-lithography.html
+      - link "China Chips" [ref=e13] [cursor=pointer]:
+        - /url: ch8-china-vendors.html
+      - link "Geopolitics" [ref=e14] [cursor=pointer]:
+        - /url: ch9-geopolitics.html
+      - link "Conclusion" [ref=e15] [cursor=pointer]:
+        - /url: ch10-conclusion.html
+    - generic [ref=e16]:
+      - button "中" [ref=e17] [cursor=pointer]
+      - button "EN" [ref=e18] [cursor=pointer]
+      - button "暗" [ref=e20] [cursor=pointer]
+      - button "亮" [ref=e21] [cursor=pointer]
+  - generic [ref=e22]:
+    - 'heading "Chapter 10: Conclusion — The Ultimate Evolution & Industry Restructuring" [level=1] [ref=e23]'
+    - paragraph [ref=e24]: 深入剖析2026年全球前沿AI芯片技术演进方向，在这场席卷全球的AI大基建浪潮中，我们可以清晰地提炼出以下四点至关重要的宏观趋势结论：
+    - generic [ref=e25]:
+      - heading "趋势一：冯·诺依曼架构在云端数据中心的实质性解体" [level=3] [ref=e26]
+      - paragraph [ref=e27]: 随着"存储墙"瓶颈的凸显，传统CPU与GPU之间通过PCIe总线连接的割裂形态正在消亡。无论是NVIDIA Vera Rubin架构通过NVLink-C2C将定制Vera CPU与Rubin GPU融为一体，还是Google全栈整合自研Axion CPU与TPU网络以消除数据调度延迟，都标志着超大规模数据中心正在演变为一台系统级深度融合的"单体超级芯片"。
+    - generic [ref=e28]:
+      - heading "趋势二：训练与推理硬件的绝对分化" [level=3] [ref=e29]
+      - paragraph [ref=e30]: 大模型生命周期中，预训练追求极高稳定吞吐量，推理（尤其智能体多轮交互）要求极低延迟与庞大KV-Cache驻留能力。这种矛盾促使算力底座硬分化。Google TPU 8t与8i的物理分离，Meta MTIA、微软Maia 200完全专职推理的架构设计，宣告了"一招鲜吃遍天"通用芯片在经济性上面临严峻挑战，高度定制化（ASIC）已成为超大云厂商的必然选择。
+    - generic [ref=e31]:
+      - heading "趋势三：底层数据格式重构成为突破\"存储墙\"的关键魔法" [level=3] [ref=e32]
+      - paragraph [ref=e33]: 在晶体管微缩逼近物理极限的当下，通过OCP微缩放（MX）标准以及NVIDIA专有的NVFP4格式，利用"块共享指数"的数学巧思，AI加速器成功在不损失模型精度的前提下将内存带宽利用率和张量吞吐量提升了数倍。这种软件定义硬件的降维压缩机制，在关键时刻为摩尔定律延续了生命力。
+    - generic [ref=e34]:
+      - heading "趋势四：先进封装与极紫外光刻成为大国博弈的终极物理堡垒" [level=3] [ref=e35]
+      - paragraph [ref=e36]: ASML单台造价达4亿美元的High-NA EUV光刻机（决定1.4nm/8nm分辨率极限），以及TSMC跨越光罩面积极限的CoPoS巨幅面板级封装技术，取代了单纯的芯片设计，成为了决定超级AI算力能否规模化量产的终极"咽喉"。这也进一步固化了以技术制裁、出口管制和国产化艰难突围为特征的复杂地缘政治产业格局。
+    - generic [ref=e38]: 全球AI算力产业全景总结
+    - heading "参考资料索引" [level=2] [ref=e40]
+    - paragraph [ref=e41]: "[1] How NVIDIA GPUs Are Made – THE MAKING | [2] How do Graphics Cards Work? – Branch Education | [3] 京东全工程自动化仓库 – 京东 | [4] How Billions of Screws Are Made – The Factoran | [5] Introducing Amazon EC2 P6e-GB200 UltraServers – AWS | [6] NVIDIA GTC Washington D.C. Keynote with Jensen Huang – NVIDIA | [7] Biggest Problems Humanoid Robots Face in 2026 – CNET | [8] Why Nvidia Tesla Amazon Bet On Humanoid Robots – CNBC | [9] How Cars Are Made In Factories – Engineering World | [10] Tesla Optimus Robot – The Independent | [11] Inside a Google Data Center – Google Workspace | [12] Computational Lithography – ASML | [13] Transformers, the tech behind LLMs – 3Blue1Brown | [14] Deutsche Telekom and NVIDIA Launch Industrial AI Cloud – NVIDIA | [15] Nvidia CEO Unveils New Vera Rubin, Blackwell Ultra AI Chips – WSJ | [16] TSMC Fab Tour – 台積創新館 | [17] Trump lifts China export ban on advanced AI chips – Channel 4 News | [18] SMIC: China's Main Bet Against TSMC and Samsung – WSJ | [19] NVIDIA HGX H100 – NVIDIA | [20] Inside OpenAI's Stargate Megafactory – Bloomberg Originals"
+    - generic [ref=e42]:
+      - link "Geopolitics" [ref=e43] [cursor=pointer]:
+        - /url: ch9-geopolitics.html
+      - link "Home" [ref=e44] [cursor=pointer]:
+        - /url: index.html
